@@ -1,13 +1,14 @@
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Star, Flame, BookOpenText } from 'lucide-react'
+import { Star, Flame, BookOpenText, Layers } from 'lucide-react'
 import Background from './components/Background'
 import Home from './components/Home'
 import Picker from './components/Picker'
 import Practice from './components/Practice'
 import Exam from './components/Exam'
 import Guide from './components/Guide'
-import { loadBank, shuffle } from './lib/data'
+import Flashcards from './components/Flashcards'
+import { loadBank, loadFlashcards, shuffle } from './lib/data'
 import {
   loadState,
   saveState,
@@ -15,12 +16,19 @@ import {
   refreshBadges,
   levelInfo,
   levelTitle,
+  loadFlashProgress,
+  saveFlashProgress,
+  markFlashcard,
+  resetFlashProgress,
+  addXp,
 } from './lib/storage'
 
 const GAP = 'pouco ensinado (gap)'
 
 export default function App() {
   const [bank, setBank] = useState(null)
+  const [flash, setFlash] = useState(null)
+  const [fcProgress, setFcProgress] = useState(() => loadFlashProgress())
   const [error, setError] = useState(null)
   const [game, setGame] = useState(() => loadState())
   const [screen, setScreen] = useState({ name: 'home' })
@@ -28,11 +36,35 @@ export default function App() {
 
   useEffect(() => {
     loadBank().then(setBank).catch((e) => setError(e.message))
+    loadFlashcards().then(setFlash).catch(() => {}) // optional feature; fail quietly
   }, [])
 
   useEffect(() => {
     saveState(game)
   }, [game])
+
+  useEffect(() => {
+    saveFlashProgress(fcProgress)
+  }, [fcProgress])
+
+  // grade a flashcard: track mastery + award a little XP for a confident recall
+  const onMarkFlash = useCallback((id, known) => {
+    setFcProgress((p) => markFlashcard(p, id, known))
+    if (known) {
+      setGame((prev) => {
+        const { state, newBadges } = refreshBadges(addXp(prev, 6))
+        if (newBadges.length) showBadges(newBadges)
+        return state
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const resetFlash = useCallback(() => {
+    if (!confirm('Reset all flashcard progress?')) return
+    resetFlashProgress()
+    setFcProgress({})
+  }, [])
 
   const showBadges = useCallback((badges) => {
     if (!badges.length) return
@@ -101,6 +133,8 @@ export default function App() {
         return setScreen({ name: 'exam', pool: all })
       case 'guide':
         return setScreen({ name: 'guide' })
+      case 'flashcards':
+        return setScreen({ name: 'flashcards' })
       case 'topic':
         return setScreen({ name: 'pick', kind: 'topic', items: bank.indexes.topics })
       case 'domain':
@@ -139,6 +173,8 @@ export default function App() {
         clickable={screen.name !== 'home'}
         onGuide={() => start('guide')}
         guideActive={screen.name === 'guide'}
+        onFlashcards={() => start('flashcards')}
+        flashActive={screen.name === 'flashcards'}
       />
 
       <AnimatePresence mode="wait">
@@ -164,6 +200,20 @@ export default function App() {
           )}
           {screen.name === 'exam' && <Exam pool={screen.pool} onAnswerBatch={onAnswerBatch} onExit={home} />}
           {screen.name === 'guide' && <Guide onExit={home} />}
+          {screen.name === 'flashcards' &&
+            (flash ? (
+              <Flashcards
+                data={flash}
+                progress={fcProgress}
+                onMark={onMarkFlash}
+                onReset={resetFlash}
+                onExit={home}
+              />
+            ) : (
+              <div className="grid place-items-center pt-24 font-display text-white/70">
+                <span className="animate-pulse">Loading flashcards…</span>
+              </div>
+            ))}
         </motion.main>
       </AnimatePresence>
 
@@ -194,7 +244,7 @@ export default function App() {
   )
 }
 
-function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive }) {
+function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onFlashcards, flashActive }) {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-base/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
@@ -215,6 +265,15 @@ function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive }) {
           }`}
         >
           <BookOpenText size={16} /> Guide
+        </button>
+
+        <button
+          onClick={onFlashcards}
+          className={`hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-display text-sm font-semibold transition-colors sm:flex ${
+            flashActive ? 'text-cyan' : 'text-white/55 hover:text-white'
+          }`}
+        >
+          <Layers size={16} /> Flashcards
         </button>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">

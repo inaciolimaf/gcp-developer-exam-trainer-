@@ -1,0 +1,62 @@
+Front,Back,Category
+Vertex AI,Unified managed ML platform,#AI/ML
+Cloud Deploy,Managed continuous delivery pipelines,#developer-tools
+API Gateway,Managed gateway for serverless APIs,#management-tools
+Workflows,Serverless orchestration of services/APIs,#developer-tools
+Eventarc,Route events to your services,#developer-tools
+AlloyDB,PostgreSQL-compatible high-performance database,#database
+Identity Platform,Customer identity management (CIAM),#identity-and-security
+Cloud Run Jobs,Run containers to completion (batch),#compute
+Skaffold,Local Kubernetes build/deploy loop,#developer-tools
+Cloud Native Buildpacks,Build images without a Dockerfile,#developer-tools
+Spot VMs,"Cheap, preemptible compute capacity",#compute
+GKE Autopilot,"Hands-off, fully managed GKE mode",#compute
+Serverless VPC Access,Connect serverless to VPC resources,#networking
+Private Service Connect,Private access to managed services,#networking
+Application Default Credentials (ADC),Auto-discovered credentials for client libraries,#identity-and-security
+OAuth 2.0,Delegated authorization framework,#identity-and-security
+JWT (JSON Web Token),Signed token carrying claims,#identity-and-security
+Service Account Key,JSON key for SA auth (avoid),#identity-and-security
+Workload Identity,GKE pods act as service accounts,#identity-and-security
+Workload Identity Federation,External identities access GCP keylessly,#identity-and-security
+Signed URL,Time-limited object access without login,#storage
+Signed Cookies,Time-limited access to file groups,#storage
+CMEK,Encryption with your own KMS keys,#identity-and-security
+IAM Role Types,"Basic, predefined, and custom roles",#identity-and-security
+Blue/Green Deployment,Switch traffic between two environments,#management-tools
+Canary Deployment,Release to a small subset first,#management-tools
+Rolling Update,Gradually replace old instances,#management-tools
+Recreate Deployment,"Stop all old, start new (downtime)",#management-tools
+Traffic Splitting,Route % of traffic across versions,#management-tools
+Cloud Run Revision,Immutable snapshot of a service,#compute
+Managed Instance Group (MIG),"Autoscaling, self-healing VM group",#compute
+Instance Template,Blueprint for MIG VMs,#compute
+Horizontal Pod Autoscaler (HPA),Scale pods by observed metrics,#compute
+Cluster Autoscaler,Add/remove GKE nodes automatically,#compute
+Node Pool,Group of same-config GKE nodes,#compute
+Cold Start,Latency when scaling from zero,#compute
+Cloud Run Concurrency,Requests handled per container instance,#compute
+Cloud Run Min Instances,Warm instances to cut cold starts,#compute
+Pub/Sub Pull Subscription,Client requests messages on demand,#Data-and-Analytics
+Pub/Sub Push Subscription,Pub/Sub posts to an HTTP endpoint,#Data-and-Analytics
+Dead-Letter Topic,Holds repeatedly undeliverable messages,#Data-and-Analytics
+Pub/Sub Ordering Keys,Ordered delivery per key,#Data-and-Analytics
+Firestore Native Mode,Document DB for mobile/web,#database
+Datastore Mode,Server-side document/key-value DB,#database
+Cloud Storage Classes,Standard/Nearline/Coldline/Archive tiers,#storage
+Object Lifecycle Management,Auto transition/delete by rules,#storage
+Object Versioning,Keep prior versions of objects,#storage
+Bucket Retention Policy,Prevent early object deletion,#storage
+SLI,Measured indicator of service health,#management-tools
+SLO,Target value for an SLI,#management-tools
+SLA,Contractual reliability commitment,#management-tools
+Error Budget,Allowed unreliability (1 - SLO),#management-tools
+Golden Signals,"Latency, traffic, errors, saturation",#management-tools
+Log-based Metrics,Metrics derived from log entries,#management-tools
+Structured Logging,Logs emitted as queryable JSON,#management-tools
+Terraform,Declarative infrastructure as code,#developer-tools
+Infrastructure as Code (IaC),Provision infra through code,#developer-tools
+Cloud Build Trigger,Auto-run builds on repo events,#developer-tools
+Cloud Build Substitutions,Variables injected into builds,#developer-tools
+Private Google Access,Reach Google APIs without external IP,#networking
+Internal Load Balancer,Load balancing for internal traffic,#networking

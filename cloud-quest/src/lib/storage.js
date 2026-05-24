@@ -120,6 +120,50 @@ export function saveGuideDone(set) {
   }
 }
 
+// ---- Flashcards progress (separate key) ---------------------------------
+// Tracks which cards the user has marked "got it" vs "again", independent of
+// the question bank so it never pollutes the 741-question gamification.
+
+const FC_KEY = 'cloudquest.flashcards.v1'
+
+export function loadFlashProgress() {
+  try {
+    return JSON.parse(localStorage.getItem(FC_KEY) || '{}')
+  } catch {
+    return {}
+  }
+}
+
+export function saveFlashProgress(progress) {
+  try {
+    localStorage.setItem(FC_KEY, JSON.stringify(progress))
+  } catch {
+    /* ignore */
+  }
+}
+
+export function resetFlashProgress() {
+  localStorage.removeItem(FC_KEY)
+}
+
+// Mark one flashcard. known=true => mastered. Returns fresh progress object.
+export function markFlashcard(progress, id, known) {
+  const prev = progress[id] || { known: false, reviews: 0 }
+  return {
+    ...progress,
+    [id]: { known, reviews: prev.reviews + 1 },
+  }
+}
+
+export function flashMasteredCount(progress) {
+  return Object.values(progress).filter((c) => c.known).length
+}
+
+// Award raw XP (used by flashcards) without touching the answered map.
+export function addXp(state, amount) {
+  return { ...state, xp: state.xp + amount }
+}
+
 // Returns { state, newBadges } after re-checking all badges.
 export function refreshBadges(state) {
   const have = new Set(state.badges)

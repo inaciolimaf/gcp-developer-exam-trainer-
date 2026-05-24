@@ -36,6 +36,31 @@ function normalize(q) {
   }
 }
 
+// ---- Flashcards ----------------------------------------------------------
+// Loads the GCP service/concept flashcards (term → short description) that
+// live in /public/flashcards.json, derived from the Anki cheatsheet deck.
+
+let _fcCache = null
+
+export async function loadFlashcards() {
+  if (_fcCache) return _fcCache
+  const res = await fetch(`${import.meta.env.BASE_URL}flashcards.json`)
+  if (!res.ok) throw new Error(`Failed to load flashcards (${res.status})`)
+  const data = await res.json()
+  const cards = data.cards || []
+  const cats = new Map()
+  for (const c of cards) bump(cats, c.category, { code: c.category, name: c.category })
+  const categories = [...cats.values()].sort((a, b) => b.count - a.count)
+  _fcCache = {
+    meta: data.meta || {},
+    cards,
+    categories,
+    total: cards.length,
+    newCount: cards.filter((c) => c.isNew).length,
+  }
+  return _fcCache
+}
+
 function buildIndexes(questions) {
   const domains = new Map()
   const topics = new Map()

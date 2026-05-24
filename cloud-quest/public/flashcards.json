@@ -1,0 +1,1913 @@
+{
+"meta": {
+"source": "Google Cloud Developer Cheatsheet (extended)",
+"total": 272,
+"new_count": 61
+},
+"cards": [
+{
+"id": "fc-cloud-run",
+"front": "Cloud Run",
+"back": "Serverless for containerized applications",
+"category": "Compute",
+"isNew": false
+},
+{
+"id": "fc-cloud-functions",
+"front": "Cloud Functions",
+"back": "Event-driven serverless functions",
+"category": "Compute",
+"isNew": false
+},
+{
+"id": "fc-compute-engine",
+"front": "Compute Engine",
+"back": "VMs, GPUs, TPUs, Disks",
+"category": "Compute",
+"isNew": false
+},
+{
+"id": "fc-kubernetes-engine-gke",
+"front": "Kubernetes Engine (GKE)",
+"back": "Managed Kubernetes/containers",
+"category": "Compute",
+"isNew": false
+},
+{
+"id": "fc-app-engine",
+"front": "App Engine",
+"back": "Managed app platform",
+"category": "Compute",
+"isNew": false
+},
+{
+"id": "fc-bare-metal-solution",
+"front": "Bare Metal Solution",
+"back": "Hardware for specialized workloads",
+"category": "Compute",
+"isNew": false
+},
+{
+"id": "fc-preemptible-vms",
+"front": "Preemptible VMs",
+"back": "Short-lived compute instances",
+"category": "Compute",
+"isNew": false
+},
+{
+"id": "fc-shielded-vms",
+"front": "Shielded VMs",
+"back": "Hardened VMs",
+"category": "Compute",
+"isNew": false
+},
+{
+"id": "fc-sole-tenant-nodes",
+"front": "Sole-tenant nodes",
+"back": "Dedicated physical servers",
+"category": "Compute",
+"isNew": false
+},
+{
+"id": "fc-cloud-filestore",
+"front": "Cloud Filestore",
+"back": "Managed NFS server",
+"category": "Storage",
+"isNew": false
+},
+{
+"id": "fc-cloud-storage",
+"front": "Cloud Storage",
+"back": "Multi-class multi-region object storage",
+"category": "Storage",
+"isNew": false
+},
+{
+"id": "fc-persistent-disk",
+"front": "Persistent Disk",
+"back": "Block storage for VMs",
+"category": "Storage",
+"isNew": false
+},
+{
+"id": "fc-local-ssd",
+"front": "Local SSD",
+"back": "VM locally attached SSDs",
+"category": "Storage",
+"isNew": false
+},
+{
+"id": "fc-cloud-bigtable",
+"front": "Cloud Bigtable",
+"back": "Petabyte-scale, low-latency, non-relational",
+"category": "Databases",
+"isNew": false
+},
+{
+"id": "fc-cloud-firestore",
+"front": "Cloud Firestore",
+"back": "Serverless NoSQL document DB",
+"category": "Databases",
+"isNew": false
+},
+{
+"id": "fc-cloud-memorystore",
+"front": "Cloud Memorystore",
+"back": "Managed Redis and Memcached",
+"category": "Databases",
+"isNew": false
+},
+{
+"id": "fc-cloud-spanner",
+"front": "Cloud Spanner",
+"back": "Horizontally scalable relational DB",
+"category": "Databases",
+"isNew": false
+},
+{
+"id": "fc-cloud-sql",
+"front": "Cloud SQL",
+"back": "Managed MySQL, PostgreSQL, SQL Server",
+"category": "Databases",
+"isNew": false
+},
+{
+"id": "fc-bigquery",
+"front": "BigQuery",
+"back": "Data warehouse/analytics",
+"category": "Data & Analytics",
+"isNew": false
+},
+{
+"id": "fc-bigquery-bi-engine",
+"front": "BigQuery BI Engine",
+"back": "In-memory analytics engine",
+"category": "Data & Analytics",
+"isNew": false
+},
+{
+"id": "fc-bigquery-ml",
+"front": "BigQuery ML",
+"back": "BigQuery model training/serving",
+"category": "Data & Analytics",
+"isNew": false
+},
+{
+"id": "fc-cloud-composer",
+"front": "Cloud Composer",
+"back": "Managed workflow orchestration service",
+"category": "Data & Analytics",
+"isNew": false
+},
+{
+"id": "fc-cloud-data-fusion",
+"front": "Cloud Data Fusion",
+"back": "Graphically manage data pipelines",
+"category": "Data & Analytics",
+"isNew": false
+},
+{
+"id": "fc-cloud-dataflow",
+"front": "Cloud Dataflow",
+"back": "Stream/batch data processing",
+"category": "Data & Analytics",
+"isNew": false
+},
+{
+"id": "fc-cloud-dataprep",
+"front": "Cloud Dataprep",
+"back": "Visual data wrangling",
+"category": "Data & Analytics",
+"isNew": false
+},
+{
+"id": "fc-cloud-dataproc",
+"front": "Cloud Dataproc",
+"back": "Managed Spark and Hadoop",
+"category": "Data & Analytics",
+"isNew": false
+},
+{
+"id": "fc-cloud-pub-sub",
+"front": "Cloud Pub/Sub",
+"back": "Global real-time messaging",
+"category": "Data & Analytics",
+"isNew": false
+},
+{
+"id": "fc-data-catalog",
+"front": "Data Catalog",
+"back": "Metadata management service",
+"category": "Data & Analytics",
+"isNew": false
+},
+{
+"id": "fc-data-studio",
+"front": "Data Studio",
+"back": "Collaborative data exploration/dashboarding",
+"category": "Data & Analytics",
+"isNew": false
+},
+{
+"id": "fc-looker",
+"front": "Looker",
+"back": "Enterprise BI and Analytics",
+"category": "Data & Analytics",
+"isNew": false
+},
+{
+"id": "fc-anthos",
+"front": "Anthos",
+"back": "Enterprise hybrid/multi-cloud platform",
+"category": "Hybrid & Multicloud",
+"isNew": false
+},
+{
+"id": "fc-anthos-gke",
+"front": "Anthos GKE",
+"back": "Hybrid/on-prem Kubernetes Engine",
+"category": "Hybrid & Multicloud",
+"isNew": false
+},
+{
+"id": "fc-anthos-service-mesh",
+"front": "Anthos Service Mesh",
+"back": "Managed service mesh (Istio)",
+"category": "Hybrid & Multicloud",
+"isNew": false
+},
+{
+"id": "fc-cloud-run-for-anthos",
+"front": "Cloud Run for Anthos",
+"back": "Serverless development for Anthos",
+"category": "Hybrid & Multicloud",
+"isNew": false
+},
+{
+"id": "fc-google-cloud-marketplace-for-anthos",
+"front": "Google Cloud Marketplace for Anthos",
+"back": "Pre-configured containerized apps",
+"category": "Hybrid & Multicloud",
+"isNew": false
+},
+{
+"id": "fc-migrate-for-anthos",
+"front": "Migrate for Anthos",
+"back": "Migrate VMs to Kubernetes Engine",
+"category": "Hybrid & Multicloud",
+"isNew": false
+},
+{
+"id": "fc-operations",
+"front": "Operations",
+"back": "Monitoring, logging, troubleshooting",
+"category": "Hybrid & Multicloud",
+"isNew": false
+},
+{
+"id": "fc-cloud-build",
+"front": "Cloud Build",
+"back": "Continuous integration/delivery platform",
+"category": "Hybrid & Multicloud",
+"isNew": false
+},
+{
+"id": "fc-traffic-director",
+"front": "Traffic Director",
+"back": "Service mesh traffic management",
+"category": "Hybrid & Multicloud",
+"isNew": false
+},
+{
+"id": "fc-apigee-api-management",
+"front": "Apigee API Management",
+"back": "API management, development, security",
+"category": "Hybrid & Multicloud",
+"isNew": false
+},
+{
+"id": "fc-ai-hub",
+"front": "AI Hub",
+"back": "Hosted AI component sharing",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-ai-platform-data-labeling",
+"front": "AI Platform Data Labeling",
+"back": "Data labeling by humans",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-ai-platform-deep-learning-vms",
+"front": "AI Platform Deep Learning VMs",
+"back": "Preconfigured VMs for deep learning",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-ai-platform-deep-learning-containers",
+"front": "AI Platform Deep Learning Containers",
+"back": "Preconfigured containers for deep learning",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-ai-platform-notebooks",
+"front": "AI Platform Notebooks",
+"back": "Managed JupyterLab notebook instances",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-ai-platform-pipelines",
+"front": "AI Platform Pipelines",
+"back": "Hosted ML workflows",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-ai-platform-predictions",
+"front": "AI Platform Predictions",
+"back": "Autoscaled model serving",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-ai-platform-training",
+"front": "AI Platform Training",
+"back": "Distributed AI training",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-ai-platform",
+"front": "AI Platform",
+"back": "Managed platform for ML",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-automl-natural-language",
+"front": "AutoML Natural Language",
+"back": "Custom text models",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-automl-tables",
+"front": "AutoML Tables",
+"back": "Custom structured data models",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-automl-translation",
+"front": "AutoML Translation",
+"back": "Custom domain-specific translation",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-automl-video-intelligence",
+"front": "AutoML Video Intelligence",
+"back": "Custom video annotation models",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-automl-vision",
+"front": "AutoML Vision",
+"back": "Custom image models",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-cloud-natural-language-api",
+"front": "Cloud Natural Language API",
+"back": "Text parsing and analysis",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-cloud-speech-to-text-api",
+"front": "Cloud Speech-To-Text API",
+"back": "Convert audio to text",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-cloud-talent-solutions-api",
+"front": "Cloud Talent Solutions API",
+"back": "Job search with ML",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-cloud-text-to-speech-api",
+"front": "Cloud Text-To-Speech API",
+"back": "Convert text to audio",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-cloud-tpu",
+"front": "Cloud TPU",
+"back": "Hardware acceleration for ML",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-cloud-translation-api",
+"front": "Cloud Translation API",
+"back": "Language detection and translation",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-cloud-video-intelligence-api",
+"front": "Cloud Video Intelligence API",
+"back": "Scene-level video annotation",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-cloud-vision-api",
+"front": "Cloud Vision API",
+"back": "Image recognition and classification",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-contact-center-ai",
+"front": "Contact Center AI",
+"back": "AI in your contact center",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-dialogflow",
+"front": "Dialogflow",
+"back": "Create conversational interfaces",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-document-ai",
+"front": "Document AI",
+"back": "Analyze, classify, search documents",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-explainable-ai",
+"front": "Explainable AI",
+"back": "Understand ML model predictions",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-recommendations-ai",
+"front": "Recommendations AI",
+"back": "Create custom recommendations",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-vision-product-search",
+"front": "Vision Product Search",
+"back": "Visual search for products",
+"category": "AI / ML",
+"isNew": false
+},
+{
+"id": "fc-carrier-peering",
+"front": "Carrier Peering",
+"back": "Peer through a carrier",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-direct-peering",
+"front": "Direct Peering",
+"back": "Peer with GCP",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-dedicated-interconnect",
+"front": "Dedicated Interconnect",
+"back": "Dedicated private network connection",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-partner-interconnect",
+"front": "Partner Interconnect",
+"back": "Connect on-prem network to VPC",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-cloud-armor",
+"front": "Cloud Armor",
+"back": "DDoS protection and WAF",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-cloud-cdn",
+"front": "Cloud CDN",
+"back": "Content delivery network",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-cloud-dns",
+"front": "Cloud DNS",
+"back": "Programmable DNS serving",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-cloud-load-balancing",
+"front": "Cloud Load Balancing",
+"back": "Multi-region load distribution/balancing",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-cloud-nat",
+"front": "Cloud NAT",
+"back": "Network address translation service",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-cloud-router",
+"front": "Cloud Router",
+"back": "VPC/on-prem network route exchange (BGP)",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-cloud-vpn-ha",
+"front": "Cloud VPN (HA)",
+"back": "VPN (Virtual private network connection)",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-network-service-tiers",
+"front": "Network Service Tiers",
+"back": "Price vs performance tiering",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-network-telemetry",
+"front": "Network Telemetry",
+"back": "Network telemetry service",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-google-cloud-service-mesh",
+"front": "Google Cloud Service Mesh",
+"back": "Service-aware network management",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-virtual-private-cloud",
+"front": "Virtual Private Cloud",
+"back": "Software defined networking",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-vpc-service-controls",
+"front": "VPC Service Controls",
+"back": "Security perimeters for API-based services",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-network-intelligence-center",
+"front": "Network Intelligence Center",
+"back": "Network monitoring and topology",
+"category": "Networking",
+"isNew": false
+},
+{
+"id": "fc-cloud-iot-core",
+"front": "Cloud IoT Core",
+"back": "Manage devices, ingest data",
+"category": "IoT",
+"isNew": false
+},
+{
+"id": "fc-google-cloud-game-servers",
+"front": "Google Cloud Game Servers",
+"back": "Orchestrate Agones clusters",
+"category": "Gaming",
+"isNew": false
+},
+{
+"id": "fc-access-transparency",
+"front": "Access Transparency",
+"back": "Audit cloud provider access",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-binary-authorization",
+"front": "Binary Authorization",
+"back": "Kubernetes deploy-time security",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-cloud-audit-logs",
+"front": "Cloud Audit Logs",
+"back": "Audit trails for GCP",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-cloud-data-loss-prevention-api",
+"front": "Cloud Data Loss Prevention API",
+"back": "Classify and redact sensitive data",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-cloud-hsm",
+"front": "Cloud HSM",
+"back": "Hardware security module service",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-cloud-ekm",
+"front": "Cloud EKM",
+"back": "External keys you control",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-cloud-iam",
+"front": "Cloud IAM",
+"back": "Resource access control",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-cloud-identity",
+"front": "Cloud Identity",
+"back": "Manage users, devices & apps",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-cloud-identity-aware-proxy",
+"front": "Cloud Identity-Aware Proxy",
+"back": "Identity-based app access",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-cloud-kms",
+"front": "Cloud KMS",
+"back": "Hosted key management service",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-cloud-resource-manager",
+"front": "Cloud Resource Manager",
+"back": "Cloud project metadata management",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-cloud-security-command-center",
+"front": "Cloud Security Command Center",
+"back": "Security management and data risk platform",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-cloud-security-scanner",
+"front": "Cloud Security Scanner",
+"back": "App engine security scanner",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-context-aware-access",
+"front": "Context-aware Access",
+"back": "End-user attribute-based access control",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-event-threat-detection",
+"front": "Event Threat Detection",
+"back": "Scans for suspicious activity",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-managed-service-for-microsoft-active-directory",
+"front": "Managed Service for Microsoft Active Directory",
+"back": "Managed Microsoft Active Directory",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-secret-manager",
+"front": "Secret Manager",
+"back": "Store and manage secrets",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-security-key-enforcement",
+"front": "Security Key Enforcement",
+"back": "Two-step key verification",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-titan-security-key",
+"front": "Titan Security Key",
+"back": "Two-factor authentication (2FA) device",
+"category": "Identity & Security",
+"isNew": false
+},
+{
+"id": "fc-cloud-apis",
+"front": "Cloud APIs",
+"back": "APIs for cloud services",
+"category": "Management & Ops",
+"isNew": false
+},
+{
+"id": "fc-cloud-billing-api",
+"front": "Cloud Billing API",
+"back": "Programmatically manage GCP billing",
+"category": "Management & Ops",
+"isNew": false
+},
+{
+"id": "fc-cloud-billing",
+"front": "Cloud Billing",
+"back": "Billing and cost management tools",
+"category": "Management & Ops",
+"isNew": false
+},
+{
+"id": "fc-cloud-console",
+"front": "Cloud Console",
+"back": "Web-based management console",
+"category": "Management & Ops",
+"isNew": false
+},
+{
+"id": "fc-cloud-deployment-manager",
+"front": "Cloud Deployment Manager",
+"back": "Templated infrastructure deployment",
+"category": "Management & Ops",
+"isNew": false
+},
+{
+"id": "fc-cloud-mobile-app",
+"front": "Cloud Mobile App",
+"back": "iOS/Android GCP manager app",
+"category": "Management & Ops",
+"isNew": false
+},
+{
+"id": "fc-private-catalog",
+"front": "Private Catalog",
+"back": "Internal Solutions Catalog",
+"category": "Management & Ops",
+"isNew": false
+},
+{
+"id": "fc-cloud-debugger",
+"front": "Cloud Debugger",
+"back": "Live production debugging",
+"category": "Management & Ops",
+"isNew": false
+},
+{
+"id": "fc-error-reporting",
+"front": "Error Reporting",
+"back": "App error reporting",
+"category": "Management & Ops",
+"isNew": false
+},
+{
+"id": "fc-cloud-logging",
+"front": "Cloud Logging",
+"back": "Centralized logging",
+"category": "Management & Ops",
+"isNew": false
+},
+{
+"id": "fc-cloud-monitoring",
+"front": "Cloud Monitoring",
+"back": "Infrastructure and application monitoring",
+"category": "Management & Ops",
+"isNew": false
+},
+{
+"id": "fc-cloud-profiler",
+"front": "Cloud Profiler",
+"back": "CPU and heap profiling",
+"category": "Management & Ops",
+"isNew": false
+},
+{
+"id": "fc-cloud-trace",
+"front": "Cloud Trace",
+"back": "App performance insights",
+"category": "Management & Ops",
+"isNew": false
+},
+{
+"id": "fc-transparent-slis",
+"front": "Transparent SLIs",
+"back": "Monitor GCP services",
+"category": "Management & Ops",
+"isNew": false
+},
+{
+"id": "fc-cloud-code-for-intellij",
+"front": "Cloud Code for IntelliJ",
+"back": "IntelliJ GCP tools",
+"category": "Developer Tools",
+"isNew": false
+},
+{
+"id": "fc-cloud-code-for-vs-code",
+"front": "Cloud Code for VS Code",
+"back": "VS Code GCP tools",
+"category": "Developer Tools",
+"isNew": false
+},
+{
+"id": "fc-cloud-code",
+"front": "Cloud Code",
+"back": "Cloud native IDE extensions",
+"category": "Developer Tools",
+"isNew": false
+},
+{
+"id": "fc-cloud-scheduler",
+"front": "Cloud Scheduler",
+"back": "Managed cron job service",
+"category": "Developer Tools",
+"isNew": false
+},
+{
+"id": "fc-cloud-sdk",
+"front": "Cloud SDK",
+"back": "CLI for GCP",
+"category": "Developer Tools",
+"isNew": false
+},
+{
+"id": "fc-cloud-shell",
+"front": "Cloud Shell",
+"back": "Browser-based terminal/CLI",
+"category": "Developer Tools",
+"isNew": false
+},
+{
+"id": "fc-cloud-source-repositories",
+"front": "Cloud Source Repositories",
+"back": "Hosted private git repos",
+"category": "Developer Tools",
+"isNew": false
+},
+{
+"id": "fc-cloud-tasks",
+"front": "Cloud Tasks",
+"back": "Asynchronous task execution",
+"category": "Developer Tools",
+"isNew": false
+},
+{
+"id": "fc-cloud-tools-for-eclipse",
+"front": "Cloud Tools for Eclipse",
+"back": "Eclipse GCP tools",
+"category": "Developer Tools",
+"isNew": false
+},
+{
+"id": "fc-cloud-tools-for-visual-studio",
+"front": "Cloud Tools for Visual Studio",
+"back": "Visual Studio GCP tools",
+"category": "Developer Tools",
+"isNew": false
+},
+{
+"id": "fc-container-analysis",
+"front": "Container Analysis",
+"back": "Automated security scanning",
+"category": "Developer Tools",
+"isNew": false
+},
+{
+"id": "fc-container-registry",
+"front": "Container Registry",
+"back": "Private container registry/storage",
+"category": "Developer Tools",
+"isNew": false
+},
+{
+"id": "fc-artifact-registry",
+"front": "Artifact Registry",
+"back": "Universal package manager",
+"category": "Developer Tools",
+"isNew": false
+},
+{
+"id": "fc-gradle-app-engine-plugin",
+"front": "Gradle App Engine Plugin",
+"back": "Gradle App Engine plugin",
+"category": "Developer Tools",
+"isNew": false
+},
+{
+"id": "fc-maven-app-engine-plugin",
+"front": "Maven App Engine Plugin",
+"back": "Maven App Engine plugin",
+"category": "Developer Tools",
+"isNew": false
+},
+{
+"id": "fc-bigquery-data-transfer-service",
+"front": "BigQuery Data Transfer Service",
+"back": "Bulk import analytics data",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-cloud-data-transfer",
+"front": "Cloud Data Transfer",
+"back": "Data migration tools/CLI",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-google-transfer-appliance",
+"front": "Google Transfer Appliance",
+"back": "Rentable data transport box",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-migrate-for-compute-engine",
+"front": "Migrate for Compute Engine",
+"back": "Compute Engine migration tools",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-migrate-from-amazon-redshift",
+"front": "Migrate from Amazon Redshift",
+"back": "Migrate from Redshift to BigQuery",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-migrate-from-teradata",
+"front": "Migrate from Teradata",
+"back": "Migrate from Teradata to BigQuery",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-storage-transfer-service",
+"front": "Storage Transfer Service",
+"back": "Online/on-premises data transfer",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-vm-migration",
+"front": "VM Migration",
+"back": "VM migration tools",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-cloud-foundation-toolkit",
+"front": "Cloud Foundation Toolkit",
+"back": "Infrastructure as Code templates",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-api-analytics",
+"front": "API Analytics",
+"back": "API metrics",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-api-monetization",
+"front": "API Monetization",
+"back": "Monetize APIs",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-apigee-api-platform",
+"front": "Apigee API Platform",
+"back": "Develop, secure, monitor APIs",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-apigee-hybrid",
+"front": "Apigee Hybrid",
+"back": "Manage hybrid/multi-cloud API environments",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-apigee-sense",
+"front": "Apigee Sense",
+"back": "API protection from attacks",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-cloud-endpoints",
+"front": "Cloud Endpoints",
+"back": "Cloud API gateway",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-cloud-healthcare-api",
+"front": "Cloud Healthcare API",
+"back": "Healthcare system GCP interoperability",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-developer-portal",
+"front": "Developer Portal",
+"back": "API management portal",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-gcp-marketplace",
+"front": "GCP Marketplace",
+"back": "Partner & open source marketplace",
+"category": "Migration to GCP",
+"isNew": false
+},
+{
+"id": "fc-directions-api",
+"front": "Directions API",
+"back": "Get directions between locations",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-distance-matrix-api",
+"front": "Distance Matrix API",
+"back": "Multi-origin/destination travel times",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-geocoding-api",
+"front": "Geocoding API",
+"back": "Convert address to/from coordinates",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-geolocation-api",
+"front": "Geolocation API",
+"back": "Derive location without GPS",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-maps-embed-api",
+"front": "Maps Embed API",
+"back": "Display iframe embedded maps",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-maps-javascript-api",
+"front": "Maps JavaScript API",
+"back": "Dynamic web maps",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-maps-sdk-for-android",
+"front": "Maps SDK for Android",
+"back": "Maps for Android apps",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-maps-sdk-for-ios",
+"front": "Maps SDK for iOS",
+"back": "Maps for iOS apps",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-maps-static-api",
+"front": "Maps Static API",
+"back": "Display static map images",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-maps-sdk-for-unity",
+"front": "Maps SDK for Unity",
+"back": "Unity SDK for games",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-maps-urls",
+"front": "Maps URLs",
+"back": "URL scheme for maps",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-places-api",
+"front": "Places API",
+"back": "Rest-based Places features",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-places-library-maps-js-api",
+"front": "Places Library, Maps JS API",
+"back": "Places features for web",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-places-sdk-for-android",
+"front": "Places SDK for Android",
+"back": "Places features for Android",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-places-sdk-for-ios",
+"front": "Places SDK for iOS",
+"back": "Places feature for iOS",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-roads-api",
+"front": "Roads API",
+"back": "Convert coordinates to roads",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-street-view-static-api",
+"front": "Street View Static API",
+"back": "Static street view images",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-street-view-service",
+"front": "Street View Service",
+"back": "Street view for JavaScript",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-time-zone-api",
+"front": "Time Zone API",
+"back": "Convert coordinates to timezone",
+"category": "Google Maps Platform",
+"isNew": false
+},
+{
+"id": "fc-admin-sdk",
+"front": "Admin SDK",
+"back": "Manage G Suite resources",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-amp-for-email",
+"front": "AMP for Email",
+"back": "Dynamic interactive email",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-apps-script",
+"front": "Apps Script",
+"back": "Extend and automate everything",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-calendar-api",
+"front": "Calendar API",
+"back": "Create and manage calendars",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-classroom-api",
+"front": "Classroom API",
+"back": "Provision and manage classrooms",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-cloud-search",
+"front": "Cloud Search",
+"back": "Unified search for enterprise",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-docs-api",
+"front": "Docs API",
+"back": "Create and edit documents",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-drive-activity-api",
+"front": "Drive Activity API",
+"back": "Retrieve Google Drive activity",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-drive-api",
+"front": "Drive API",
+"back": "Read and write files",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-drive-picker",
+"front": "Drive Picker",
+"back": "Drive file selection widget",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-email-markup",
+"front": "Email Markup",
+"back": "Interactive email using schema.org",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-g-suite-add-ons",
+"front": "G Suite Add-ons",
+"back": "Extend G Suite apps",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-g-suite-marketplace",
+"front": "G Suite Marketplace",
+"back": "Storefront for integrated applications",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-gmail-api",
+"front": "Gmail API",
+"back": "Enhance Gmail",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-hangouts-chat-bots",
+"front": "Hangouts Chat Bots",
+"back": "Conversational bots in chat",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-people-api",
+"front": "People API",
+"back": "Manage user's Contacts",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-sheets-api",
+"front": "Sheets API",
+"back": "Read and write spreadsheets",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-slides-api",
+"front": "Slides API",
+"back": "Create and edit presentations",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-task-api",
+"front": "Task API",
+"back": "Search, read & update Tasks",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-vault-api",
+"front": "Vault API",
+"back": "Manage your organization's eDiscovery",
+"category": "G Suite Platform",
+"isNew": false
+},
+{
+"id": "fc-cloud-functions-for-firebase",
+"front": "Cloud Functions for Firebase",
+"back": "Event-driven serverless applications",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-cloud-storage-for-firebase",
+"front": "Cloud Storage for Firebase",
+"back": "Object storage and serving",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-crashlytics",
+"front": "Crashlytics",
+"back": "Crash reporting and analytics",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-firebase-a-b-testing",
+"front": "Firebase A/B Testing",
+"back": "Create A/B test experiments",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-firebase-app-distribution",
+"front": "Firebase App Distribution",
+"back": "Trusted tester early access",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-firebase-authentication",
+"front": "Firebase Authentication",
+"back": "Drop-in authentication",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-firebase-cloud-messaging",
+"front": "Firebase Cloud Messaging",
+"back": "Send device notifications",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-firebase-dynamic-links",
+"front": "Firebase Dynamic Links",
+"back": "Link to app content",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-firebase-extensions",
+"front": "Firebase Extensions",
+"back": "Pre-packaged development solutions",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-firebase-hosting",
+"front": "Firebase Hosting",
+"back": "Web hosting with CDN/SSL",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-firebase-in-app-messaging",
+"front": "Firebase In-App Messaging",
+"back": "Send in-app contextual messages",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-firebase-performance-monitoring",
+"front": "Firebase Performance Monitoring",
+"back": "App/web performance monitoring",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-firebase-predictions",
+"front": "Firebase Predictions",
+"back": "Predict user targeting",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-firebase-realtime-database",
+"front": "Firebase Realtime Database",
+"back": "Real-time data synchronization",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-firebase-remote-config",
+"front": "Firebase Remote Config",
+"back": "Remotely configure installed apps",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-firebase-test-lab",
+"front": "Firebase Test Lab",
+"back": "Mobile testing device farm",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-google-analytics-for-firebase",
+"front": "Google Analytics for Firebase",
+"back": "Mobile app analytics",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-ml-kit-for-firebase",
+"front": "ML Kit for Firebase",
+"back": "ML APIs for mobile",
+"category": "Mobile (Firebase)",
+"isNew": false
+},
+{
+"id": "fc-anthos-config-management",
+"front": "Anthos Config Management",
+"back": "Policy and security automation",
+"category": "Hybrid & Multicloud",
+"isNew": false
+},
+{
+"id": "fc-vertex-ai",
+"front": "Vertex AI",
+"back": "Unified managed ML platform",
+"category": "AI / ML",
+"isNew": true
+},
+{
+"id": "fc-cloud-deploy",
+"front": "Cloud Deploy",
+"back": "Managed continuous delivery pipelines",
+"category": "Developer Tools",
+"isNew": true
+},
+{
+"id": "fc-api-gateway",
+"front": "API Gateway",
+"back": "Managed gateway for serverless APIs",
+"category": "Management & Ops",
+"isNew": true
+},
+{
+"id": "fc-workflows",
+"front": "Workflows",
+"back": "Serverless orchestration of services/APIs",
+"category": "Developer Tools",
+"isNew": true
+},
+{
+"id": "fc-eventarc",
+"front": "Eventarc",
+"back": "Route events to your services",
+"category": "Developer Tools",
+"isNew": true
+},
+{
+"id": "fc-alloydb",
+"front": "AlloyDB",
+"back": "PostgreSQL-compatible high-performance database",
+"category": "Databases",
+"isNew": true
+},
+{
+"id": "fc-identity-platform",
+"front": "Identity Platform",
+"back": "Customer identity management (CIAM)",
+"category": "Identity & Security",
+"isNew": true
+},
+{
+"id": "fc-cloud-run-jobs",
+"front": "Cloud Run Jobs",
+"back": "Run containers to completion (batch)",
+"category": "Compute",
+"isNew": true
+},
+{
+"id": "fc-skaffold",
+"front": "Skaffold",
+"back": "Local Kubernetes build/deploy loop",
+"category": "Developer Tools",
+"isNew": true
+},
+{
+"id": "fc-cloud-native-buildpacks",
+"front": "Cloud Native Buildpacks",
+"back": "Build images without a Dockerfile",
+"category": "Developer Tools",
+"isNew": true
+},
+{
+"id": "fc-spot-vms",
+"front": "Spot VMs",
+"back": "Cheap, preemptible compute capacity",
+"category": "Compute",
+"isNew": true
+},
+{
+"id": "fc-gke-autopilot",
+"front": "GKE Autopilot",
+"back": "Hands-off, fully managed GKE mode",
+"category": "Compute",
+"isNew": true
+},
+{
+"id": "fc-serverless-vpc-access",
+"front": "Serverless VPC Access",
+"back": "Connect serverless to VPC resources",
+"category": "Networking",
+"isNew": true
+},
+{
+"id": "fc-private-service-connect",
+"front": "Private Service Connect",
+"back": "Private access to managed services",
+"category": "Networking",
+"isNew": true
+},
+{
+"id": "fc-application-default-credentials-adc",
+"front": "Application Default Credentials (ADC)",
+"back": "Auto-discovered credentials for client libraries",
+"category": "Identity & Security",
+"isNew": true
+},
+{
+"id": "fc-oauth-2-0",
+"front": "OAuth 2.0",
+"back": "Delegated authorization framework",
+"category": "Identity & Security",
+"isNew": true
+},
+{
+"id": "fc-jwt-json-web-token",
+"front": "JWT (JSON Web Token)",
+"back": "Signed token carrying claims",
+"category": "Identity & Security",
+"isNew": true
+},
+{
+"id": "fc-service-account-key",
+"front": "Service Account Key",
+"back": "JSON key for SA auth (avoid)",
+"category": "Identity & Security",
+"isNew": true
+},
+{
+"id": "fc-workload-identity",
+"front": "Workload Identity",
+"back": "GKE pods act as service accounts",
+"category": "Identity & Security",
+"isNew": true
+},
+{
+"id": "fc-workload-identity-federation",
+"front": "Workload Identity Federation",
+"back": "External identities access GCP keylessly",
+"category": "Identity & Security",
+"isNew": true
+},
+{
+"id": "fc-signed-url",
+"front": "Signed URL",
+"back": "Time-limited object access without login",
+"category": "Storage",
+"isNew": true
+},
+{
+"id": "fc-signed-cookies",
+"front": "Signed Cookies",
+"back": "Time-limited access to file groups",
+"category": "Storage",
+"isNew": true
+},
+{
+"id": "fc-cmek",
+"front": "CMEK",
+"back": "Encryption with your own KMS keys",
+"category": "Identity & Security",
+"isNew": true
+},
+{
+"id": "fc-iam-role-types",
+"front": "IAM Role Types",
+"back": "Basic, predefined, and custom roles",
+"category": "Identity & Security",
+"isNew": true
+},
+{
+"id": "fc-blue-green-deployment",
+"front": "Blue/Green Deployment",
+"back": "Switch traffic between two environments",
+"category": "Management & Ops",
+"isNew": true
+},
+{
+"id": "fc-canary-deployment",
+"front": "Canary Deployment",
+"back": "Release to a small subset first",
+"category": "Management & Ops",
+"isNew": true
+},
+{
+"id": "fc-rolling-update",
+"front": "Rolling Update",
+"back": "Gradually replace old instances",
+"category": "Management & Ops",
+"isNew": true
+},
+{
+"id": "fc-recreate-deployment",
+"front": "Recreate Deployment",
+"back": "Stop all old, start new (downtime)",
+"category": "Management & Ops",
+"isNew": true
+},
+{
+"id": "fc-traffic-splitting",
+"front": "Traffic Splitting",
+"back": "Route % of traffic across versions",
+"category": "Management & Ops",
+"isNew": true
+},
+{
+"id": "fc-cloud-run-revision",
+"front": "Cloud Run Revision",
+"back": "Immutable snapshot of a service",
+"category": "Compute",
+"isNew": true
+},
+{
+"id": "fc-managed-instance-group-mig",
+"front": "Managed Instance Group (MIG)",
+"back": "Autoscaling, self-healing VM group",
+"category": "Compute",
+"isNew": true
+},
+{
+"id": "fc-instance-template",
+"front": "Instance Template",
+"back": "Blueprint for MIG VMs",
+"category": "Compute",
+"isNew": true
+},
+{
+"id": "fc-horizontal-pod-autoscaler-hpa",
+"front": "Horizontal Pod Autoscaler (HPA)",
+"back": "Scale pods by observed metrics",
+"category": "Compute",
+"isNew": true
+},
+{
+"id": "fc-cluster-autoscaler",
+"front": "Cluster Autoscaler",
+"back": "Add/remove GKE nodes automatically",
+"category": "Compute",
+"isNew": true
+},
+{
+"id": "fc-node-pool",
+"front": "Node Pool",
+"back": "Group of same-config GKE nodes",
+"category": "Compute",
+"isNew": true
+},
+{
+"id": "fc-cold-start",
+"front": "Cold Start",
+"back": "Latency when scaling from zero",
+"category": "Compute",
+"isNew": true
+},
+{
+"id": "fc-cloud-run-concurrency",
+"front": "Cloud Run Concurrency",
+"back": "Requests handled per container instance",
+"category": "Compute",
+"isNew": true
+},
+{
+"id": "fc-cloud-run-min-instances",
+"front": "Cloud Run Min Instances",
+"back": "Warm instances to cut cold starts",
+"category": "Compute",
+"isNew": true
+},
+{
+"id": "fc-pub-sub-pull-subscription",
+"front": "Pub/Sub Pull Subscription",
+"back": "Client requests messages on demand",
+"category": "Data & Analytics",
+"isNew": true
+},
+{
+"id": "fc-pub-sub-push-subscription",
+"front": "Pub/Sub Push Subscription",
+"back": "Pub/Sub posts to an HTTP endpoint",
+"category": "Data & Analytics",
+"isNew": true
+},
+{
+"id": "fc-dead-letter-topic",
+"front": "Dead-Letter Topic",
+"back": "Holds repeatedly undeliverable messages",
+"category": "Data & Analytics",
+"isNew": true
+},
+{
+"id": "fc-pub-sub-ordering-keys",
+"front": "Pub/Sub Ordering Keys",
+"back": "Ordered delivery per key",
+"category": "Data & Analytics",
+"isNew": true
+},
+{
+"id": "fc-firestore-native-mode",
+"front": "Firestore Native Mode",
+"back": "Document DB for mobile/web",
+"category": "Databases",
+"isNew": true
+},
+{
+"id": "fc-datastore-mode",
+"front": "Datastore Mode",
+"back": "Server-side document/key-value DB",
+"category": "Databases",
+"isNew": true
+},
+{
+"id": "fc-cloud-storage-classes",
+"front": "Cloud Storage Classes",
+"back": "Standard/Nearline/Coldline/Archive tiers",
+"category": "Storage",
+"isNew": true
+},
+{
+"id": "fc-object-lifecycle-management",
+"front": "Object Lifecycle Management",
+"back": "Auto transition/delete by rules",
+"category": "Storage",
+"isNew": true
+},
+{
+"id": "fc-object-versioning",
+"front": "Object Versioning",
+"back": "Keep prior versions of objects",
+"category": "Storage",
+"isNew": true
+},
+{
+"id": "fc-bucket-retention-policy",
+"front": "Bucket Retention Policy",
+"back": "Prevent early object deletion",
+"category": "Storage",
+"isNew": true
+},
+{
+"id": "fc-sli",
+"front": "SLI",
+"back": "Measured indicator of service health",
+"category": "Management & Ops",
+"isNew": true
+},
+{
+"id": "fc-slo",
+"front": "SLO",
+"back": "Target value for an SLI",
+"category": "Management & Ops",
+"isNew": true
+},
+{
+"id": "fc-sla",
+"front": "SLA",
+"back": "Contractual reliability commitment",
+"category": "Management & Ops",
+"isNew": true
+},
+{
+"id": "fc-error-budget",
+"front": "Error Budget",
+"back": "Allowed unreliability (1 - SLO)",
+"category": "Management & Ops",
+"isNew": true
+},
+{
+"id": "fc-golden-signals",
+"front": "Golden Signals",
+"back": "Latency, traffic, errors, saturation",
+"category": "Management & Ops",
+"isNew": true
+},
+{
+"id": "fc-log-based-metrics",
+"front": "Log-based Metrics",
+"back": "Metrics derived from log entries",
+"category": "Management & Ops",
+"isNew": true
+},
+{
+"id": "fc-structured-logging",
+"front": "Structured Logging",
+"back": "Logs emitted as queryable JSON",
+"category": "Management & Ops",
+"isNew": true
+},
+{
+"id": "fc-terraform",
+"front": "Terraform",
+"back": "Declarative infrastructure as code",
+"category": "Developer Tools",
+"isNew": true
+},
+{
+"id": "fc-infrastructure-as-code-iac",
+"front": "Infrastructure as Code (IaC)",
+"back": "Provision infra through code",
+"category": "Developer Tools",
+"isNew": true
+},
+{
+"id": "fc-cloud-build-trigger",
+"front": "Cloud Build Trigger",
+"back": "Auto-run builds on repo events",
+"category": "Developer Tools",
+"isNew": true
+},
+{
+"id": "fc-cloud-build-substitutions",
+"front": "Cloud Build Substitutions",
+"back": "Variables injected into builds",
+"category": "Developer Tools",
+"isNew": true
+},
+{
+"id": "fc-private-google-access",
+"front": "Private Google Access",
+"back": "Reach Google APIs without external IP",
+"category": "Networking",
+"isNew": true
+},
+{
+"id": "fc-internal-load-balancer",
+"front": "Internal Load Balancer",
+"back": "Load balancing for internal traffic",
+"category": "Networking",
+"isNew": true
+}
+]
+}

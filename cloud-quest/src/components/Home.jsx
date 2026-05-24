@@ -14,6 +14,7 @@ import {
   ArrowUpRight,
   BookOpenText,
   ArrowRight,
+  Sparkles,
 } from 'lucide-react'
 import { correctCount, seenCount } from '../lib/storage'
 
@@ -81,6 +82,29 @@ export default function Home({ bank, state, onStart }) {
           <div className="font-display text-xl font-semibold text-white">Study Guide</div>
           <div className="mt-0.5 font-body text-sm text-white/55">
             What actually gets tested vs. what the course teaches — gaps, module roadmap, lecture-by-lecture.
+          </div>
+        </div>
+        <ArrowRight size={20} className="shrink-0 text-white/40 transition-transform group-hover:translate-x-1" />
+      </motion.button>
+
+      {/* Featured: Flashcards */}
+      <motion.button
+        onClick={() => onStart('flashcards')}
+        initial={{ opacity: 0, y: 22 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05, type: 'spring', stiffness: 220, damping: 22 }}
+        whileHover={{ y: -4 }}
+        whileTap={{ scale: 0.99 }}
+        className="group glass relative mb-4 flex w-full items-center gap-4 overflow-hidden p-5 text-left transition-colors hover:border-white/25"
+      >
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-mint/15 via-cyan/10 to-transparent opacity-70 transition-opacity group-hover:opacity-100" />
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-white/12 bg-white/[0.06] text-mint transition-shadow group-hover:[box-shadow:0_0_26px_-6px_currentColor]">
+          <Sparkles size={22} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="font-display text-xl font-semibold text-white">Flashcards</div>
+          <div className="mt-0.5 font-body text-sm text-white/55">
+            272 service cards — flip, recall, self-grade. Drill any category or just the newest additions.
           </div>
         </div>
         <ArrowRight size={20} className="shrink-0 text-white/40 transition-transform group-hover:translate-x-1" />
