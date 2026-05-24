@@ -15,8 +15,10 @@ import {
   BookOpenText,
   ArrowRight,
   Sparkles,
+  Brain,
+  Trophy,
 } from 'lucide-react'
-import { correctCount, seenCount } from '../lib/storage'
+import { correctCount, seenCount, dailyProgress, currentDayStreak, examStats } from '../lib/storage'
 
 const MODES = [
   { key: 'random', title: 'Random Blitz', desc: 'Endless shuffled questions, instant feedback.', icon: Shuffle, glow: 'shadow-glow-cyan', ring: 'text-cyan', from: 'from-cyan/25' },
@@ -28,13 +30,41 @@ const MODES = [
   { key: 'gaps', title: 'Study the Gaps', desc: 'Only topics lightly covered in the course.', icon: AlertTriangle, glow: 'shadow-glow-coral', ring: 'text-amber', from: 'from-amber/25' },
 ]
 
-export default function Home({ bank, state, onStart }) {
+export default function Home({ bank, state, onStart, dueCount = 0 }) {
   const total = bank.indexes.total
   const seen = seenCount(state)
   const correct = correctCount(state)
+  const daily = dailyProgress(state)
+  const dayStreak = currentDayStreak(state)
+  const exams = examStats(state)
 
   return (
     <div className="mx-auto max-w-5xl px-4 pb-24 pt-8">
+      {/* Smart Review nudge — only when something is actually due */}
+      {dueCount > 0 && (
+        <motion.button
+          onClick={() => onStart('review')}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ y: -3 }}
+          whileTap={{ scale: 0.99 }}
+          className="group glass-strong relative mb-6 flex w-full items-center gap-4 overflow-hidden p-4 text-left shadow-glow-soft transition-colors hover:border-white/25"
+        >
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-coral/15 via-violet/10 to-transparent" />
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/12 bg-white/[0.06] text-coral">
+            <Brain size={20} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="font-display text-base font-semibold text-white">
+              {dueCount} {dueCount === 1 ? 'item' : 'items'} due for review
+            </div>
+            <div className="font-body text-sm text-white/55">Spaced repetition keeps it from slipping away.</div>
+          </div>
+          <span className="btn-accent shrink-0 px-4 py-2">
+            Review <ArrowRight size={16} />
+          </span>
+        </motion.button>
+      )}
       {/* Hero */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -55,6 +85,60 @@ export default function Home({ bank, state, onStart }) {
           Turn 741 exam questions into a game. Pick how you want to play, then chase the streak.
         </p>
       </motion.div>
+
+      {/* Daily goal + day streak */}
+      <motion.button
+        onClick={() => onStart('random')}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 220, damping: 22 }}
+        whileHover={{ y: -3 }}
+        whileTap={{ scale: 0.99 }}
+        className="group glass relative mb-4 flex w-full items-center gap-5 overflow-hidden p-5 text-left transition-colors hover:border-white/25"
+      >
+        <Ring pct={daily.pct} count={daily.count} goal={daily.goal} met={daily.met} />
+        <div className="min-w-0 flex-1">
+          <div className="font-display text-lg font-semibold text-white">
+            {daily.met ? 'Daily goal hit 🎉' : 'Daily goal'}
+          </div>
+          <div className="mt-0.5 font-body text-sm text-white/55">
+            {daily.met
+              ? `${daily.count} questions today — keep the streak alive.`
+              : `${daily.count} / ${daily.goal} questions today. ${daily.goal - daily.count} to go.`}
+          </div>
+        </div>
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          <span className="chip border-amber/40 text-amber">
+            <Flame size={13} /> {dayStreak} day{dayStreak === 1 ? '' : 's'}
+          </span>
+          <span className="label">best {state.bestDayStreak || 0}</span>
+        </div>
+      </motion.button>
+
+      {/* Exam history */}
+      <motion.button
+        onClick={() => onStart('examHistory')}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.04, type: 'spring', stiffness: 220, damping: 22 }}
+        whileHover={{ y: -3 }}
+        whileTap={{ scale: 0.99 }}
+        className="group glass relative mb-10 flex w-full items-center gap-4 overflow-hidden p-4 text-left transition-colors hover:border-white/25"
+      >
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-amber/12 to-transparent opacity-70 transition-opacity group-hover:opacity-100" />
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/12 bg-white/[0.06] text-amber">
+          <Trophy size={20} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="font-display text-base font-semibold text-white">Exam History</div>
+          <div className="font-body text-sm text-white/55">
+            {exams.count
+              ? `${exams.count} attempt${exams.count === 1 ? '' : 's'} · best ${exams.best}% · ${exams.passed} passed`
+              : 'Track your mock-exam scores over time.'}
+          </div>
+        </div>
+        <ArrowRight size={18} className="shrink-0 text-white/40 transition-transform group-hover:translate-x-1" />
+      </motion.button>
 
       {/* Progress strip */}
       <div className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -139,6 +223,35 @@ export default function Home({ bank, state, onStart }) {
         ))}
       </div>
     </div>
+  )
+}
+
+function Ring({ pct, count, goal, met }) {
+  const r = 26
+  const c = 2 * Math.PI * r
+  const off = c * (1 - Math.min(pct, 100) / 100)
+  return (
+    <span className="relative grid h-16 w-16 shrink-0 place-items-center">
+      <svg width="64" height="64" viewBox="0 0 64 64" className="-rotate-90">
+        <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="6" />
+        <motion.circle
+          cx="32"
+          cy="32"
+          r={r}
+          fill="none"
+          stroke={met ? '#34d399' : '#22d3ee'}
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          initial={{ strokeDashoffset: c }}
+          animate={{ strokeDashoffset: off }}
+          transition={{ type: 'spring', stiffness: 90, damping: 20 }}
+        />
+      </svg>
+      <span className="absolute font-mono text-sm font-bold text-white">
+        {count}<span className="text-white/40">/{goal}</span>
+      </span>
+    </span>
   )
 }
 

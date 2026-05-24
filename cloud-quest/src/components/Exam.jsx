@@ -1,18 +1,19 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Clock, Flag, Trophy } from 'lucide-react'
-import { sample } from '../lib/data'
+import { ArrowLeft, ArrowRight, Clock, Flag, Trophy, BarChart3, Layers } from 'lucide-react'
+import { sample, DOMAIN_LABELS } from '../lib/data'
 import QuestionCard from './QuestionCard'
 import { bigCelebration } from '../lib/confetti'
 
 const PASS_PCT = 70
 
-export default function Exam({ pool, onAnswerBatch, onExit }) {
+export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
   const [phase, setPhase] = useState('setup') // setup | run | result
   const [questions, setQuestions] = useState([])
   const [answers, setAnswers] = useState({})
   const [index, setIndex] = useState(0)
   const [secondsLeft, setSecondsLeft] = useState(0)
+  const [reviewAll, setReviewAll] = useState(false)
   const timerRef = useRef(null)
 
   function begin(n) {
@@ -90,6 +91,17 @@ export default function Exam({ pool, onAnswerBatch, onExit }) {
   if (phase === 'result') {
     const passed = score.pct >= PASS_PCT
     const wrong = questions.filter((q) => answers[q.id] !== q.answer)
+
+    // per-domain breakdown
+    const domains = {}
+    for (const q of questions) {
+      const d = (domains[q.domain] ??= { code: q.domain, name: q.domainName, correct: 0, total: 0 })
+      d.total += 1
+      if (answers[q.id] === q.answer) d.correct += 1
+    }
+    const domainRows = Object.values(domains).sort((a, b) => String(a.code).localeCompare(String(b.code)))
+    const reviewList = reviewAll ? questions : wrong
+
     return (
       <div className="mx-auto max-w-3xl px-4 pb-28 pt-8">
         <motion.div
@@ -112,21 +124,84 @@ export default function Exam({ pool, onAnswerBatch, onExit }) {
           <p className="font-body text-white/65">
             {score.correct} / {score.total} correct · pass mark {PASS_PCT}%
           </p>
-          <button onClick={onExit} className="btn-accent mx-auto mt-6">
-            Back home <ArrowRight size={18} />
-          </button>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            {onHistory && (
+              <button onClick={onHistory} className="btn">
+                <BarChart3 size={16} /> View history
+              </button>
+            )}
+            <button onClick={onExit} className="btn-accent">
+              Back home <ArrowRight size={18} />
+            </button>
+          </div>
         </motion.div>
 
-        {wrong.length > 0 && (
-          <div className="mt-9">
-            <h3 className="mb-4 font-display text-2xl font-bold text-white">Review your misses ({wrong.length})</h3>
+        {/* per-domain breakdown */}
+        <div className="glass mt-6 p-5">
+          <div className="mb-4 flex items-center gap-2 label">
+            <Layers size={14} /> By exam domain
+          </div>
+          <div className="grid gap-3">
+            {domainRows.map((d) => {
+              const pct = Math.round((d.correct / d.total) * 100)
+              return (
+                <div key={d.code} className="flex items-center gap-3">
+                  <span className="w-8 shrink-0 font-mono text-xs font-bold text-violet">{d.code}</span>
+                  <span className="hidden min-w-0 flex-1 truncate font-body text-sm text-white/70 sm:block">
+                    {DOMAIN_LABELS[d.code] || d.name}
+                  </span>
+                  <div className="h-2 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/[0.04] sm:flex-none sm:w-40">
+                    <div
+                      className={`h-full rounded-full ${pct < 50 ? 'bg-coral' : pct < 70 ? 'bg-amber' : 'bg-mint'}`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <span className="shrink-0 font-mono text-xs text-white/60">
+                    {d.correct}/{d.total}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* answer review */}
+        <div className="mt-9">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h3 className="font-display text-2xl font-bold text-white">
+              Review answers {reviewAll ? `(${questions.length})` : `(${wrong.length} missed)`}
+            </h3>
+            <div className="flex gap-1 rounded-xl border border-white/10 bg-white/[0.04] p-1">
+              <button
+                onClick={() => setReviewAll(false)}
+                className={`rounded-lg px-3 py-1.5 font-display text-sm font-semibold transition-colors ${
+                  !reviewAll ? 'bg-white/10 text-coral' : 'text-white/55 hover:text-white'
+                }`}
+              >
+                Missed
+              </button>
+              <button
+                onClick={() => setReviewAll(true)}
+                className={`rounded-lg px-3 py-1.5 font-display text-sm font-semibold transition-colors ${
+                  reviewAll ? 'bg-white/10 text-cyan' : 'text-white/55 hover:text-white'
+                }`}
+              >
+                All
+              </button>
+            </div>
+          </div>
+          {reviewList.length === 0 ? (
+            <div className="glass p-6 text-center font-body text-white/60">
+              Perfect run — nothing missed. 🎉
+            </div>
+          ) : (
             <div className="grid gap-5">
-              {wrong.map((q) => (
+              {reviewList.map((q) => (
                 <QuestionCard key={q.id} q={q} index={null} total={null} selected={answers[q.id] || null} revealed />
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     )
   }

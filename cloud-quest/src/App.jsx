@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Star, Flame, BookOpenText, Layers } from 'lucide-react'
+import { Star, Flame, BookOpenText, Layers, Brain } from 'lucide-react'
 import Background from './components/Background'
 import Home from './components/Home'
 import Picker from './components/Picker'
@@ -8,6 +8,8 @@ import Practice from './components/Practice'
 import Exam from './components/Exam'
 import Guide from './components/Guide'
 import Flashcards from './components/Flashcards'
+import Review from './components/Review'
+import ExamHistory from './components/ExamHistory'
 import { loadBank, loadFlashcards, shuffle } from './lib/data'
 import {
   loadState,
@@ -21,7 +23,10 @@ import {
   markFlashcard,
   resetFlashProgress,
   addXp,
+  recordExam,
+  recordActivity,
 } from './lib/storage'
+import { loadSrs, saveSrs, scheduleItem, srsStats } from './lib/srs'
 
 const GAP = 'pouco ensinado (gap)'
 
@@ -29,6 +34,7 @@ export default function App() {
   const [bank, setBank] = useState(null)
   const [flash, setFlash] = useState(null)
   const [fcProgress, setFcProgress] = useState(() => loadFlashProgress())
+  const [srs, setSrs] = useState(() => loadSrs())
   const [error, setError] = useState(null)
   const [game, setGame] = useState(() => loadState())
   const [screen, setScreen] = useState({ name: 'home' })
@@ -47,9 +53,14 @@ export default function App() {
     saveFlashProgress(fcProgress)
   }, [fcProgress])
 
-  // grade a flashcard: track mastery + award a little XP for a confident recall
+  useEffect(() => {
+    saveSrs(srs)
+  }, [srs])
+
+  // grade a flashcard: track mastery, schedule next review + award a little XP
   const onMarkFlash = useCallback((id, known) => {
     setFcProgress((p) => markFlashcard(p, id, known))
+    setSrs((s) => scheduleItem(s, id, known))
     if (known) {
       setGame((prev) => {
         const { state, newBadges } = refreshBadges(addXp(prev, 6))
@@ -77,9 +88,11 @@ export default function App() {
   // single-question answer (Practice modes)
   const onAnswer = useCallback(
     (q, isCorrect) => {
+      setSrs((s) => scheduleItem(s, q.id, isCorrect))
       setGame((prev) => {
         const xpGain = 10 + Math.min(prev.streak, 12) * 2
         let next = recordAnswer(prev, q, isCorrect, xpGain)
+        next = recordActivity(next, 1)
         const { state, newBadges } = refreshBadges(next)
         if (newBadges.length) showBadges(newBadges)
         return state
@@ -91,6 +104,14 @@ export default function App() {
   // batch answer (Exam submit)
   const onAnswerBatch = useCallback(
     (questions, answers, passed, perfect) => {
+      setSrs((s) => {
+        let next = s
+        for (const q of questions) next = scheduleItem(next, q.id, answers[q.id] === q.answer)
+        return next
+      })
+      const correctCt = questions.filter((q) => answers[q.id] === q.answer).length
+      const total = questions.length
+      const pct = Math.round((correctCt / total) * 100)
       setGame((prev) => {
         let next = { ...prev, examsTaken: prev.examsTaken + 1 }
         for (const q of questions) {
@@ -99,6 +120,8 @@ export default function App() {
         }
         if (passed) next.examsPassed += 1
         if (perfect) next.badges = [...new Set([...next.badges, 'exam-ace'])]
+        next = recordExam(next, { correct: correctCt, total, pct, passed })
+        next = recordActivity(next, total)
         const { state, newBadges } = refreshBadges(next)
         if (newBadges.length) showBadges(newBadges)
         return state
@@ -135,6 +158,10 @@ export default function App() {
         return setScreen({ name: 'guide' })
       case 'flashcards':
         return setScreen({ name: 'flashcards' })
+      case 'review':
+        return setScreen({ name: 'review' })
+      case 'examHistory':
+        return setScreen({ name: 'examHistory' })
       case 'topic':
         return setScreen({ name: 'pick', kind: 'topic', items: bank.indexes.topics })
       case 'domain':
@@ -162,6 +189,7 @@ export default function App() {
   }
 
   const lvl = levelInfo(game.xp)
+  const dueCount = srsStats(srs).due
 
   return (
     <div className="grain min-h-full">
@@ -175,6 +203,9 @@ export default function App() {
         guideActive={screen.name === 'guide'}
         onFlashcards={() => start('flashcards')}
         flashActive={screen.name === 'flashcards'}
+        onReview={() => start('review')}
+        reviewActive={screen.name === 'review'}
+        dueCount={dueCount}
       />
 
       <AnimatePresence mode="wait">
@@ -185,7 +216,7 @@ export default function App() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
-          {screen.name === 'home' && <Home bank={bank} state={game} onStart={start} />}
+          {screen.name === 'home' && <Home bank={bank} state={game} onStart={start} dueCount={dueCount} />}
           {screen.name === 'pick' && (
             <Picker kind={screen.kind} items={screen.items} onPick={(code) => pick(screen.kind, code)} onBack={home} />
           )}
@@ -198,7 +229,17 @@ export default function App() {
               onExit={home}
             />
           )}
-          {screen.name === 'exam' && <Exam pool={screen.pool} onAnswerBatch={onAnswerBatch} onExit={home} />}
+          {screen.name === 'exam' && (
+            <Exam
+              pool={screen.pool}
+              onAnswerBatch={onAnswerBatch}
+              onExit={home}
+              onHistory={() => start('examHistory')}
+            />
+          )}
+          {screen.name === 'examHistory' && (
+            <ExamHistory state={game} onStartExam={() => start('exam')} onBack={home} />
+          )}
           {screen.name === 'guide' && <Guide onExit={home} />}
           {screen.name === 'flashcards' &&
             (flash ? (
@@ -208,12 +249,26 @@ export default function App() {
                 onMark={onMarkFlash}
                 onReset={resetFlash}
                 onExit={home}
+                initialSession={
+                  screen.initialCards ? { title: screen.title || 'Review', cards: screen.initialCards } : null
+                }
               />
             ) : (
               <div className="grid place-items-center pt-24 font-display text-white/70">
                 <span className="animate-pulse">Loading flashcards…</span>
               </div>
             ))}
+          {screen.name === 'review' && (
+            <Review
+              bank={bank}
+              flash={flash}
+              game={game}
+              srs={srs}
+              onStartQuestions={(title, questions) => setScreen({ name: 'practice', title, questions })}
+              onStartCards={(title, cards) => setScreen({ name: 'flashcards', title, initialCards: cards })}
+              onBack={home}
+            />
+          )}
         </motion.main>
       </AnimatePresence>
 
@@ -244,7 +299,7 @@ export default function App() {
   )
 }
 
-function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onFlashcards, flashActive }) {
+function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onFlashcards, flashActive, onReview, reviewActive, dueCount }) {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-base/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
@@ -274,6 +329,20 @@ function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onFlashcar
           }`}
         >
           <Layers size={16} /> Flashcards
+        </button>
+
+        <button
+          onClick={onReview}
+          className={`hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-display text-sm font-semibold transition-colors sm:flex ${
+            reviewActive ? 'text-cyan' : 'text-white/55 hover:text-white'
+          }`}
+        >
+          <Brain size={16} /> Review
+          {dueCount > 0 && (
+            <span className="grid h-5 min-w-5 place-items-center rounded-full bg-coral px-1 font-mono text-[11px] font-bold text-base">
+              {dueCount}
+            </span>
+          )}
         </button>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">

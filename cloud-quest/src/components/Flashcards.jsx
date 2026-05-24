@@ -21,9 +21,12 @@ import { popBurst, bigCelebration } from '../lib/confetti'
 
 const ACCENTS = ['text-cyan', 'text-violet', 'text-pink', 'text-mint', 'text-amber', 'text-coral']
 
-export default function Flashcards({ data, progress, onMark, onReset, onExit }) {
-  // null = menu; otherwise { title, cards }
-  const [session, setSession] = useState(null)
+export default function Flashcards({ data, progress, onMark, onReset, onExit, initialSession = null }) {
+  // null = menu; otherwise { title, cards }. initialSession (e.g. a review
+  // queue) jumps straight into study, skipping the deck menu.
+  const [session, setSession] = useState(
+    initialSession && initialSession.cards?.length ? initialSession : null,
+  )
   const [newOnly, setNewOnly] = useState(false)
 
   const pool = useMemo(

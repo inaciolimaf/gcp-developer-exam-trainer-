@@ -11,6 +11,12 @@ const DEFAULT = {
   examsTaken: 0,
   examsPassed: 0,
   badges: [], // array of badge ids
+  examHistory: [], // [{ date, correct, total, pct, passed }]
+  daily: { date: null, count: 0 }, // questions answered today
+  dayStreak: 0, // consecutive days with activity
+  bestDayStreak: 0,
+  lastActiveDate: null, // YYYY-MM-DD of last active day
+  dailyGoal: 10,
 }
 
 export function loadState() {
@@ -82,6 +88,70 @@ export function recordAnswer(state, q, isCorrect, xpGain) {
   }
 }
 
+// ---- Exam history -------------------------------------------------------
+
+export function recordExam(state, { correct, total, pct, passed }) {
+  const entry = { date: new Date().toISOString(), correct, total, pct, passed }
+  const examHistory = [...(state.examHistory || []), entry].slice(-100)
+  return { ...state, examHistory }
+}
+
+export function examStats(state) {
+  const h = state.examHistory || []
+  if (!h.length) return { count: 0, passed: 0, passRate: 0, best: 0, avg: 0, last: null }
+  const passed = h.filter((e) => e.passed).length
+  return {
+    count: h.length,
+    passed,
+    passRate: Math.round((passed / h.length) * 100),
+    best: Math.max(...h.map((e) => e.pct)),
+    avg: Math.round(h.reduce((s, e) => s + e.pct, 0) / h.length),
+    last: h[h.length - 1],
+  }
+}
+
+// ---- Daily goal & study-day streak --------------------------------------
+
+function ymd(ts) {
+  const d = new Date(ts)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+// Count n answered questions toward today's goal; bump the day streak the
+// first time there's activity on a new calendar day.
+export function recordActivity(state, n = 1, now = Date.now()) {
+  const today = ymd(now)
+  const daily = state.daily || { date: null, count: 0 }
+  if (daily.date === today) {
+    return { ...state, daily: { date: today, count: daily.count + n } }
+  }
+  const yesterday = ymd(now - 86_400_000)
+  const streak = state.lastActiveDate === yesterday ? (state.dayStreak || 0) + 1 : 1
+  return {
+    ...state,
+    daily: { date: today, count: n },
+    dayStreak: streak,
+    bestDayStreak: Math.max(state.bestDayStreak || 0, streak),
+    lastActiveDate: today,
+  }
+}
+
+// Streak only counts if the last active day was today or yesterday.
+export function currentDayStreak(state, now = Date.now()) {
+  const today = ymd(now)
+  const yesterday = ymd(now - 86_400_000)
+  if (state.lastActiveDate === today || state.lastActiveDate === yesterday) return state.dayStreak || 0
+  return 0
+}
+
+export function dailyProgress(state, now = Date.now()) {
+  const today = ymd(now)
+  const daily = state.daily || { date: null, count: 0 }
+  const count = daily.date === today ? daily.count : 0
+  const goal = state.dailyGoal || 10
+  return { count, goal, pct: Math.min(100, Math.round((count / goal) * 100)), met: count >= goal }
+}
+
 export const BADGES = [
   { id: 'first-blood', name: 'First Correct', emoji: '🎯', test: (s) => correctCount(s) >= 1 },
   { id: 'streak-5', name: 'Hot Streak', emoji: '🔥', test: (s) => s.bestStreak >= 5 },
@@ -90,6 +160,8 @@ export const BADGES = [
   { id: 'two-hundred', name: 'Double Ton', emoji: '💪', test: (s) => correctCount(s) >= 200 },
   { id: 'exam-pass', name: 'Exam Slayer', emoji: '🛡️', test: (s) => s.examsPassed >= 1 },
   { id: 'exam-ace', name: 'Perfect Mock', emoji: '👑', test: (s) => (s.badges || []).includes('exam-ace') },
+  { id: 'daily-goal', name: 'Daily Goal', emoji: '✅', test: (s) => dailyProgress(s).met },
+  { id: 'week-streak', name: 'Seven-Day Streak', emoji: '📅', test: (s) => currentDayStreak(s) >= 7 },
   { id: 'completionist', name: 'Bank Breaker', emoji: '🏆', test: (s) => seenCount(s) >= 741 },
 ]
 
