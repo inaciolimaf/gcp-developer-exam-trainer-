@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Flame, PartyPopper, Home as HomeIcon } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Flame, PartyPopper, Home as HomeIcon, Check } from 'lucide-react'
 import QuestionCard from './QuestionCard'
+import { isAnswerCorrect } from '../lib/data'
 import { popBurst, bigCelebration } from '../lib/confetti'
 
 export default function Practice({ title, questions, streak, onAnswer, onExit }) {
   const [index, setIndex] = useState(0)
-  const [selected, setSelected] = useState(null)
+  const [selected, setSelected] = useState([]) // letters chosen this question
   const [revealed, setRevealed] = useState(false)
   const [done, setDone] = useState(false)
   const [hits, setHits] = useState(0)
@@ -14,10 +15,19 @@ export default function Practice({ title, questions, streak, onAnswer, onExit })
   const total = questions.length
   const q = questions[index]
 
-  function choose(letter, ev) {
+  // single-select reveals on click; multi-select toggles until "Check".
+  function onSelect(letter, ev) {
     if (revealed) return
-    const correct = letter === q.answer
-    setSelected(letter)
+    if (q.multi) {
+      setSelected((s) => (s.includes(letter) ? s.filter((l) => l !== letter) : [...s, letter]))
+    } else {
+      reveal([letter], ev)
+    }
+  }
+
+  function reveal(sel, ev) {
+    const correct = isAnswerCorrect(q, sel)
+    setSelected(sel)
     setRevealed(true)
     if (correct) {
       setHits((h) => h + 1)
@@ -34,7 +44,7 @@ export default function Practice({ title, questions, streak, onAnswer, onExit })
       return
     }
     setIndex((i) => i + 1)
-    setSelected(null)
+    setSelected([])
     setRevealed(false)
   }
 
@@ -69,9 +79,25 @@ export default function Practice({ title, questions, streak, onAnswer, onExit })
           total={total}
           selected={selected}
           revealed={revealed}
-          onSelect={(letter, e) => choose(letter, e)}
+          onSelect={(letter, e) => onSelect(letter, e)}
         />
       </AnimatePresence>
+
+      {/* multi-select: pick N then check */}
+      {q.multi && !revealed && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-5 flex items-center justify-between gap-3">
+          <span className="font-body text-sm text-white/50">
+            Select {q.correctSet.length} · {selected.length} chosen
+          </span>
+          <button
+            onClick={(e) => reveal(selected, e)}
+            disabled={selected.length !== q.correctSet.length}
+            className="btn-accent"
+          >
+            Check answer <Check size={18} />
+          </button>
+        </motion.div>
+      )}
 
       <AnimatePresence>
         {revealed && (

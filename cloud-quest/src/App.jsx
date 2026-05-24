@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Star, Flame, BookOpenText, Layers, Brain } from 'lucide-react'
+import { Star, Flame, BookOpenText, Layers, Brain, BarChart3 } from 'lucide-react'
 import Background from './components/Background'
 import Home from './components/Home'
 import Picker from './components/Picker'
@@ -10,7 +10,8 @@ import Guide from './components/Guide'
 import Flashcards from './components/Flashcards'
 import Review from './components/Review'
 import ExamHistory from './components/ExamHistory'
-import { loadBank, loadFlashcards, shuffle } from './lib/data'
+import Stats from './components/Stats'
+import { loadBank, loadFlashcards, shuffle, isAnswerCorrect } from './lib/data'
 import {
   loadState,
   saveState,
@@ -106,16 +107,16 @@ export default function App() {
     (questions, answers, passed, perfect) => {
       setSrs((s) => {
         let next = s
-        for (const q of questions) next = scheduleItem(next, q.id, answers[q.id] === q.answer)
+        for (const q of questions) next = scheduleItem(next, q.id, isAnswerCorrect(q, answers[q.id]))
         return next
       })
-      const correctCt = questions.filter((q) => answers[q.id] === q.answer).length
+      const correctCt = questions.filter((q) => isAnswerCorrect(q, answers[q.id])).length
       const total = questions.length
       const pct = Math.round((correctCt / total) * 100)
       setGame((prev) => {
         let next = { ...prev, examsTaken: prev.examsTaken + 1 }
         for (const q of questions) {
-          const correct = answers[q.id] === q.answer
+          const correct = isAnswerCorrect(q, answers[q.id])
           next = recordAnswer(next, q, correct, correct ? 12 : 0)
         }
         if (passed) next.examsPassed += 1
@@ -162,6 +163,8 @@ export default function App() {
         return setScreen({ name: 'review' })
       case 'examHistory':
         return setScreen({ name: 'examHistory' })
+      case 'stats':
+        return setScreen({ name: 'stats' })
       case 'topic':
         return setScreen({ name: 'pick', kind: 'topic', items: bank.indexes.topics })
       case 'domain':
@@ -206,6 +209,8 @@ export default function App() {
         onReview={() => start('review')}
         reviewActive={screen.name === 'review'}
         dueCount={dueCount}
+        onStats={() => start('stats')}
+        statsActive={screen.name === 'stats'}
       />
 
       <AnimatePresence mode="wait">
@@ -239,6 +244,15 @@ export default function App() {
           )}
           {screen.name === 'examHistory' && (
             <ExamHistory state={game} onStartExam={() => start('exam')} onBack={home} />
+          )}
+          {screen.name === 'stats' && (
+            <Stats
+              bank={bank}
+              state={game}
+              srs={srs}
+              onStartQuestions={(title, questions) => setScreen({ name: 'practice', title, questions })}
+              onBack={home}
+            />
           )}
           {screen.name === 'guide' && <Guide onExit={home} />}
           {screen.name === 'flashcards' &&
@@ -299,7 +313,7 @@ export default function App() {
   )
 }
 
-function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onFlashcards, flashActive, onReview, reviewActive, dueCount }) {
+function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onFlashcards, flashActive, onReview, reviewActive, dueCount, onStats, statsActive }) {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-base/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
@@ -343,6 +357,15 @@ function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onFlashcar
               {dueCount}
             </span>
           )}
+        </button>
+
+        <button
+          onClick={onStats}
+          className={`hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-display text-sm font-semibold transition-colors sm:flex ${
+            statsActive ? 'text-cyan' : 'text-white/55 hover:text-white'
+          }`}
+        >
+          <BarChart3 size={16} /> Stats
         </button>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">

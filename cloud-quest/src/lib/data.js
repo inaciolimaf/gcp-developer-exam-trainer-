@@ -16,12 +16,18 @@ export async function loadBank() {
 function normalize(q) {
   const t = q.topics || {}
   const cr = q.course_reference || {}
+  const correctSet = String(q.correct_answer || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
   return {
     id: q.id,
     number: q.question_number,
     question: q.question,
     options: q.options || [],
     answer: q.correct_answer,
+    correctSet, // e.g. ["A"] or ["A","F"]
+    multi: correctSet.length > 1,
     answerText: q.correct_text,
     explanation: q.explanation || '',
     images: q.images || [],
@@ -96,6 +102,23 @@ function bump(map, key, base) {
 }
 
 // ---- helpers -------------------------------------------------------------
+
+// Normalize a given answer to an array of letters (handles single & multi).
+export function asLetters(given) {
+  return Array.isArray(given) ? given : given ? [given] : []
+}
+
+export function hasAnswer(given) {
+  return asLetters(given).length > 0
+}
+
+// True if `given` matches the question's correct set (order-independent).
+export function isAnswerCorrect(q, given) {
+  const correct = q.correctSet && q.correctSet.length ? q.correctSet : [q.answer]
+  const g = asLetters(given)
+  if (q.multi) return g.length === correct.length && correct.every((l) => g.includes(l))
+  return g.length === 1 && g[0] === correct[0]
+}
 
 export function shuffle(arr) {
   const a = [...arr]

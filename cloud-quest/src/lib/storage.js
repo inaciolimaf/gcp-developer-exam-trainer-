@@ -17,6 +17,7 @@ const DEFAULT = {
   bestDayStreak: 0,
   lastActiveDate: null, // YYYY-MM-DD of last active day
   dailyGoal: 10,
+  activityLog: {}, // YYYY-MM-DD -> questions answered that day (for heatmap)
 }
 
 export function loadState() {
@@ -121,9 +122,11 @@ function ymd(ts) {
 // first time there's activity on a new calendar day.
 export function recordActivity(state, n = 1, now = Date.now()) {
   const today = ymd(now)
+  const log = { ...(state.activityLog || {}) }
+  log[today] = (log[today] || 0) + n
   const daily = state.daily || { date: null, count: 0 }
   if (daily.date === today) {
-    return { ...state, daily: { date: today, count: daily.count + n } }
+    return { ...state, daily: { date: today, count: daily.count + n }, activityLog: log }
   }
   const yesterday = ymd(now - 86_400_000)
   const streak = state.lastActiveDate === yesterday ? (state.dayStreak || 0) + 1 : 1
@@ -133,6 +136,7 @@ export function recordActivity(state, n = 1, now = Date.now()) {
     dayStreak: streak,
     bestDayStreak: Math.max(state.bestDayStreak || 0, streak),
     lastActiveDate: today,
+    activityLog: log,
   }
 }
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Clock, Flag, Trophy, BarChart3, Layers } from 'lucide-react'
-import { sample, DOMAIN_LABELS } from '../lib/data'
+import { sample, DOMAIN_LABELS, isAnswerCorrect, hasAnswer } from '../lib/data'
 import QuestionCard from './QuestionCard'
 import { bigCelebration } from '../lib/confetti'
 
@@ -42,13 +42,13 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
 
   const score = useMemo(() => {
     if (phase !== 'result') return null
-    const correct = questions.filter((q) => answers[q.id] === q.answer).length
+    const correct = questions.filter((q) => isAnswerCorrect(q, answers[q.id])).length
     return { correct, total: questions.length, pct: Math.round((correct / questions.length) * 100) }
   }, [phase, questions, answers])
 
   function finish() {
     clearInterval(timerRef.current)
-    const correct = questions.filter((q) => answers[q.id] === q.answer).length
+    const correct = questions.filter((q) => isAnswerCorrect(q, answers[q.id])).length
     const pct = Math.round((correct / questions.length) * 100)
     onAnswerBatch(questions, answers, pct >= PASS_PCT, pct === 100)
     if (pct >= PASS_PCT) setTimeout(bigCelebration, 250)
@@ -90,14 +90,14 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
   // ---------- RESULT ----------
   if (phase === 'result') {
     const passed = score.pct >= PASS_PCT
-    const wrong = questions.filter((q) => answers[q.id] !== q.answer)
+    const wrong = questions.filter((q) => !isAnswerCorrect(q, answers[q.id]))
 
     // per-domain breakdown
     const domains = {}
     for (const q of questions) {
       const d = (domains[q.domain] ??= { code: q.domain, name: q.domainName, correct: 0, total: 0 })
       d.total += 1
-      if (answers[q.id] === q.answer) d.correct += 1
+      if (isAnswerCorrect(q, answers[q.id])) d.correct += 1
     }
     const domainRows = Object.values(domains).sort((a, b) => String(a.code).localeCompare(String(b.code)))
     const reviewList = reviewAll ? questions : wrong
@@ -208,7 +208,17 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
 
   // ---------- RUN ----------
   const q = questions[index]
-  const answeredCount = Object.keys(answers).length
+  const answeredCount = Object.values(answers).filter(hasAnswer).length
+
+  function pick(letter) {
+    setAnswers((a) => {
+      if (q.multi) {
+        const cur = Array.isArray(a[q.id]) ? a[q.id] : []
+        return { ...a, [q.id]: cur.includes(letter) ? cur.filter((l) => l !== letter) : [...cur, letter] }
+      }
+      return { ...a, [q.id]: letter }
+    })
+  }
   const mm = String(Math.floor(secondsLeft / 60)).padStart(2, '0')
   const ss = String(secondsLeft % 60).padStart(2, '0')
   const low = secondsLeft <= 60
@@ -230,7 +240,7 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
       {/* navigator */}
       <div className="mb-5 flex flex-wrap gap-1.5">
         {questions.map((qq, i) => {
-          const ans = answers[qq.id]
+          const answered = hasAnswer(answers[qq.id])
           return (
             <button
               key={qq.id}
@@ -238,7 +248,7 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
               className={[
                 'h-7 w-7 rounded-md border font-mono text-[11px] font-bold transition-all',
                 i === index ? 'ring-1 ring-violet ring-offset-1 ring-offset-base' : '',
-                ans ? 'border-cyan/40 bg-cyan/15 text-cyan' : 'border-white/10 bg-white/[0.03] text-white/50',
+                answered ? 'border-cyan/40 bg-cyan/15 text-cyan' : 'border-white/10 bg-white/[0.03] text-white/50',
               ].join(' ')}
             >
               {i + 1}
@@ -255,7 +265,7 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
           total={questions.length}
           selected={answers[q.id] || null}
           revealed={false}
-          onSelect={(letter) => setAnswers((a) => ({ ...a, [q.id]: letter }))}
+          onSelect={(letter) => pick(letter)}
         />
       </AnimatePresence>
 

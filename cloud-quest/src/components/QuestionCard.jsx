@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Check, X, Lightbulb, BookOpen, Layers } from 'lucide-react'
 
 export default function QuestionCard({ q, index, total, selected, revealed, onSelect }) {
+  const sel = Array.isArray(selected) ? selected : selected ? [selected] : []
+  const correct = q.correctSet && q.correctSet.length ? q.correctSet : [q.answer]
   return (
     <motion.div
       key={q.id}
@@ -20,6 +22,9 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
           <Layers size={13} /> {q.domain}
         </span>
         <span className="chip">{q.topicName}</span>
+        {q.multi && (
+          <span className="chip border-violet/40 text-violet">choose {correct.length}</span>
+        )}
         {q.coverage === 'pouco ensinado (gap)' && (
           <span className="chip border-coral/40 text-coral">low coverage</span>
         )}
@@ -29,8 +34,8 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
 
       <div className="mt-5 grid gap-2.5">
         {q.options.map((opt, i) => {
-          const isSelected = selected === opt.letter
-          const isCorrect = q.answer === opt.letter
+          const isSelected = sel.includes(opt.letter)
+          const isCorrect = correct.includes(opt.letter)
           const state = !revealed
             ? isSelected
               ? 'selected'
@@ -91,11 +96,11 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
           >
             <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.04] p-4">
               <div className="mb-2 flex items-center gap-2 font-display text-sm font-semibold text-white/90">
-                <Lightbulb size={16} className="text-amber" /> Why answer
+                <Lightbulb size={16} className="text-amber" /> Why{' '}
                 <span className="rounded-md border border-mint/40 bg-mint/15 px-1.5 py-0.5 font-mono text-mint">
-                  {q.answer}
+                  {correct.join(' + ')}
                 </span>
-                is correct
+                {correct.length > 1 ? 'are correct' : 'is correct'}
               </div>
               <p className="whitespace-pre-line font-body text-[15px] leading-relaxed text-white/70">
                 {q.explanation}

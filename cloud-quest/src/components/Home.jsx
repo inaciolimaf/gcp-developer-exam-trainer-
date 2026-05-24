@@ -140,12 +140,18 @@ export default function Home({ bank, state, onStart, dueCount = 0 }) {
         <ArrowRight size={18} className="shrink-0 text-white/40 transition-transform group-hover:translate-x-1" />
       </motion.button>
 
-      {/* Progress strip */}
+      {/* Progress strip — tap any stat to open the full dashboard */}
+      <div className="mb-2 flex items-center justify-between">
+        <span className="label">Your progress</span>
+        <button onClick={() => onStart('stats')} className="label flex items-center gap-1 text-cyan hover:text-white">
+          View stats <ArrowRight size={12} />
+        </button>
+      </div>
       <div className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Seen" value={`${seen}/${total}`} icon={Eye} tint="text-cyan" />
-        <Stat label="Correct" value={correct} icon={Target} tint="text-mint" />
-        <Stat label="Best streak" value={state.bestStreak} icon={Flame} tint="text-amber" />
-        <Stat label="Badges" value={state.badges.length} icon={Award} tint="text-pink" />
+        <Stat label="Seen" value={`${seen}/${total}`} icon={Eye} tint="text-cyan" onClick={() => onStart('stats')} />
+        <Stat label="Correct" value={correct} icon={Target} tint="text-mint" onClick={() => onStart('stats')} />
+        <Stat label="Best streak" value={state.bestStreak} icon={Flame} tint="text-amber" onClick={() => onStart('stats')} />
+        <Stat label="Badges" value={state.badges.length} icon={Award} tint="text-pink" onClick={() => onStart('stats')} />
       </div>
 
       {/* Featured: Study Guide */}
@@ -255,9 +261,12 @@ function Ring({ pct, count, goal, met }) {
   )
 }
 
-function Stat({ label, value, icon: Icon, tint }) {
+function Stat({ label, value, icon: Icon, tint, onClick }) {
   return (
-    <div className="glass flex items-center gap-3 p-3.5">
+    <button
+      onClick={onClick}
+      className="glass flex items-center gap-3 p-3.5 text-left transition-colors hover:border-white/25"
+    >
       <span className={`grid h-10 w-10 place-items-center rounded-lg border border-white/10 bg-white/[0.05] ${tint}`}>
         <Icon size={18} />
       </span>
@@ -265,6 +274,6 @@ function Stat({ label, value, icon: Icon, tint }) {
         <div className="font-mono text-xl font-bold leading-none text-white">{value}</div>
         <div className="mt-1 label">{label}</div>
       </div>
-    </div>
+    </button>
   )
 }
