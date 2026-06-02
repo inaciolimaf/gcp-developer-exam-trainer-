@@ -17,6 +17,7 @@ import {
   Sparkles,
   Brain,
   Trophy,
+  GraduationCap,
 } from 'lucide-react'
 import { correctCount, seenCount, dailyProgress, currentDayStreak, examStats } from '../lib/storage'
 
@@ -172,6 +173,29 @@ export default function Home({ bank, state, onStart, dueCount = 0 }) {
           <div className="font-display text-xl font-semibold text-white">Study Guide</div>
           <div className="mt-0.5 font-body text-sm text-white/55">
             What actually gets tested vs. what the course teaches — gaps, module roadmap, lecture-by-lecture.
+          </div>
+        </div>
+        <ArrowRight size={20} className="shrink-0 text-white/40 transition-transform group-hover:translate-x-1" />
+      </motion.button>
+
+      {/* Featured: Aulas (lessons) */}
+      <motion.button
+        onClick={() => onStart('lessons')}
+        initial={{ opacity: 0, y: 22 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.025, type: 'spring', stiffness: 220, damping: 22 }}
+        whileHover={{ y: -4 }}
+        whileTap={{ scale: 0.99 }}
+        className="group glass relative mb-4 flex w-full items-center gap-4 overflow-hidden p-5 text-left transition-colors hover:border-white/25"
+      >
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-violet/15 via-pink/10 to-transparent opacity-70 transition-opacity group-hover:opacity-100" />
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-white/12 bg-white/[0.06] text-violet transition-shadow group-hover:[box-shadow:0_0_26px_-6px_currentColor]">
+          <GraduationCap size={22} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="font-display text-xl font-semibold text-white">Aulas</div>
+          <div className="mt-0.5 font-body text-sm text-white/55">
+            Os tópicos cobrados que o curso não ensina — narração em áudio (1× a 3×) com o quadro de cada aula.
           </div>
         </div>
         <ArrowRight size={20} className="shrink-0 text-white/40 transition-transform group-hover:translate-x-1" />

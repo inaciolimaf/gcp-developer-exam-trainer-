@@ -1,0 +1,88 @@
+{
+  "lessons": [
+    {
+      "id": 1,
+      "slug": "01-genai-gemini-apis",
+      "title": "Generative AI em apps com as APIs Gemini (Vertex AI)",
+      "quadro": "01-genai-gemini-apis/quadro.md",
+      "audio": "01-genai-gemini-apis/audio.mp3"
+    },
+    {
+      "id": 2,
+      "slug": "02-ai-dev-tools",
+      "title": "Ferramentas de Dev com IA no GCP — Gemini Code Assist & Cloud Assist",
+      "quadro": "02-ai-dev-tools/quadro.md",
+      "audio": "02-ai-dev-tools/audio.mp3"
+    },
+    {
+      "id": 3,
+      "slug": "03-alloydb",
+      "title": "AlloyDB for PostgreSQL (+ Auth Proxy)",
+      "quadro": "03-alloydb/quadro.md",
+      "audio": "03-alloydb/audio.mp3"
+    },
+    {
+      "id": 4,
+      "slug": "04-cloud-workstations",
+      "title": "Cloud Workstations (≈ AWS Cloud9)",
+      "quadro": "04-cloud-workstations/quadro.md",
+      "audio": "04-cloud-workstations/audio.mp3"
+    },
+    {
+      "id": 5,
+      "slug": "05-workflows",
+      "title": "Workflows — orquestração serverless de serviços (≈ AWS Step Functions)",
+      "quadro": "05-workflows/quadro.md",
+      "audio": "05-workflows/audio.mp3"
+    },
+    {
+      "id": 6,
+      "slug": "06-direct-vpc-egress",
+      "title": "Direct VPC egress (Cloud Run → VPC)",
+      "quadro": "06-direct-vpc-egress/quadro.md",
+      "audio": "06-direct-vpc-egress/audio.mp3"
+    },
+    {
+      "id": 7,
+      "slug": "07-gcs-soft-delete-retention",
+      "title": "Cloud Storage: Soft Delete e Locked Retention Policies (imutabilidade/compliance)",
+      "quadro": "07-gcs-soft-delete-retention/quadro.md",
+      "audio": "07-gcs-soft-delete-retention/audio.mp3"
+    },
+    {
+      "id": 8,
+      "slug": "08-datastream-cdc",
+      "title": "Datastream (Change Data Capture / CDC)",
+      "quadro": "08-datastream-cdc/quadro.md",
+      "audio": "08-datastream-cdc/audio.mp3"
+    },
+    {
+      "id": 9,
+      "slug": "09-eventarc",
+      "title": "Eventarc",
+      "quadro": "09-eventarc/quadro.md",
+      "audio": "09-eventarc/audio.mp3"
+    },
+    {
+      "id": 10,
+      "slug": "10-identity-platform",
+      "title": "Identity Platform (CIAM)",
+      "quadro": "10-identity-platform/quadro.md",
+      "audio": "10-identity-platform/audio.mp3"
+    },
+    {
+      "id": 11,
+      "slug": "11-workload-identity-federation",
+      "title": "Workload Identity Federation (WIF)",
+      "quadro": "11-workload-identity-federation/quadro.md",
+      "audio": "11-workload-identity-federation/audio.mp3"
+    },
+    {
+      "id": 12,
+      "slug": "12-web-security-scanner",
+      "title": "Web Security Scanner (Security Command Center)",
+      "quadro": "12-web-security-scanner/quadro.md",
+      "audio": "12-web-security-scanner/audio.mp3"
+    }
+  ]
+}

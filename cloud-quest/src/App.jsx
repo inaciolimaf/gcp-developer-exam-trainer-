@@ -1,12 +1,13 @@
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Star, Flame, BookOpenText, Layers, Brain, BarChart3 } from 'lucide-react'
+import { Star, Flame, BookOpenText, Layers, Brain, BarChart3, GraduationCap } from 'lucide-react'
 import Background from './components/Background'
 import Home from './components/Home'
 import Picker from './components/Picker'
 import Practice from './components/Practice'
 import Exam from './components/Exam'
 import Guide from './components/Guide'
+import Lessons from './components/Lessons'
 import Flashcards from './components/Flashcards'
 import Review from './components/Review'
 import ExamHistory from './components/ExamHistory'
@@ -157,6 +158,8 @@ export default function App() {
         return setScreen({ name: 'exam', pool: all })
       case 'guide':
         return setScreen({ name: 'guide' })
+      case 'lessons':
+        return setScreen({ name: 'lessons' })
       case 'flashcards':
         return setScreen({ name: 'flashcards' })
       case 'review':
@@ -204,6 +207,8 @@ export default function App() {
         clickable={screen.name !== 'home'}
         onGuide={() => start('guide')}
         guideActive={screen.name === 'guide'}
+        onLessons={() => start('lessons')}
+        lessonsActive={screen.name === 'lessons'}
         onFlashcards={() => start('flashcards')}
         flashActive={screen.name === 'flashcards'}
         onReview={() => start('review')}
@@ -255,6 +260,7 @@ export default function App() {
             />
           )}
           {screen.name === 'guide' && <Guide onExit={home} />}
+          {screen.name === 'lessons' && <Lessons onExit={home} />}
           {screen.name === 'flashcards' &&
             (flash ? (
               <Flashcards
@@ -313,7 +319,7 @@ export default function App() {
   )
 }
 
-function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onFlashcards, flashActive, onReview, reviewActive, dueCount, onStats, statsActive }) {
+function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onLessons, lessonsActive, onFlashcards, flashActive, onReview, reviewActive, dueCount, onStats, statsActive }) {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-base/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
@@ -334,6 +340,15 @@ function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onFlashcar
           }`}
         >
           <BookOpenText size={16} /> Guide
+        </button>
+
+        <button
+          onClick={onLessons}
+          className={`hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-display text-sm font-semibold transition-colors sm:flex ${
+            lessonsActive ? 'text-cyan' : 'text-white/55 hover:text-white'
+          }`}
+        >
+          <GraduationCap size={16} /> Aulas
         </button>
 
         <button
