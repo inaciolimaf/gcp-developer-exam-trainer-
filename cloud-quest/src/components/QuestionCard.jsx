@@ -22,6 +22,9 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
           <Layers size={13} /> {q.domain}
         </span>
         <span className="chip">{q.topicName}</span>
+        {q.highQuality && (
+          <span className="chip border-mint/40 text-mint">Alta qualidade</span>
+        )}
         {q.multi && (
           <span className="chip border-violet/40 text-violet">choose {correct.length}</span>
         )}
@@ -103,7 +106,9 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
                 {correct.length > 1 ? 'are correct' : 'is correct'}
               </div>
               <p className="whitespace-pre-line font-body text-[15px] leading-relaxed text-white/70">
-                {q.explanation}
+                {q.explanation || (
+                  <span className="italic text-white/40">Detailed explanation coming soon.</span>
+                )}
               </p>
 
               {q.modules.length > 0 && (

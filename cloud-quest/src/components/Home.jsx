@@ -31,8 +31,10 @@ const MODES = [
   { key: 'gaps', title: 'Study the Gaps', desc: 'Only topics lightly covered in the course.', icon: AlertTriangle, glow: 'shadow-glow-coral', ring: 'text-amber', from: 'from-amber/25' },
 ]
 
-export default function Home({ bank, state, onStart, dueCount = 0 }) {
-  const total = bank.indexes.total
+export default function Home({ bank, state, onStart, dueCount = 0, total: totalProp, hqOnly = false, onToggleHq }) {
+  const total = totalProp ?? bank.indexes.total
+  const hqCount = bank.questions.filter((q) => q.highQuality).length
+  const fullCount = bank.questions.length
   const seen = seenCount(state)
   const correct = correctCount(state)
   const daily = dailyProgress(state)
@@ -83,8 +85,42 @@ export default function Home({ bank, state, onStart, dueCount = 0 }) {
           </span>
         </h1>
         <p className="mx-auto mt-4 max-w-md font-body text-white/55">
-          Turn 741 exam questions into a game. Pick how you want to play, then chase the streak.
+          Turn {total} exam questions into a game. Pick how you want to play, then chase the streak.
         </p>
+
+        {/* Quality filter: restrict the whole app to the curated set */}
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={onToggleHq}
+            className={`group inline-flex items-center gap-2.5 rounded-full border px-4 py-2 font-display text-sm font-semibold transition-colors ${
+              hqOnly
+                ? 'border-mint/50 bg-mint/15 text-mint shadow-glow-mint'
+                : 'border-white/12 bg-white/[0.04] text-white/60 hover:border-white/25 hover:text-white'
+            }`}
+            title={hqOnly ? 'Showing only Alta qualidade questions' : 'Showing all questions'}
+          >
+            <Award size={16} />
+            Alta qualidade
+            <span
+              className={`grid h-5 items-center rounded-full px-2 font-mono text-[11px] ${
+                hqOnly ? 'bg-mint/25 text-mint' : 'bg-white/10 text-white/55'
+              }`}
+            >
+              {hqOnly ? `${hqCount}` : `${hqCount}/${fullCount}`}
+            </span>
+            <span
+              className={`relative ml-0.5 h-4 w-7 rounded-full transition-colors ${
+                hqOnly ? 'bg-mint/70' : 'bg-white/15'
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-3 w-3 rounded-full bg-white transition-all ${
+                  hqOnly ? 'left-3.5' : 'left-0.5'
+                }`}
+              />
+            </span>
+          </button>
+        </div>
       </motion.div>
 
       {/* Daily goal + day streak */}

@@ -39,6 +39,9 @@ function normalize(q) {
     modules: (cr.primary_modules || []).map((m) => ({ id: m.module, title: m.title })),
     coverage: cr.coverage || 'unknown',
     bestLectures: cr.best_lectures || [],
+    quality: q.quality || 'standard',
+    highQuality: q.quality === 'high',
+    needsEnrichment: !!q.needs_enrichment,
   }
 }
 
@@ -67,7 +70,7 @@ export async function loadFlashcards() {
   return _fcCache
 }
 
-function buildIndexes(questions) {
+export function buildIndexes(questions) {
   const domains = new Map()
   const topics = new Map()
   const modules = new Map()

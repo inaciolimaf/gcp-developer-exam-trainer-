@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Star, Flame, BookOpenText, Layers, Brain, BarChart3, GraduationCap } from 'lucide-react'
 import Background from './components/Background'
@@ -12,7 +12,7 @@ import Flashcards from './components/Flashcards'
 import Review from './components/Review'
 import ExamHistory from './components/ExamHistory'
 import Stats from './components/Stats'
-import { loadBank, loadFlashcards, shuffle, isAnswerCorrect } from './lib/data'
+import { loadBank, loadFlashcards, shuffle, isAnswerCorrect, buildIndexes } from './lib/data'
 import {
   loadState,
   saveState,
@@ -41,6 +41,32 @@ export default function App() {
   const [game, setGame] = useState(() => loadState())
   const [screen, setScreen] = useState({ name: 'home' })
   const [toasts, setToasts] = useState([])
+  const [hqOnly, setHqOnly] = useState(() => {
+    try {
+      return localStorage.getItem('cq_hq_only') === '1'
+    } catch {
+      return false
+    }
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cq_hq_only', hqOnly ? '1' : '0')
+    } catch {
+      /* ignore */
+    }
+  }, [hqOnly])
+
+  // "Alta qualidade" filter: when on, restrict the whole app to the curated set
+  // and rebuild the topic/domain/module indexes so the pickers stay in sync.
+  const all = useMemo(
+    () => (!bank ? [] : hqOnly ? bank.questions.filter((q) => q.highQuality) : bank.questions),
+    [bank, hqOnly],
+  )
+  const indexes = useMemo(
+    () => (!bank ? null : hqOnly ? buildIndexes(all) : bank.indexes),
+    [bank, hqOnly, all],
+  )
 
   useEffect(() => {
     loadBank().then(setBank).catch((e) => setError(e.message))
@@ -135,7 +161,6 @@ export default function App() {
   if (error) return <Centered>⚠️ {error}</Centered>
   if (!bank) return <Centered><span className="animate-pulse">Loading the question bank…</span></Centered>
 
-  const all = bank.questions
   const home = () => setScreen({ name: 'home' })
 
   function start(mode) {
@@ -169,11 +194,11 @@ export default function App() {
       case 'stats':
         return setScreen({ name: 'stats' })
       case 'topic':
-        return setScreen({ name: 'pick', kind: 'topic', items: bank.indexes.topics })
+        return setScreen({ name: 'pick', kind: 'topic', items: indexes.topics })
       case 'domain':
-        return setScreen({ name: 'pick', kind: 'domain', items: bank.indexes.domains })
+        return setScreen({ name: 'pick', kind: 'domain', items: indexes.domains })
       case 'module':
-        return setScreen({ name: 'pick', kind: 'module', items: bank.indexes.modules })
+        return setScreen({ name: 'pick', kind: 'module', items: indexes.modules })
       default:
         return
     }
@@ -226,7 +251,17 @@ export default function App() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
-          {screen.name === 'home' && <Home bank={bank} state={game} onStart={start} dueCount={dueCount} />}
+          {screen.name === 'home' && (
+            <Home
+              bank={bank}
+              state={game}
+              onStart={start}
+              dueCount={dueCount}
+              total={indexes.total}
+              hqOnly={hqOnly}
+              onToggleHq={() => setHqOnly((v) => !v)}
+            />
+          )}
           {screen.name === 'pick' && (
             <Picker kind={screen.kind} items={screen.items} onPick={(code) => pick(screen.kind, code)} onBack={home} />
           )}
