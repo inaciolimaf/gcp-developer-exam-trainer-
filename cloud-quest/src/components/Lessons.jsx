@@ -45,36 +45,69 @@ export default function Lessons({ onExit }) {
       ) : list.length === 0 ? (
         <div className="glass p-6 font-body text-white/60">Nenhuma aula encontrada.</div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {list.map((l, i) => (
-            <motion.button
-              key={l.slug}
-              onClick={() => setActive(l)}
-              initial={{ opacity: 0, y: 22 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.04 * i, type: 'spring', stiffness: 220, damping: 22 }}
-              whileHover={{ y: -5 }}
-              whileTap={{ scale: 0.98 }}
-              className="group glass relative flex flex-col items-start gap-3 overflow-hidden p-5 text-left transition-colors hover:border-white/25"
-            >
-              <div className="absolute inset-0 -z-10 bg-gradient-to-br from-violet/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              <span className="grid h-11 w-11 place-items-center rounded-xl border border-white/12 bg-white/[0.06] font-mono text-lg font-bold text-violet transition-shadow duration-300 group-hover:[box-shadow:0_0_26px_-6px_currentColor]">
-                {String(l.id).padStart(2, '0')}
-              </span>
-              <div className="flex items-start gap-1 font-display text-base font-semibold leading-snug text-white">
-                {l.title}
-                <ArrowUpRight size={15} className="mt-0.5 shrink-0 opacity-0 -translate-x-1 transition-all group-hover:translate-x-0 group-hover:opacity-60" />
-              </div>
-              {l.audio && (
-                <span className="chip border-white/12 text-white/55">
-                  <Headphones size={12} /> áudio
-                </span>
-              )}
-            </motion.button>
-          ))}
-        </div>
+        <>
+          <Section
+            label="Tópicos fora do curso (gaps)"
+            hint="Cobrados na prova, mas o curso não ensina."
+            items={list.filter((l) => l.group !== 'course')}
+            onPick={setActive}
+          />
+          <Section
+            label="Tópicos do curso"
+            hint="Resumo em áudio dos módulos que valem a pena — na ordem do curso."
+            items={list.filter((l) => l.group === 'course')}
+            onPick={setActive}
+          />
+        </>
       )}
     </div>
+  )
+}
+
+function Section({ label, hint, items, onPick }) {
+  if (!items.length) return null
+  return (
+    <section className="mb-10">
+      <div className="mb-1 flex items-baseline gap-3">
+        <h2 className="font-display text-lg font-bold text-white">{label}</h2>
+        <span className="font-mono text-xs text-white/40">{items.length}</span>
+      </div>
+      <p className="mb-4 font-body text-sm text-white/45">{hint}</p>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((l, i) => (
+          <LessonCard key={l.slug} lesson={l} index={i} onPick={onPick} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function LessonCard({ lesson: l, index: i, onPick }) {
+  const badge = l.module != null ? String(l.module).padStart(2, '0') : String(l.id).padStart(2, '0')
+  return (
+    <motion.button
+      onClick={() => onPick(l)}
+      initial={{ opacity: 0, y: 22 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.04 * i, type: 'spring', stiffness: 220, damping: 22 }}
+      whileHover={{ y: -5 }}
+      whileTap={{ scale: 0.98 }}
+      className="group glass relative flex flex-col items-start gap-3 overflow-hidden p-5 text-left transition-colors hover:border-white/25"
+    >
+      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-violet/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <span className="grid h-11 w-11 place-items-center rounded-xl border border-white/12 bg-white/[0.06] font-mono text-lg font-bold text-violet transition-shadow duration-300 group-hover:[box-shadow:0_0_26px_-6px_currentColor]">
+        {badge}
+      </span>
+      <div className="flex items-start gap-1 font-display text-base font-semibold leading-snug text-white">
+        {l.title}
+        <ArrowUpRight size={15} className="mt-0.5 shrink-0 opacity-0 -translate-x-1 transition-all group-hover:translate-x-0 group-hover:opacity-60" />
+      </div>
+      {l.audio && (
+        <span className="chip border-white/12 text-white/55">
+          <Headphones size={12} /> áudio
+        </span>
+      )}
+    </motion.button>
   )
 }
 
@@ -108,8 +141,12 @@ function LessonDetail({ lesson, onBack, onHome }) {
         {lesson.title}
       </h1>
 
-      {lesson.audio && (
+      {lesson.audio ? (
         <AudioPlayer src={`${import.meta.env.BASE_URL}lessons/${lesson.audio}`} />
+      ) : (
+        <div className="glass flex items-center gap-2 p-3 font-body text-sm text-white/45">
+          <Headphones size={15} /> Áudio em breve — por enquanto, acompanhe pelo quadro abaixo.
+        </div>
       )}
 
       <motion.article

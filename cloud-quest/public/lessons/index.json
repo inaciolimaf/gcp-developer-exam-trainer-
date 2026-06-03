@@ -1,88 +1,418 @@
 {
   "lessons": [
     {
-      "id": 1,
       "slug": "01-genai-gemini-apis",
+      "group": "gap",
+      "module": null,
       "title": "Generative AI em apps com as APIs Gemini (Vertex AI)",
       "quadro": "01-genai-gemini-apis/quadro.md",
-      "audio": "01-genai-gemini-apis/audio.mp3"
+      "audio": "01-genai-gemini-apis/audio.mp3",
+      "id": 1
     },
     {
-      "id": 2,
       "slug": "02-ai-dev-tools",
+      "group": "gap",
+      "module": null,
       "title": "Ferramentas de Dev com IA no GCP — Gemini Code Assist & Cloud Assist",
       "quadro": "02-ai-dev-tools/quadro.md",
-      "audio": "02-ai-dev-tools/audio.mp3"
+      "audio": "02-ai-dev-tools/audio.mp3",
+      "id": 2
     },
     {
-      "id": 3,
       "slug": "03-alloydb",
+      "group": "gap",
+      "module": null,
       "title": "AlloyDB for PostgreSQL (+ Auth Proxy)",
       "quadro": "03-alloydb/quadro.md",
-      "audio": "03-alloydb/audio.mp3"
+      "audio": "03-alloydb/audio.mp3",
+      "id": 3
     },
     {
-      "id": 4,
       "slug": "04-cloud-workstations",
+      "group": "gap",
+      "module": null,
       "title": "Cloud Workstations (≈ AWS Cloud9)",
       "quadro": "04-cloud-workstations/quadro.md",
-      "audio": "04-cloud-workstations/audio.mp3"
+      "audio": "04-cloud-workstations/audio.mp3",
+      "id": 4
     },
     {
-      "id": 5,
       "slug": "05-workflows",
+      "group": "gap",
+      "module": null,
       "title": "Workflows — orquestração serverless de serviços (≈ AWS Step Functions)",
       "quadro": "05-workflows/quadro.md",
-      "audio": "05-workflows/audio.mp3"
+      "audio": "05-workflows/audio.mp3",
+      "id": 5
     },
     {
-      "id": 6,
       "slug": "06-direct-vpc-egress",
+      "group": "gap",
+      "module": null,
       "title": "Direct VPC egress (Cloud Run → VPC)",
       "quadro": "06-direct-vpc-egress/quadro.md",
-      "audio": "06-direct-vpc-egress/audio.mp3"
+      "audio": "06-direct-vpc-egress/audio.mp3",
+      "id": 6
     },
     {
-      "id": 7,
       "slug": "07-gcs-soft-delete-retention",
+      "group": "gap",
+      "module": null,
       "title": "Cloud Storage: Soft Delete e Locked Retention Policies (imutabilidade/compliance)",
       "quadro": "07-gcs-soft-delete-retention/quadro.md",
-      "audio": "07-gcs-soft-delete-retention/audio.mp3"
+      "audio": "07-gcs-soft-delete-retention/audio.mp3",
+      "id": 7
     },
     {
-      "id": 8,
       "slug": "08-datastream-cdc",
+      "group": "gap",
+      "module": null,
       "title": "Datastream (Change Data Capture / CDC)",
       "quadro": "08-datastream-cdc/quadro.md",
-      "audio": "08-datastream-cdc/audio.mp3"
+      "audio": "08-datastream-cdc/audio.mp3",
+      "id": 8
     },
     {
-      "id": 9,
       "slug": "09-eventarc",
+      "group": "gap",
+      "module": null,
       "title": "Eventarc",
       "quadro": "09-eventarc/quadro.md",
-      "audio": "09-eventarc/audio.mp3"
+      "audio": "09-eventarc/audio.mp3",
+      "id": 9
     },
     {
-      "id": 10,
       "slug": "10-identity-platform",
+      "group": "gap",
+      "module": null,
       "title": "Identity Platform (CIAM)",
       "quadro": "10-identity-platform/quadro.md",
-      "audio": "10-identity-platform/audio.mp3"
+      "audio": "10-identity-platform/audio.mp3",
+      "id": 10
     },
     {
-      "id": 11,
       "slug": "11-workload-identity-federation",
+      "group": "gap",
+      "module": null,
       "title": "Workload Identity Federation (WIF)",
       "quadro": "11-workload-identity-federation/quadro.md",
-      "audio": "11-workload-identity-federation/audio.mp3"
+      "audio": "11-workload-identity-federation/audio.mp3",
+      "id": 11
     },
     {
-      "id": 12,
       "slug": "12-web-security-scanner",
+      "group": "gap",
+      "module": null,
       "title": "Web Security Scanner (Security Command Center)",
       "quadro": "12-web-security-scanner/quadro.md",
-      "audio": "12-web-security-scanner/audio.mp3"
+      "audio": "12-web-security-scanner/audio.mp3",
+      "id": 12
+    },
+    {
+      "slug": "m03-regions-zones",
+      "group": "course",
+      "module": 3,
+      "title": "03 — Regions e Zones",
+      "quadro": "m03-regions-zones/quadro.md",
+      "audio": "m03-regions-zones/audio.mp3",
+      "id": 13
+    },
+    {
+      "slug": "m04-google-compute-engine",
+      "group": "course",
+      "module": 4,
+      "title": "04 — Google Compute Engine (GCE)",
+      "quadro": "m04-google-compute-engine/quadro.md",
+      "audio": "m04-google-compute-engine/audio.mp3",
+      "id": 14
+    },
+    {
+      "slug": "m05-instance-groups-load-balancing",
+      "group": "course",
+      "module": 5,
+      "title": "05 — Instance Groups & Cloud Load Balancing",
+      "quadro": "m05-instance-groups-load-balancing/quadro.md",
+      "audio": "m05-instance-groups-load-balancing/audio.mp3",
+      "id": 15
+    },
+    {
+      "slug": "m06-gcloud",
+      "group": "course",
+      "module": 6,
+      "title": "06 — gcloud CLI",
+      "quadro": "m06-gcloud/quadro.md",
+      "audio": "m06-gcloud/audio.mp3",
+      "id": 16
+    },
+    {
+      "slug": "m07-managed-services",
+      "group": "course",
+      "module": 7,
+      "title": "07 — Managed Services & Espectro de Compute",
+      "quadro": "m07-managed-services/quadro.md",
+      "audio": "m07-managed-services/audio.mp3",
+      "id": 17
+    },
+    {
+      "slug": "m08-app-engine",
+      "group": "course",
+      "module": 8,
+      "title": "08 — App Engine",
+      "quadro": "m08-app-engine/quadro.md",
+      "audio": "m08-app-engine/audio.mp3",
+      "id": 18
+    },
+    {
+      "slug": "m09-gke",
+      "group": "course",
+      "module": 9,
+      "title": "09 — Google Kubernetes Engine (GKE)",
+      "quadro": "m09-gke/quadro.md",
+      "audio": "m09-gke/audio.mp3",
+      "id": 19
+    },
+    {
+      "slug": "m10-gke-yaml",
+      "group": "course",
+      "module": 10,
+      "title": "10 — GKE: Configuração YAML (Deployment, Service, Labels)",
+      "quadro": "m10-gke-yaml/quadro.md",
+      "audio": "m10-gke-yaml/audio.mp3",
+      "id": 20
+    },
+    {
+      "slug": "m11-cloud-functions-run",
+      "group": "course",
+      "module": 11,
+      "title": "11 — Cloud Functions e Cloud Run",
+      "quadro": "m11-cloud-functions-run/quadro.md",
+      "audio": "m11-cloud-functions-run/audio.mp3",
+      "id": 21
+    },
+    {
+      "slug": "m12-cloud-kms",
+      "group": "course",
+      "module": 12,
+      "title": "12 — Cloud KMS (Criptografia)",
+      "quadro": "m12-cloud-kms/quadro.md",
+      "audio": "m12-cloud-kms/audio.mp3",
+      "id": 22
+    },
+    {
+      "slug": "m13-cloud-storage",
+      "group": "course",
+      "module": 13,
+      "title": "13 — Cloud Storage (Object Storage)",
+      "quadro": "m13-cloud-storage/quadro.md",
+      "audio": "m13-cloud-storage/audio.mp3",
+      "id": 23
+    },
+    {
+      "slug": "m14-auth-iam",
+      "group": "course",
+      "module": 14,
+      "title": "14 — Autenticação e Autorização com Cloud IAM",
+      "quadro": "m14-auth-iam/quadro.md",
+      "audio": "m14-auth-iam/audio.mp3",
+      "id": 24
+    },
+    {
+      "slug": "m15-gke-authorization",
+      "group": "course",
+      "module": 15,
+      "title": "15 — Autorizacao no GKE (Workload Identity, RBAC)",
+      "quadro": "m15-gke-authorization/quadro.md",
+      "audio": "m15-gke-authorization/audio.mp3",
+      "id": 25
+    },
+    {
+      "slug": "m16-iap",
+      "group": "course",
+      "module": 16,
+      "title": "16 — Identity-Aware Proxy (IAP)",
+      "quadro": "m16-iap/quadro.md",
+      "audio": "m16-iap/audio.mp3",
+      "id": 26
+    },
+    {
+      "slug": "m17-devops-sre",
+      "group": "course",
+      "module": 17,
+      "title": "17 — DevOps & SRE (Cloud Build, Artifact Registry)",
+      "quadro": "m17-devops-sre/quadro.md",
+      "audio": "m17-devops-sre/audio.mp3",
+      "id": 27
+    },
+    {
+      "slug": "m18-cloud-build",
+      "group": "course",
+      "module": 18,
+      "title": "18 — Cloud Build (CI/CD)",
+      "quadro": "m18-cloud-build/quadro.md",
+      "audio": "m18-cloud-build/audio.mp3",
+      "id": 28
+    },
+    {
+      "slug": "m19-vpc",
+      "group": "course",
+      "module": 19,
+      "title": "19 — VPC (Redes Privadas)",
+      "quadro": "m19-vpc/quadro.md",
+      "audio": "m19-vpc/audio.mp3",
+      "id": 29
+    },
+    {
+      "slug": "m20-iam-project-organization",
+      "group": "course",
+      "module": 20,
+      "title": "20 — IAM & Organização de Projetos",
+      "quadro": "m20-iam-project-organization/quadro.md",
+      "audio": "m20-iam-project-organization/audio.mp3",
+      "id": 30
+    },
+    {
+      "slug": "m21-client-libraries",
+      "group": "course",
+      "module": 21,
+      "title": "21 — Cloud APIs e Client Libraries",
+      "quadro": "m21-client-libraries/quadro.md",
+      "audio": "m21-client-libraries/audio.mp3",
+      "id": 31
+    },
+    {
+      "slug": "m22-choosing-databases",
+      "group": "course",
+      "module": 22,
+      "title": "22 — Escolha de Bancos de Dados no Google Cloud",
+      "quadro": "m22-choosing-databases/quadro.md",
+      "audio": "m22-choosing-databases/audio.mp3",
+      "id": 32
+    },
+    {
+      "slug": "m23-cloud-sql",
+      "group": "course",
+      "module": 23,
+      "title": "23 — Cloud SQL",
+      "quadro": "m23-cloud-sql/quadro.md",
+      "audio": "m23-cloud-sql/audio.mp3",
+      "id": 33
+    },
+    {
+      "slug": "m24-connecting-cloud-sql",
+      "group": "course",
+      "module": 24,
+      "title": "24 — Conectando ao Cloud SQL",
+      "quadro": "m24-connecting-cloud-sql/quadro.md",
+      "audio": "m24-connecting-cloud-sql/audio.mp3",
+      "id": 34
+    },
+    {
+      "slug": "m25-cloud-spanner",
+      "group": "course",
+      "module": 25,
+      "title": "25 — Cloud Spanner",
+      "quadro": "m25-cloud-spanner/quadro.md",
+      "audio": "m25-cloud-spanner/audio.mp3",
+      "id": 35
+    },
+    {
+      "slug": "m26-nosql",
+      "group": "course",
+      "module": 26,
+      "title": "26 — NoSQL no Google Cloud: Firestore e Bigtable",
+      "quadro": "m26-nosql/quadro.md",
+      "audio": "m26-nosql/audio.mp3",
+      "id": 36
+    },
+    {
+      "slug": "m27-pubsub-tasks",
+      "group": "course",
+      "module": 27,
+      "title": "27 — Comunicacao Assincrona: Pub/Sub e Cloud Tasks",
+      "quadro": "m27-pubsub-tasks/quadro.md",
+      "audio": "m27-pubsub-tasks/audio.mp3",
+      "id": 37
+    },
+    {
+      "slug": "m28-operations",
+      "group": "course",
+      "module": 28,
+      "title": "28 — Operations (Cloud Logging, Monitoring, Trace, Profiler, Error Reporting)",
+      "quadro": "m28-operations/quadro.md",
+      "audio": "m28-operations/audio.mp3",
+      "id": 38
+    },
+    {
+      "slug": "m29-security",
+      "group": "course",
+      "module": 29,
+      "title": "29 — Seguranca no Google Cloud (PCD)",
+      "quadro": "m29-security/quadro.md",
+      "audio": "m29-security/audio.mp3",
+      "id": 39
+    },
+    {
+      "slug": "m30-anthos-service-mesh",
+      "group": "course",
+      "module": 30,
+      "title": "30 — Anthos / Cloud Service Mesh",
+      "quadro": "m30-anthos-service-mesh/quadro.md",
+      "audio": "m30-anthos-service-mesh/audio.mp3",
+      "id": 40
+    },
+    {
+      "slug": "m31-compute-engine-vms",
+      "group": "course",
+      "module": 31,
+      "title": "31 — Compute Engine VMs (avancado)",
+      "quadro": "m31-compute-engine-vms/quadro.md",
+      "audio": "m31-compute-engine-vms/audio.mp3",
+      "id": 41
+    },
+    {
+      "slug": "m32-release-management",
+      "group": "course",
+      "module": 32,
+      "title": "32 — Release Management (Estratégias de Deploy)",
+      "quadro": "m32-release-management/quadro.md",
+      "audio": "m32-release-management/audio.mp3",
+      "id": 42
+    },
+    {
+      "slug": "m33-best-practices",
+      "group": "course",
+      "module": 33,
+      "title": "33 — Best Practices (Google Cloud Developer)",
+      "quadro": "m33-best-practices/quadro.md",
+      "audio": "m33-best-practices/audio.mp3",
+      "id": 43
+    },
+    {
+      "slug": "m34-architecture",
+      "group": "course",
+      "module": 34,
+      "title": "34 — Arquitetura (visao 10.000 pes)",
+      "quadro": "m34-architecture/quadro.md",
+      "audio": "m34-architecture/audio.mp3",
+      "id": 44
+    },
+    {
+      "slug": "m35-course-updates",
+      "group": "course",
+      "module": 35,
+      "title": "35 — Atualizacoes do Exam Guide (Eventarc, Observability, Identity Platform)",
+      "quadro": "m35-course-updates/quadro.md",
+      "audio": "m35-course-updates/audio.mp3",
+      "id": 45
+    },
+    {
+      "slug": "m36-case-study",
+      "group": "course",
+      "module": 36,
+      "title": "36 — Case Study (HipLocal) na prova PCD",
+      "quadro": "m36-case-study/quadro.md",
+      "audio": "m36-case-study/audio.mp3",
+      "id": 46
     }
   ]
 }
