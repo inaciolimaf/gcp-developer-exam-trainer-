@@ -10,7 +10,7 @@ const SPEEDS = [1, 1.5, 2, 2.5, 3]
 const T = {
   pt: {
     aulas: 'Aulas',
-    intro: 'Tópicos cobrados na prova, com o quadro de cada aula. O áudio é em português (ajuste a velocidade de 1× a 3×); a versão em inglês traz o texto traduzido.',
+    intro: 'Tópicos cobrados na prova, com áudio narrado e o quadro de cada aula. Ajuste a velocidade de 1× a 3× e escolha o idioma no canto.',
     loading: 'Carregando aulas…',
     empty: 'Nenhuma aula encontrada.',
     gaps: 'Tópicos fora do curso (gaps)',
@@ -27,7 +27,7 @@ const T = {
   },
   en: {
     aulas: 'Lessons',
-    intro: 'Exam topics, with each lesson’s board. Audio is in Portuguese (adjust speed 1× to 3×); the English version gives you the translated text.',
+    intro: 'Exam topics, with narrated audio and each lesson’s board. Adjust speed 1× to 3× and pick the language in the corner.',
     loading: 'Loading lessons…',
     empty: 'No lessons found.',
     gaps: 'Outside the course (gaps)',
@@ -194,6 +194,7 @@ function LessonCard({ lesson: l, index: i, lang, onPick }) {
 function LessonDetail({ lesson, lang, setLang, t, onBack, onHome }) {
   const [html, setHtml] = useState('')
   const quadroPath = lang === 'en' && lesson.quadro_en ? lesson.quadro_en : lesson.quadro
+  const audioPath = lang === 'en' ? lesson.audio_en : lesson.audio
 
   useEffect(() => {
     setHtml('')
@@ -225,8 +226,8 @@ function LessonDetail({ lesson, lang, setLang, t, onBack, onHome }) {
         </span>
       </div>
 
-      {lang === 'pt' && lesson.audio ? (
-        <AudioPlayer src={`${import.meta.env.BASE_URL}lessons/${lesson.audio}`} />
+      {audioPath ? (
+        <AudioPlayer key={audioPath} src={`${import.meta.env.BASE_URL}lessons/${audioPath}`} />
       ) : (
         <div className="glass flex items-center gap-2 p-3 font-body text-sm text-white/45">
           <Headphones size={15} /> {lang === 'en' ? t.audioEnSoon : t.audioSoon}

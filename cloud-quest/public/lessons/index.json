@@ -9,6 +9,7 @@
       "quadro": "01-genai-gemini-apis/quadro.md",
       "quadro_en": "01-genai-gemini-apis/quadro.en.md",
       "audio": "01-genai-gemini-apis/audio.mp3",
+      "audio_en": "01-genai-gemini-apis/audio.en.mp3",
       "id": 1
     },
     {
@@ -20,6 +21,7 @@
       "quadro": "02-ai-dev-tools/quadro.md",
       "quadro_en": "02-ai-dev-tools/quadro.en.md",
       "audio": "02-ai-dev-tools/audio.mp3",
+      "audio_en": "02-ai-dev-tools/audio.en.mp3",
       "id": 2
     },
     {
@@ -31,6 +33,7 @@
       "quadro": "03-alloydb/quadro.md",
       "quadro_en": "03-alloydb/quadro.en.md",
       "audio": "03-alloydb/audio.mp3",
+      "audio_en": "03-alloydb/audio.en.mp3",
       "id": 3
     },
     {
@@ -42,6 +45,7 @@
       "quadro": "04-cloud-workstations/quadro.md",
       "quadro_en": "04-cloud-workstations/quadro.en.md",
       "audio": "04-cloud-workstations/audio.mp3",
+      "audio_en": "04-cloud-workstations/audio.en.mp3",
       "id": 4
     },
     {
@@ -53,6 +57,7 @@
       "quadro": "05-workflows/quadro.md",
       "quadro_en": "05-workflows/quadro.en.md",
       "audio": "05-workflows/audio.mp3",
+      "audio_en": "05-workflows/audio.en.mp3",
       "id": 5
     },
     {
@@ -64,6 +69,7 @@
       "quadro": "06-direct-vpc-egress/quadro.md",
       "quadro_en": "06-direct-vpc-egress/quadro.en.md",
       "audio": "06-direct-vpc-egress/audio.mp3",
+      "audio_en": "06-direct-vpc-egress/audio.en.mp3",
       "id": 6
     },
     {
@@ -75,6 +81,7 @@
       "quadro": "07-gcs-soft-delete-retention/quadro.md",
       "quadro_en": "07-gcs-soft-delete-retention/quadro.en.md",
       "audio": "07-gcs-soft-delete-retention/audio.mp3",
+      "audio_en": "07-gcs-soft-delete-retention/audio.en.mp3",
       "id": 7
     },
     {
@@ -86,6 +93,7 @@
       "quadro": "08-datastream-cdc/quadro.md",
       "quadro_en": "08-datastream-cdc/quadro.en.md",
       "audio": "08-datastream-cdc/audio.mp3",
+      "audio_en": "08-datastream-cdc/audio.en.mp3",
       "id": 8
     },
     {
@@ -97,6 +105,7 @@
       "quadro": "09-eventarc/quadro.md",
       "quadro_en": "09-eventarc/quadro.en.md",
       "audio": "09-eventarc/audio.mp3",
+      "audio_en": "09-eventarc/audio.en.mp3",
       "id": 9
     },
     {
@@ -108,6 +117,7 @@
       "quadro": "10-identity-platform/quadro.md",
       "quadro_en": "10-identity-platform/quadro.en.md",
       "audio": "10-identity-platform/audio.mp3",
+      "audio_en": "10-identity-platform/audio.en.mp3",
       "id": 10
     },
     {
@@ -119,6 +129,7 @@
       "quadro": "11-workload-identity-federation/quadro.md",
       "quadro_en": "11-workload-identity-federation/quadro.en.md",
       "audio": "11-workload-identity-federation/audio.mp3",
+      "audio_en": "11-workload-identity-federation/audio.en.mp3",
       "id": 11
     },
     {
@@ -130,6 +141,7 @@
       "quadro": "12-web-security-scanner/quadro.md",
       "quadro_en": "12-web-security-scanner/quadro.en.md",
       "audio": "12-web-security-scanner/audio.mp3",
+      "audio_en": "12-web-security-scanner/audio.en.mp3",
       "id": 12
     },
     {
@@ -141,6 +153,7 @@
       "quadro": "m03-regions-zones/quadro.md",
       "quadro_en": "m03-regions-zones/quadro.en.md",
       "audio": "m03-regions-zones/audio.mp3",
+      "audio_en": "m03-regions-zones/audio.en.mp3",
       "id": 13
     },
     {
@@ -152,6 +165,7 @@
       "quadro": "m04-google-compute-engine/quadro.md",
       "quadro_en": "m04-google-compute-engine/quadro.en.md",
       "audio": "m04-google-compute-engine/audio.mp3",
+      "audio_en": "m04-google-compute-engine/audio.en.mp3",
       "id": 14
     },
     {
@@ -163,6 +177,7 @@
       "quadro": "m05-instance-groups-load-balancing/quadro.md",
       "quadro_en": "m05-instance-groups-load-balancing/quadro.en.md",
       "audio": "m05-instance-groups-load-balancing/audio.mp3",
+      "audio_en": "m05-instance-groups-load-balancing/audio.en.mp3",
       "id": 15
     },
     {
@@ -174,6 +189,7 @@
       "quadro": "m06-gcloud/quadro.md",
       "quadro_en": "m06-gcloud/quadro.en.md",
       "audio": "m06-gcloud/audio.mp3",
+      "audio_en": "m06-gcloud/audio.en.mp3",
       "id": 16
     },
     {
@@ -185,6 +201,7 @@
       "quadro": "m07-managed-services/quadro.md",
       "quadro_en": "m07-managed-services/quadro.en.md",
       "audio": "m07-managed-services/audio.mp3",
+      "audio_en": "m07-managed-services/audio.en.mp3",
       "id": 17
     },
     {
@@ -196,6 +213,7 @@
       "quadro": "m08-app-engine/quadro.md",
       "quadro_en": "m08-app-engine/quadro.en.md",
       "audio": "m08-app-engine/audio.mp3",
+      "audio_en": "m08-app-engine/audio.en.mp3",
       "id": 18
     },
     {
@@ -207,6 +225,7 @@
       "quadro": "m09-gke/quadro.md",
       "quadro_en": "m09-gke/quadro.en.md",
       "audio": "m09-gke/audio.mp3",
+      "audio_en": "m09-gke/audio.en.mp3",
       "id": 19
     },
     {
@@ -218,6 +237,7 @@
       "quadro": "m10-gke-yaml/quadro.md",
       "quadro_en": "m10-gke-yaml/quadro.en.md",
       "audio": "m10-gke-yaml/audio.mp3",
+      "audio_en": "m10-gke-yaml/audio.en.mp3",
       "id": 20
     },
     {
@@ -229,6 +249,7 @@
       "quadro": "m11-cloud-functions-run/quadro.md",
       "quadro_en": "m11-cloud-functions-run/quadro.en.md",
       "audio": "m11-cloud-functions-run/audio.mp3",
+      "audio_en": "m11-cloud-functions-run/audio.en.mp3",
       "id": 21
     },
     {
@@ -240,6 +261,7 @@
       "quadro": "m12-cloud-kms/quadro.md",
       "quadro_en": "m12-cloud-kms/quadro.en.md",
       "audio": "m12-cloud-kms/audio.mp3",
+      "audio_en": "m12-cloud-kms/audio.en.mp3",
       "id": 22
     },
     {
@@ -251,6 +273,7 @@
       "quadro": "m13-cloud-storage/quadro.md",
       "quadro_en": "m13-cloud-storage/quadro.en.md",
       "audio": "m13-cloud-storage/audio.mp3",
+      "audio_en": "m13-cloud-storage/audio.en.mp3",
       "id": 23
     },
     {
@@ -262,6 +285,7 @@
       "quadro": "m14-auth-iam/quadro.md",
       "quadro_en": "m14-auth-iam/quadro.en.md",
       "audio": "m14-auth-iam/audio.mp3",
+      "audio_en": "m14-auth-iam/audio.en.mp3",
       "id": 24
     },
     {
@@ -273,6 +297,7 @@
       "quadro": "m15-gke-authorization/quadro.md",
       "quadro_en": "m15-gke-authorization/quadro.en.md",
       "audio": "m15-gke-authorization/audio.mp3",
+      "audio_en": "m15-gke-authorization/audio.en.mp3",
       "id": 25
     },
     {
@@ -284,6 +309,7 @@
       "quadro": "m16-iap/quadro.md",
       "quadro_en": "m16-iap/quadro.en.md",
       "audio": "m16-iap/audio.mp3",
+      "audio_en": "m16-iap/audio.en.mp3",
       "id": 26
     },
     {
@@ -295,6 +321,7 @@
       "quadro": "m17-devops-sre/quadro.md",
       "quadro_en": "m17-devops-sre/quadro.en.md",
       "audio": "m17-devops-sre/audio.mp3",
+      "audio_en": "m17-devops-sre/audio.en.mp3",
       "id": 27
     },
     {
@@ -306,6 +333,7 @@
       "quadro": "m18-cloud-build/quadro.md",
       "quadro_en": "m18-cloud-build/quadro.en.md",
       "audio": "m18-cloud-build/audio.mp3",
+      "audio_en": "m18-cloud-build/audio.en.mp3",
       "id": 28
     },
     {
@@ -317,6 +345,7 @@
       "quadro": "m19-vpc/quadro.md",
       "quadro_en": "m19-vpc/quadro.en.md",
       "audio": "m19-vpc/audio.mp3",
+      "audio_en": "m19-vpc/audio.en.mp3",
       "id": 29
     },
     {
@@ -328,6 +357,7 @@
       "quadro": "m20-iam-project-organization/quadro.md",
       "quadro_en": "m20-iam-project-organization/quadro.en.md",
       "audio": "m20-iam-project-organization/audio.mp3",
+      "audio_en": "m20-iam-project-organization/audio.en.mp3",
       "id": 30
     },
     {
@@ -339,6 +369,7 @@
       "quadro": "m21-client-libraries/quadro.md",
       "quadro_en": "m21-client-libraries/quadro.en.md",
       "audio": "m21-client-libraries/audio.mp3",
+      "audio_en": "m21-client-libraries/audio.en.mp3",
       "id": 31
     },
     {
@@ -350,6 +381,7 @@
       "quadro": "m22-choosing-databases/quadro.md",
       "quadro_en": "m22-choosing-databases/quadro.en.md",
       "audio": "m22-choosing-databases/audio.mp3",
+      "audio_en": "m22-choosing-databases/audio.en.mp3",
       "id": 32
     },
     {
@@ -361,6 +393,7 @@
       "quadro": "m23-cloud-sql/quadro.md",
       "quadro_en": "m23-cloud-sql/quadro.en.md",
       "audio": "m23-cloud-sql/audio.mp3",
+      "audio_en": "m23-cloud-sql/audio.en.mp3",
       "id": 33
     },
     {
@@ -372,6 +405,7 @@
       "quadro": "m24-connecting-cloud-sql/quadro.md",
       "quadro_en": "m24-connecting-cloud-sql/quadro.en.md",
       "audio": "m24-connecting-cloud-sql/audio.mp3",
+      "audio_en": "m24-connecting-cloud-sql/audio.en.mp3",
       "id": 34
     },
     {
@@ -383,6 +417,7 @@
       "quadro": "m25-cloud-spanner/quadro.md",
       "quadro_en": "m25-cloud-spanner/quadro.en.md",
       "audio": "m25-cloud-spanner/audio.mp3",
+      "audio_en": "m25-cloud-spanner/audio.en.mp3",
       "id": 35
     },
     {
@@ -394,6 +429,7 @@
       "quadro": "m26-nosql/quadro.md",
       "quadro_en": "m26-nosql/quadro.en.md",
       "audio": "m26-nosql/audio.mp3",
+      "audio_en": "m26-nosql/audio.en.mp3",
       "id": 36
     },
     {
@@ -405,6 +441,7 @@
       "quadro": "m27-pubsub-tasks/quadro.md",
       "quadro_en": "m27-pubsub-tasks/quadro.en.md",
       "audio": "m27-pubsub-tasks/audio.mp3",
+      "audio_en": "m27-pubsub-tasks/audio.en.mp3",
       "id": 37
     },
     {
@@ -416,6 +453,7 @@
       "quadro": "m28-operations/quadro.md",
       "quadro_en": "m28-operations/quadro.en.md",
       "audio": "m28-operations/audio.mp3",
+      "audio_en": "m28-operations/audio.en.mp3",
       "id": 38
     },
     {
@@ -427,6 +465,7 @@
       "quadro": "m29-security/quadro.md",
       "quadro_en": "m29-security/quadro.en.md",
       "audio": "m29-security/audio.mp3",
+      "audio_en": "m29-security/audio.en.mp3",
       "id": 39
     },
     {
@@ -438,6 +477,7 @@
       "quadro": "m30-anthos-service-mesh/quadro.md",
       "quadro_en": "m30-anthos-service-mesh/quadro.en.md",
       "audio": "m30-anthos-service-mesh/audio.mp3",
+      "audio_en": "m30-anthos-service-mesh/audio.en.mp3",
       "id": 40
     },
     {
@@ -449,6 +489,7 @@
       "quadro": "m31-compute-engine-vms/quadro.md",
       "quadro_en": "m31-compute-engine-vms/quadro.en.md",
       "audio": "m31-compute-engine-vms/audio.mp3",
+      "audio_en": "m31-compute-engine-vms/audio.en.mp3",
       "id": 41
     },
     {
@@ -460,6 +501,7 @@
       "quadro": "m32-release-management/quadro.md",
       "quadro_en": "m32-release-management/quadro.en.md",
       "audio": "m32-release-management/audio.mp3",
+      "audio_en": "m32-release-management/audio.en.mp3",
       "id": 42
     },
     {
@@ -471,6 +513,7 @@
       "quadro": "m33-best-practices/quadro.md",
       "quadro_en": "m33-best-practices/quadro.en.md",
       "audio": "m33-best-practices/audio.mp3",
+      "audio_en": "m33-best-practices/audio.en.mp3",
       "id": 43
     },
     {
@@ -482,6 +525,7 @@
       "quadro": "m34-architecture/quadro.md",
       "quadro_en": "m34-architecture/quadro.en.md",
       "audio": "m34-architecture/audio.mp3",
+      "audio_en": "m34-architecture/audio.en.mp3",
       "id": 44
     },
     {
@@ -493,6 +537,7 @@
       "quadro": "m35-course-updates/quadro.md",
       "quadro_en": "m35-course-updates/quadro.en.md",
       "audio": "m35-course-updates/audio.mp3",
+      "audio_en": "m35-course-updates/audio.en.mp3",
       "id": 45
     },
     {
@@ -504,6 +549,7 @@
       "quadro": "m36-case-study/quadro.md",
       "quadro_en": "m36-case-study/quadro.en.md",
       "audio": "m36-case-study/audio.mp3",
+      "audio_en": "m36-case-study/audio.en.mp3",
       "id": 46
     }
   ]
