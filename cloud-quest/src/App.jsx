@@ -348,7 +348,7 @@ function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onLessons,
             lessonsActive ? 'text-cyan' : 'text-white/55 hover:text-white'
           }`}
         >
-          <GraduationCap size={16} /> Aulas
+          <GraduationCap size={16} /> Lessons
         </button>
 
         <button

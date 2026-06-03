@@ -49,9 +49,9 @@ export default function Lessons({ onExit }) {
   const [active, setActive] = useState(null)
   const [lang, setLang] = useState(() => {
     try {
-      return localStorage.getItem('lessons_lang') || 'pt'
+      return localStorage.getItem('lessons_lang') || 'en'
     } catch {
-      return 'pt'
+      return 'en'
     }
   })
 

@@ -193,9 +193,9 @@ export default function Home({ bank, state, onStart, dueCount = 0 }) {
           <GraduationCap size={22} />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="font-display text-xl font-semibold text-white">Aulas</div>
+          <div className="font-display text-xl font-semibold text-white">Lessons</div>
           <div className="mt-0.5 font-body text-sm text-white/55">
-            Os tópicos cobrados que o curso não ensina — narração em áudio (1× a 3×) com o quadro de cada aula.
+            Exam topics with narrated audio (1×–3×) and a board for each lesson. Toggle PT/EN inside.
           </div>
         </div>
         <ArrowRight size={20} className="shrink-0 text-white/40 transition-transform group-hover:translate-x-1" />
