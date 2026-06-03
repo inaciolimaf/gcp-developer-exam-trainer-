@@ -7,9 +7,61 @@ marked.setOptions({ gfm: true, breaks: false })
 
 const SPEEDS = [1, 1.5, 2, 2.5, 3]
 
+const T = {
+  pt: {
+    aulas: 'Aulas',
+    intro: 'Tópicos cobrados na prova, com o quadro de cada aula. O áudio é em português (ajuste a velocidade de 1× a 3×); a versão em inglês traz o texto traduzido.',
+    loading: 'Carregando aulas…',
+    empty: 'Nenhuma aula encontrada.',
+    gaps: 'Tópicos fora do curso (gaps)',
+    gapsHint: 'Cobrados na prova, mas o curso não ensina.',
+    course: 'Tópicos do curso',
+    courseHint: 'Os módulos que valem a pena — na ordem do curso.',
+    home: 'Home',
+    backList: 'Aulas',
+    lesson: 'Aula',
+    audioBadge: 'áudio',
+    audioSoon: 'Áudio em breve — por enquanto, acompanhe pelo quadro abaixo.',
+    audioEnSoon: 'Áudio em inglês em breve — por enquanto, leia o quadro abaixo.',
+    loadErr: 'Não foi possível carregar o quadro desta aula.',
+  },
+  en: {
+    aulas: 'Lessons',
+    intro: 'Exam topics, with each lesson’s board. Audio is in Portuguese (adjust speed 1× to 3×); the English version gives you the translated text.',
+    loading: 'Loading lessons…',
+    empty: 'No lessons found.',
+    gaps: 'Outside the course (gaps)',
+    gapsHint: 'Tested on the exam, but the course doesn’t teach them.',
+    course: 'Course topics',
+    courseHint: 'The modules worth it — in course order.',
+    home: 'Home',
+    backList: 'Lessons',
+    lesson: 'Lesson',
+    audioBadge: 'audio',
+    audioSoon: 'Audio coming soon — for now, follow along with the board below.',
+    audioEnSoon: 'English audio coming soon — for now, read the board below.',
+    loadErr: 'Could not load this lesson’s board.',
+  },
+}
+
 export default function Lessons({ onExit }) {
   const [list, setList] = useState(null)
   const [active, setActive] = useState(null)
+  const [lang, setLang] = useState(() => {
+    try {
+      return localStorage.getItem('lessons_lang') || 'pt'
+    } catch {
+      return 'pt'
+    }
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('lessons_lang', lang)
+    } catch {
+      /* ignore */
+    }
+  }, [lang])
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}lessons/index.json`)
@@ -18,44 +70,55 @@ export default function Lessons({ onExit }) {
       .catch(() => setList([]))
   }, [])
 
+  const t = T[lang]
+
   if (active) {
-    return <LessonDetail lesson={active} onBack={() => setActive(null)} onHome={onExit} />
+    return (
+      <LessonDetail
+        lesson={active}
+        lang={lang}
+        setLang={setLang}
+        t={t}
+        onBack={() => setActive(null)}
+        onHome={onExit}
+      />
+    )
   }
 
   return (
     <div className="mx-auto max-w-5xl px-4 pb-28 pt-6">
       <div className="mb-6 flex items-center gap-3">
         <button onClick={onExit} className="btn">
-          <ArrowLeft size={16} /> Home
+          <ArrowLeft size={16} /> {t.home}
         </button>
         <div className="flex items-center gap-2 font-display text-xl font-bold text-white">
-          <GraduationCap size={20} className="text-violet" /> Aulas
+          <GraduationCap size={20} className="text-violet" /> {t.aulas}
         </div>
+        <LangToggle lang={lang} setLang={setLang} />
       </div>
 
-      <p className="mb-6 max-w-2xl font-body text-sm text-white/55">
-        Os tópicos cobrados na prova que o curso <strong className="text-white/80">não ensina</strong> — narração em
-        áudio (ajuste a velocidade de 1× a 3×) com o quadro de cada aula para acompanhar.
-      </p>
+      <p className="mb-6 max-w-2xl font-body text-sm text-white/55">{t.intro}</p>
 
       {list === null ? (
         <div className="grid place-items-center pt-20 font-display text-white/60">
-          <span className="animate-pulse">Carregando aulas…</span>
+          <span className="animate-pulse">{t.loading}</span>
         </div>
       ) : list.length === 0 ? (
-        <div className="glass p-6 font-body text-white/60">Nenhuma aula encontrada.</div>
+        <div className="glass p-6 font-body text-white/60">{t.empty}</div>
       ) : (
         <>
           <Section
-            label="Tópicos fora do curso (gaps)"
-            hint="Cobrados na prova, mas o curso não ensina."
+            label={t.gaps}
+            hint={t.gapsHint}
             items={list.filter((l) => l.group !== 'course')}
+            lang={lang}
             onPick={setActive}
           />
           <Section
-            label="Tópicos do curso"
-            hint="Resumo em áudio dos módulos que valem a pena — na ordem do curso."
+            label={t.course}
+            hint={t.courseHint}
             items={list.filter((l) => l.group === 'course')}
+            lang={lang}
             onPick={setActive}
           />
         </>
@@ -64,7 +127,29 @@ export default function Lessons({ onExit }) {
   )
 }
 
-function Section({ label, hint, items, onPick }) {
+function LangToggle({ lang, setLang }) {
+  return (
+    <div className="ml-auto flex items-center rounded-lg border border-white/12 bg-white/[0.05] p-0.5 font-display text-xs font-bold">
+      {['pt', 'en'].map((l) => (
+        <button
+          key={l}
+          onClick={() => setLang(l)}
+          className={`rounded-md px-2.5 py-1 transition-colors ${
+            lang === l ? 'bg-violet/30 text-white' : 'text-white/45 hover:text-white/80'
+          }`}
+        >
+          {l.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function lessonTitle(l, lang) {
+  return lang === 'en' ? l.title_en || l.title : l.title
+}
+
+function Section({ label, hint, items, lang, onPick }) {
   if (!items.length) return null
   return (
     <section className="mb-10">
@@ -75,14 +160,14 @@ function Section({ label, hint, items, onPick }) {
       <p className="mb-4 font-body text-sm text-white/45">{hint}</p>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((l, i) => (
-          <LessonCard key={l.slug} lesson={l} index={i} onPick={onPick} />
+          <LessonCard key={l.slug} lesson={l} index={i} lang={lang} onPick={onPick} />
         ))}
       </div>
     </section>
   )
 }
 
-function LessonCard({ lesson: l, index: i, onPick }) {
+function LessonCard({ lesson: l, index: i, lang, onPick }) {
   const badge = l.module != null ? String(l.module).padStart(2, '0') : String(l.id).padStart(2, '0')
   return (
     <motion.button
@@ -99,58 +184,57 @@ function LessonCard({ lesson: l, index: i, onPick }) {
         {badge}
       </span>
       <div className="flex items-start gap-1 font-display text-base font-semibold leading-snug text-white">
-        {l.title}
+        {lessonTitle(l, lang)}
         <ArrowUpRight size={15} className="mt-0.5 shrink-0 opacity-0 -translate-x-1 transition-all group-hover:translate-x-0 group-hover:opacity-60" />
       </div>
-      {l.audio && (
-        <span className="chip border-white/12 text-white/55">
-          <Headphones size={12} /> áudio
-        </span>
-      )}
     </motion.button>
   )
 }
 
-function LessonDetail({ lesson, onBack, onHome }) {
+function LessonDetail({ lesson, lang, setLang, t, onBack, onHome }) {
   const [html, setHtml] = useState('')
+  const quadroPath = lang === 'en' && lesson.quadro_en ? lesson.quadro_en : lesson.quadro
 
   useEffect(() => {
     setHtml('')
-    fetch(`${import.meta.env.BASE_URL}lessons/${lesson.quadro}`)
+    fetch(`${import.meta.env.BASE_URL}lessons/${quadroPath}`)
       .then((r) => r.text())
       // remove o primeiro H1 (já mostramos o título no cabeçalho)
       .then((md) => setHtml(marked.parse(md.replace(/^#\s.*\n/, ''))))
-      .catch(() => setHtml('<p>Não foi possível carregar o quadro desta aula.</p>'))
-  }, [lesson])
+      .catch(() => setHtml(`<p>${t.loadErr}</p>`))
+  }, [quadroPath, t.loadErr])
 
   return (
     <div className="mx-auto max-w-4xl px-4 pb-28 pt-6">
       <div className="mb-5 flex items-center gap-3">
         <button onClick={onBack} className="btn">
-          <ArrowLeft size={16} /> Aulas
+          <ArrowLeft size={16} /> {t.backList}
         </button>
         <button onClick={onHome} className="btn text-white/55">
-          Home
+          {t.home}
         </button>
-        <span className="ml-auto font-mono text-sm text-white/40">
-          Aula {String(lesson.id).padStart(2, '0')}
+        <LangToggle lang={lang} setLang={setLang} />
+      </div>
+
+      <div className="mb-5 flex items-baseline gap-3">
+        <h1 className="font-display text-2xl font-bold leading-tight text-white sm:text-3xl">
+          {lessonTitle(lesson, lang)}
+        </h1>
+        <span className="shrink-0 font-mono text-sm text-white/40">
+          {t.lesson} {String(lesson.id).padStart(2, '0')}
         </span>
       </div>
 
-      <h1 className="mb-5 font-display text-2xl font-bold leading-tight text-white sm:text-3xl">
-        {lesson.title}
-      </h1>
-
-      {lesson.audio ? (
+      {lang === 'pt' && lesson.audio ? (
         <AudioPlayer src={`${import.meta.env.BASE_URL}lessons/${lesson.audio}`} />
       ) : (
         <div className="glass flex items-center gap-2 p-3 font-body text-sm text-white/45">
-          <Headphones size={15} /> Áudio em breve — por enquanto, acompanhe pelo quadro abaixo.
+          <Headphones size={15} /> {lang === 'en' ? t.audioEnSoon : t.audioSoon}
         </div>
       )}
 
       <motion.article
-        key={lesson.slug}
+        key={quadroPath}
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -218,7 +302,7 @@ function AudioPlayer({ src }) {
       <div className="flex items-center gap-4">
         <button
           onClick={toggle}
-          aria-label={playing ? 'Pausar' : 'Reproduzir'}
+          aria-label={playing ? 'Pause' : 'Play'}
           className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-cyan to-violet text-base shadow-glow-violet transition-transform hover:scale-105 active:scale-95"
         >
           {playing ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-0.5" />}
