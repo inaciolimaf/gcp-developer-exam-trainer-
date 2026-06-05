@@ -2,18 +2,35 @@
 
 let _cache = null
 
+const EMPTY_SET = new Set()
+
 export async function loadBank() {
   if (_cache) return _cache
-  const res = await fetch(`${import.meta.env.BASE_URL}all_questions.json`)
+  const [res, manRes] = await Promise.all([
+    fetch(`${import.meta.env.BASE_URL}all_questions.json`),
+    fetch(`${import.meta.env.BASE_URL}q-audio/manifest.json`).catch(() => null),
+  ])
   if (!res.ok) throw new Error(`Failed to load question bank (${res.status})`)
   const data = await res.json()
-  const questions = (data.questions || []).map(normalize)
+  let enSet = EMPTY_SET
+  let ptSet = EMPTY_SET
+  if (manRes && manRes.ok) {
+    try {
+      const m = await manRes.json()
+      enSet = new Set(m.en || [])
+      ptSet = new Set(m.pt || [])
+    } catch {
+      /* no audio manifest — buttons just won't show */
+    }
+  }
+  const questions = (data.questions || []).map((q) => normalize(q, enSet, ptSet))
   _cache = { meta: data.metadata || {}, questions, indexes: buildIndexes(questions) }
   return _cache
 }
 
 // Flatten the rich nested fields into something the UI consumes easily.
-function normalize(q) {
+function normalize(q, enSet = EMPTY_SET, ptSet = EMPTY_SET) {
+  const audioId = String(q.id || '').replace(/[^A-Za-z0-9_-]/g, '_')
   const t = q.topics || {}
   const cr = q.course_reference || {}
   const correctSet = String(q.correct_answer || '')
@@ -30,6 +47,10 @@ function normalize(q) {
     multi: correctSet.length > 1,
     answerText: q.correct_text,
     explanation: q.explanation || '',
+    explanationPt: q.explanation_pt || '',
+    audioId,
+    audioEn: enSet.has(audioId),
+    audioPt: ptSet.has(audioId),
     images: q.images || [],
     topicCode: t.primary || 'MISC',
     topicName: t.primary_name || t.primary || 'Miscellaneous',

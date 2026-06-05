@@ -1,9 +1,28 @@
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Check, X, Lightbulb, BookOpen, Layers } from 'lucide-react'
+import { Check, X, Lightbulb, BookOpen, Layers, Volume2, Pause } from 'lucide-react'
 
 export default function QuestionCard({ q, index, total, selected, revealed, onSelect }) {
   const sel = Array.isArray(selected) ? selected : selected ? [selected] : []
   const correct = q.correctSet && q.correctSet.length ? q.correctSet : [q.answer]
+
+  const [lang, setLang] = useState(() => {
+    try {
+      return localStorage.getItem('q_lang') || 'en'
+    } catch {
+      return 'en'
+    }
+  })
+  useEffect(() => {
+    try {
+      localStorage.setItem('q_lang', lang)
+    } catch {
+      /* ignore */
+    }
+  }, [lang])
+  const explText = lang === 'pt' ? q.explanationPt || q.explanation : q.explanation
+  const hasAudio = lang === 'pt' ? q.audioPt : q.audioEn
+  const audioSrc = `${import.meta.env.BASE_URL}q-audio/${q.audioId}${lang === 'pt' ? '.pt' : ''}.mp3`
   return (
     <motion.div
       key={q.id}
@@ -104,9 +123,13 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
                   {correct.join(' + ')}
                 </span>
                 {correct.length > 1 ? 'are correct' : 'is correct'}
+                <span className="ml-auto flex items-center gap-1.5">
+                  {(q.explanationPt || q.audioPt) && <ExplLangToggle lang={lang} setLang={setLang} />}
+                  {hasAudio && <PlayButton key={audioSrc} src={audioSrc} />}
+                </span>
               </div>
               <p className="whitespace-pre-line font-body text-[15px] leading-relaxed text-white/70">
-                {q.explanation || (
+                {explText || (
                   <span className="italic text-white/40">Detailed explanation coming soon.</span>
                 )}
               </p>
@@ -130,5 +153,53 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
         )}
       </AnimatePresence>
     </motion.div>
+  )
+}
+
+function ExplLangToggle({ lang, setLang }) {
+  return (
+    <span className="flex items-center rounded-md border border-white/12 bg-white/[0.05] p-0.5 font-mono text-[10px] font-bold">
+      {['en', 'pt'].map((l) => (
+        <button
+          key={l}
+          type="button"
+          onClick={() => setLang(l)}
+          className={`rounded px-1.5 py-0.5 transition-colors ${
+            lang === l ? 'bg-violet/30 text-white' : 'text-white/45 hover:text-white/80'
+          }`}
+        >
+          {l.toUpperCase()}
+        </button>
+      ))}
+    </span>
+  )
+}
+
+function PlayButton({ src }) {
+  const ref = useRef(null)
+  const [playing, setPlaying] = useState(false)
+  return (
+    <>
+      <audio
+        ref={ref}
+        src={src}
+        preload="none"
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onEnded={() => setPlaying(false)}
+      />
+      <button
+        type="button"
+        title={playing ? 'Pause' : 'Listen'}
+        onClick={() => {
+          const a = ref.current
+          if (!a) return
+          a.paused ? a.play() : a.pause()
+        }}
+        className="grid h-7 w-7 place-items-center rounded-md border border-white/12 bg-white/[0.05] text-cyan transition-colors hover:border-cyan/40 hover:bg-cyan/10"
+      >
+        {playing ? <Pause size={14} fill="currentColor" /> : <Volume2 size={14} />}
+      </button>
+    </>
   )
 }
