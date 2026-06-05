@@ -1,8 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeft, BarChart3, Layers, TrendingUp, TrendingDown, Flame, CalendarDays, Gauge } from 'lucide-react'
+import { ArrowLeft, BarChart3, Layers, TrendingUp, TrendingDown, Flame, CalendarDays, Gauge, RefreshCw, Copy, Check, Upload } from 'lucide-react'
 import { shuffle, DOMAIN_LABELS } from '../lib/data'
-import { examStats, currentDayStreak } from '../lib/storage'
+import { examStats, currentDayStreak, exportProgress, importProgress } from '../lib/storage'
 import { srsStats } from '../lib/srs'
 
 const HEAT_WEEKS = 18
@@ -189,6 +189,92 @@ export default function Stats({ bank, state, srs, onStartQuestions, onBack }) {
           </div>
         </>
       )}
+
+      <SyncCard />
+    </div>
+  )
+}
+
+function SyncCard() {
+  const [code, setCode] = useState('')
+  const [copied, setCopied] = useState(false)
+  const [paste, setPaste] = useState('')
+  const [msg, setMsg] = useState(null) // { ok: bool, text: string }
+
+  const handleCopy = async () => {
+    const c = exportProgress()
+    setCode(c)
+    setMsg(null)
+    try {
+      await navigator.clipboard.writeText(c)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      /* clipboard blocked — code is shown in the box to copy by hand */
+    }
+  }
+
+  const handleRestore = () => {
+    try {
+      const n = importProgress(paste)
+      setMsg({ ok: true, text: `Restored ${n} item${n === 1 ? '' : 's'} — reloading…` })
+      setTimeout(() => window.location.reload(), 700)
+    } catch {
+      setMsg({ ok: false, text: 'Invalid code — copy the full text and try again.' })
+    }
+  }
+
+  return (
+    <div className="glass mt-6 p-5">
+      <div className="mb-1 flex items-center gap-2 label">
+        <RefreshCw size={14} className="text-cyan" /> Sync progress (Linux ⇄ Windows)
+      </div>
+      <p className="mb-4 font-body text-xs text-white/45">
+        Your progress lives only in this browser. To carry it to the other OS: <b>copy</b> the code here, then{' '}
+        <b>paste &amp; restore</b> it over there. No account, no internet.
+      </p>
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        {/* export */}
+        <div>
+          <button onClick={handleCopy} className="btn w-full justify-center">
+            {copied ? <Check size={16} className="text-mint" /> : <Copy size={16} />}
+            {copied ? 'Copied!' : 'Copy my progress'}
+          </button>
+          {code && (
+            <textarea
+              readOnly
+              value={code}
+              onFocus={(e) => e.target.select()}
+              className="mt-2 h-20 w-full resize-none rounded-lg border border-white/10 bg-white/[0.04] p-2 font-mono text-[10px] leading-tight text-white/60"
+            />
+          )}
+        </div>
+
+        {/* import */}
+        <div>
+          <textarea
+            value={paste}
+            onChange={(e) => setPaste(e.target.value)}
+            placeholder="Paste the code from the other OS here…"
+            className="h-20 w-full resize-none rounded-lg border border-white/10 bg-white/[0.04] p-2 font-mono text-[10px] leading-tight text-white placeholder:text-white/30"
+          />
+          <button
+            onClick={handleRestore}
+            disabled={!paste.trim()}
+            className="btn mt-2 w-full justify-center disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <Upload size={16} /> Paste &amp; restore
+          </button>
+          {msg && (
+            <p className={`mt-2 font-body text-xs ${msg.ok ? 'text-mint' : 'text-coral'}`}>{msg.text}</p>
+          )}
+        </div>
+      </div>
+      <p className="mt-3 font-body text-[11px] text-white/35">
+        Restoring <b>overwrites</b> this machine's progress with the pasted one. Newest copy wins — copy on the side
+        you studied last.
+      </p>
     </div>
   )
 }

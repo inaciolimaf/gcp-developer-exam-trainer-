@@ -240,6 +240,58 @@ export function addXp(state, amount) {
   return { ...state, xp: state.xp + amount }
 }
 
+// ---- Sync (copy/paste a code between machines) --------------------------
+// All progress lives in a handful of localStorage keys. We pack them into a
+// single base64 string so you can copy it on one OS and paste it on the other
+// (Linux <-> Windows dual boot) without any server, account or file.
+
+const SYNC_KEYS = [
+  KEY, // cloudquest.v1 — XP, streak, answered, exams, badges, activity
+  GUIDE_KEY, // study-guide checklist
+  FC_KEY, // flashcards progress
+  'cloudquest.srs.v1', // spaced-repetition schedule
+  // prefs (harmless if absent)
+  'lessons_lang',
+  'q_lang',
+  'cq_hq_only',
+]
+
+// utf-8 safe base64 (handles any accents that might sneak in)
+function b64encode(str) {
+  return btoa(unescape(encodeURIComponent(str)))
+}
+function b64decode(str) {
+  return decodeURIComponent(escape(atob(str)))
+}
+
+// Bundle every progress key into one copy-pasteable code.
+export function exportProgress() {
+  const bag = {}
+  for (const k of SYNC_KEYS) {
+    const v = localStorage.getItem(k)
+    if (v !== null) bag[k] = v
+  }
+  const payload = { v: 1, ts: new Date().toISOString(), data: bag }
+  return b64encode(JSON.stringify(payload))
+}
+
+// Restore from a code produced by exportProgress(). Throws on bad input.
+// Returns the number of keys restored. Caller should reload the page after.
+export function importProgress(code) {
+  const clean = (code || '').trim()
+  if (!clean) throw new Error('empty')
+  const payload = JSON.parse(b64decode(clean))
+  if (!payload || typeof payload.data !== 'object') throw new Error('invalid')
+  let n = 0
+  for (const k of SYNC_KEYS) {
+    if (Object.prototype.hasOwnProperty.call(payload.data, k)) {
+      localStorage.setItem(k, payload.data[k])
+      n++
+    }
+  }
+  return n
+}
+
 // Returns { state, newBadges } after re-checking all badges.
 export function refreshBadges(state) {
   const have = new Set(state.badges)
