@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Check, X, Lightbulb, BookOpen, Layers, Volume2, Pause } from 'lucide-react'
+import { Check, X, Lightbulb, BookOpen, Layers } from 'lucide-react'
+import AudioPlayer from './AudioPlayer'
 
 export default function QuestionCard({ q, index, total, selected, revealed, onSelect }) {
   const sel = Array.isArray(selected) ? selected : selected ? [selected] : []
@@ -123,11 +124,17 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
                   {correct.join(' + ')}
                 </span>
                 {correct.length > 1 ? 'are correct' : 'is correct'}
-                <span className="ml-auto flex items-center gap-1.5">
-                  {(q.explanationPt || q.audioPt) && <ExplLangToggle lang={lang} setLang={setLang} />}
-                  {hasAudio && <PlayButton key={audioSrc} src={audioSrc} />}
-                </span>
+                {(q.explanationPt || q.audioPt) && (
+                  <span className="ml-auto">
+                    <ExplLangToggle lang={lang} setLang={setLang} />
+                  </span>
+                )}
               </div>
+              {hasAudio && (
+                <div className="mb-3">
+                  <AudioPlayer key={audioSrc} src={audioSrc} />
+                </div>
+              )}
               <p className="whitespace-pre-line font-body text-[15px] leading-relaxed text-white/70">
                 {explText || (
                   <span className="italic text-white/40">Detailed explanation coming soon.</span>
@@ -175,31 +182,3 @@ function ExplLangToggle({ lang, setLang }) {
   )
 }
 
-function PlayButton({ src }) {
-  const ref = useRef(null)
-  const [playing, setPlaying] = useState(false)
-  return (
-    <>
-      <audio
-        ref={ref}
-        src={src}
-        preload="none"
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
-        onEnded={() => setPlaying(false)}
-      />
-      <button
-        type="button"
-        title={playing ? 'Pause' : 'Listen'}
-        onClick={() => {
-          const a = ref.current
-          if (!a) return
-          a.paused ? a.play() : a.pause()
-        }}
-        className="grid h-7 w-7 place-items-center rounded-md border border-white/12 bg-white/[0.05] text-cyan transition-colors hover:border-cyan/40 hover:bg-cyan/10"
-      >
-        {playing ? <Pause size={14} fill="currentColor" /> : <Volume2 size={14} />}
-      </button>
-    </>
-  )
-}
