@@ -27,3 +27,9 @@ Thumbs.db
 
 # study guide translation staging (source kept outside the app)
 cloud-quest/public/study_guide.pt.md
+
+# data backups / pre-merge / pre-enrich snapshots (git history is the backup)
+*.backup
+*.backup_*
+*.bak
+*~
