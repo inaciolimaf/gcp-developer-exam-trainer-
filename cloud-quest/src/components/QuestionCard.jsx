@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Check, X, Lightbulb, BookOpen, Layers } from 'lucide-react'
+import { Check, X, Lightbulb, BookOpen, Layers, CheckSquare, ListChecks } from 'lucide-react'
 import AudioPlayer from './AudioPlayer'
 
 export default function QuestionCard({ q, index, total, selected, revealed, onSelect }) {
   const sel = Array.isArray(selected) ? selected : selected ? [selected] : []
   const correct = q.correctSet && q.correctSet.length ? q.correctSet : [q.answer]
+  const isMulti = !!q.multi
+  const needed = correct.length
 
   const [lang, setLang] = useState(() => {
     try {
@@ -31,7 +33,9 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -24, scale: 0.985 }}
       transition={{ type: 'spring', stiffness: 260, damping: 24 }}
-      className="glass-strong p-5 shadow-glow-soft sm:p-7"
+      className={`glass-strong p-5 shadow-glow-soft sm:p-7 ${
+        isMulti && !revealed ? 'ring-2 ring-amber/50 shadow-glow-amber' : ''
+      }`}
     >
       {/* meta row */}
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -45,8 +49,10 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
         {q.highQuality && (
           <span className="chip border-mint/40 text-mint">Alta qualidade</span>
         )}
-        {q.multi && (
-          <span className="chip border-violet/40 text-violet">choose {correct.length}</span>
+        {isMulti && (
+          <span className="chip border-amber/60 bg-amber/15 font-bold text-amber">
+            <CheckSquare size={13} /> marque {needed}
+          </span>
         )}
         {q.coverage === 'pouco ensinado (gap)' && (
           <span className="chip border-coral/40 text-coral">low coverage</span>
@@ -54,6 +60,34 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
       </div>
 
       <h2 className="font-body text-lg leading-relaxed text-white/95 sm:text-xl">{q.question}</h2>
+
+      {isMulti && !revealed && (
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-5 flex items-center gap-3 rounded-xl border border-amber/50 bg-amber/[0.12] px-4 py-3"
+        >
+          <ListChecks size={20} className="shrink-0 text-amber" />
+          <div className="flex-1">
+            <p className="font-display text-sm font-bold text-amber">
+              Múltipla escolha — selecione {needed} alternativas
+            </p>
+            <p className="font-body text-xs text-amber/80">
+              {sel.length} de {needed} marcadas
+            </p>
+          </div>
+          <div className="flex gap-1.5">
+            {Array.from({ length: needed }).map((_, i) => (
+              <span
+                key={i}
+                className={`h-2.5 w-2.5 rounded-full transition-colors ${
+                  i < sel.length ? 'bg-amber' : 'border border-amber/50 bg-transparent'
+                }`}
+              />
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       <div className="mt-5 grid gap-2.5">
         {q.options.map((opt, i) => {
@@ -98,7 +132,9 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
               className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-all duration-150 ${styles}`}
             >
               <span
-                className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg border font-mono text-sm font-bold ${badge}`}
+                className={`grid h-8 w-8 shrink-0 place-items-center border font-mono text-sm font-bold ${
+                  isMulti ? 'rounded-md' : 'rounded-lg'
+                } ${badge}`}
               >
                 {state === 'correct' ? <Check size={16} /> : state === 'wrong' ? <X size={16} /> : opt.letter}
               </span>

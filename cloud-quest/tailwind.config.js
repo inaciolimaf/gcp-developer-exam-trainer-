@@ -25,6 +25,7 @@ export default {
         'glow-pink': '0 0 28px -6px rgba(244,114,182,0.55)',
         'glow-mint': '0 0 30px -4px rgba(52,211,153,0.6)',
         'glow-coral': '0 0 30px -4px rgba(251,113,133,0.55)',
+        'glow-amber': '0 0 30px -4px rgba(251,191,36,0.55)',
         'glow-soft': '0 8px 40px -12px rgba(0,0,0,0.7)',
       },
       borderWidth: { 3: '3px' },
