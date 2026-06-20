@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Clock, Flag, Trophy, BarChart3, Layers } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Clock, Flag, Trophy, BarChart3, Layers, Check, Eye, EyeOff } from 'lucide-react'
 import { sample, DOMAIN_LABELS, isAnswerCorrect, hasAnswer } from '../lib/data'
 import QuestionCard from './QuestionCard'
 import { bigCelebration } from '../lib/confetti'
@@ -14,11 +14,14 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
   const [index, setIndex] = useState(0)
   const [secondsLeft, setSecondsLeft] = useState(0)
   const [reviewAll, setReviewAll] = useState(false)
+  const [feedback, setFeedback] = useState('submit') // 'submit' (classic) | 'instant'
+  const [revealed, setRevealed] = useState(() => new Set()) // ids locked+shown (instant mode)
   const timerRef = useRef(null)
 
   function begin(n) {
     setQuestions(sample(pool, n))
     setAnswers({})
+    setRevealed(new Set())
     setIndex(0)
     setSecondsLeft(n * 90) // 90s per question
     setPhase('run')
@@ -71,9 +74,41 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
           <Clock className="mx-auto mb-3 text-coral" size={44} />
           <h2 className="font-display text-3xl font-bold text-white">Mock Exam</h2>
           <p className="mx-auto mt-2 max-w-sm font-body text-white/55">
-            Pick a length. You get <span className="text-white/90">90 seconds</span> per question and no feedback until
-            you submit. Pass mark is <span className="text-white/90">{PASS_PCT}%</span>.
+            Pick a length. You get <span className="text-white/90">90 seconds</span> per question. Pass mark is{' '}
+            <span className="text-white/90">{PASS_PCT}%</span>.
           </p>
+
+          {/* feedback mode: classic (no peeking) vs instant (reveal as you go) */}
+          <div className="mt-6 text-left">
+            <div className="mb-2 label text-center">Modo de resposta</div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setFeedback('submit')}
+                className={`flex flex-col items-center gap-1 rounded-xl border p-3 transition-colors ${
+                  feedback === 'submit'
+                    ? 'border-coral/50 bg-coral/10 text-coral shadow-glow-coral'
+                    : 'border-white/12 bg-white/[0.04] text-white/55 hover:border-white/25 hover:text-white'
+                }`}
+              >
+                <EyeOff size={18} />
+                <span className="font-display text-sm font-semibold">Clássico</span>
+                <span className="font-body text-[11px] leading-tight opacity-80">Sem resposta até enviar</span>
+              </button>
+              <button
+                onClick={() => setFeedback('instant')}
+                className={`flex flex-col items-center gap-1 rounded-xl border p-3 transition-colors ${
+                  feedback === 'instant'
+                    ? 'border-cyan/50 bg-cyan/10 text-cyan shadow-glow-cyan'
+                    : 'border-white/12 bg-white/[0.04] text-white/55 hover:border-white/25 hover:text-white'
+                }`}
+              >
+                <Eye size={18} />
+                <span className="font-display text-sm font-semibold">Feedback imediato</span>
+                <span className="font-body text-[11px] leading-tight opacity-80">Mostra a resposta na hora</span>
+              </button>
+            </div>
+          </div>
+
           <div className="mt-6 grid grid-cols-2 gap-3">
             {opts.map((n) => (
               <button key={n} onClick={() => begin(n)} className="btn-accent py-4">
@@ -210,7 +245,10 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
   const q = questions[index]
   const answeredCount = Object.values(answers).filter(hasAnswer).length
 
+  const isRevealed = feedback === 'instant' && revealed.has(q.id)
+
   function pick(letter) {
+    if (isRevealed) return // locked once shown in instant mode
     setAnswers((a) => {
       if (q.multi) {
         const cur = Array.isArray(a[q.id]) ? a[q.id] : []
@@ -218,6 +256,17 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
       }
       return { ...a, [q.id]: letter }
     })
+    // single-select instant mode reveals the moment you tap an option
+    if (feedback === 'instant' && !q.multi) {
+      setRevealed((r) => new Set(r).add(q.id))
+    }
+  }
+
+  // multi-select instant mode: reveal only after the right number is chosen
+  const selCount = Array.isArray(answers[q.id]) ? answers[q.id].length : 0
+  const canCheckMulti = feedback === 'instant' && q.multi && !isRevealed && selCount === (q.correctSet?.length || 0)
+  function checkMulti() {
+    setRevealed((r) => new Set(r).add(q.id))
   }
   const mm = String(Math.floor(secondsLeft / 60)).padStart(2, '0')
   const ss = String(secondsLeft % 60).padStart(2, '0')
@@ -264,10 +313,22 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
           index={index}
           total={questions.length}
           selected={answers[q.id] || null}
-          revealed={false}
+          revealed={isRevealed}
           onSelect={(letter) => pick(letter)}
         />
       </AnimatePresence>
+
+      {/* instant + multi-select: confirm the selection to reveal */}
+      {canCheckMulti && (
+        <div className="mt-5 flex items-center justify-between gap-3">
+          <span className="font-body text-sm text-white/50">
+            Marque {q.correctSet.length} · {selCount} escolhidas
+          </span>
+          <button onClick={checkMulti} className="btn-accent">
+            Conferir <Check size={18} />
+          </button>
+        </div>
+      )}
 
       <div className="mt-5 flex items-center justify-between gap-3">
         <button onClick={() => setIndex((i) => Math.max(0, i - 1))} disabled={index === 0} className="btn">

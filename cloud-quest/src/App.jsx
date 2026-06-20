@@ -67,6 +67,11 @@ export default function App() {
     () => (!bank ? null : hqOnly ? buildIndexes(all) : bank.indexes),
     [bank, hqOnly, all],
   )
+  // How many questions are still unanswered — drives the Random Blitz badge.
+  const blitzRemaining = useMemo(
+    () => all.filter((q) => !game.answered[q.id]).length,
+    [all, game.answered],
+  )
 
   useEffect(() => {
     loadBank().then(setBank).catch((e) => setError(e.message))
@@ -165,8 +170,18 @@ export default function App() {
 
   function start(mode) {
     switch (mode) {
-      case 'random':
-        return setScreen({ name: 'practice', title: 'Random Blitz', questions: shuffle(all) })
+      case 'random': {
+        // Only serve questions you haven't answered yet. Once the whole bank
+        // is done, fall back to the full set in review mode (flagged below).
+        const unanswered = all.filter((q) => !game.answered[q.id])
+        const allAnswered = unanswered.length === 0
+        return setScreen({
+          name: 'practice',
+          title: 'Random Blitz',
+          questions: shuffle(allAnswered ? all : unanswered),
+          allAnswered,
+        })
+      }
       case 'list':
         return setScreen({
           name: 'practice',
@@ -258,6 +273,7 @@ export default function App() {
               onStart={start}
               dueCount={dueCount}
               total={indexes.total}
+              blitzRemaining={blitzRemaining}
               hqOnly={hqOnly}
               onToggleHq={() => setHqOnly((v) => !v)}
             />
@@ -270,6 +286,7 @@ export default function App() {
               title={screen.title}
               questions={screen.questions}
               streak={game.streak}
+              allAnswered={screen.allAnswered}
               onAnswer={onAnswer}
               onExit={home}
             />

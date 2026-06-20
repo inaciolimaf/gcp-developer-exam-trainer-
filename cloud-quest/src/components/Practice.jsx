@@ -5,7 +5,7 @@ import QuestionCard from './QuestionCard'
 import { isAnswerCorrect } from '../lib/data'
 import { popBurst, bigCelebration } from '../lib/confetti'
 
-export default function Practice({ title, questions, streak, onAnswer, onExit }) {
+export default function Practice({ title, questions, streak, allAnswered = false, onAnswer, onExit }) {
   const [index, setIndex] = useState(0)
   const [selected, setSelected] = useState([]) // letters chosen this question
   const [revealed, setRevealed] = useState(false)
@@ -61,6 +61,15 @@ export default function Practice({ title, questions, streak, onAnswer, onExit })
           <Flame size={14} /> {streak}
         </div>
       </div>
+
+      {/* once the whole bank is answered, Random Blitz becomes a review pass */}
+      {allAnswered && (
+        <div className="mb-4 flex justify-center">
+          <span className="chip border-mint/40 text-mint">
+            <Check size={14} /> Todas já respondidas · revisão · {total} questões
+          </span>
+        </div>
+      )}
 
       {/* session progress bar */}
       <div className="mb-5 h-2 overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">

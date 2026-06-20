@@ -31,7 +31,7 @@ const MODES = [
   { key: 'gaps', title: 'Study the Gaps', desc: 'Only topics lightly covered in the course.', icon: AlertTriangle, glow: 'shadow-glow-coral', ring: 'text-amber', from: 'from-amber/25' },
 ]
 
-export default function Home({ bank, state, onStart, dueCount = 0, total: totalProp, hqOnly = false, onToggleHq }) {
+export default function Home({ bank, state, onStart, dueCount = 0, total: totalProp, blitzRemaining = 0, hqOnly = false, onToggleHq }) {
   const total = totalProp ?? bank.indexes.total
   const hqCount = bank.questions.filter((q) => q.highQuality).length
   const fullCount = bank.questions.length
@@ -275,6 +275,17 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
           >
             {/* hover wash */}
             <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${m.from} to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
+            {/* Random Blitz: how many new questions are left (or all-done tag) */}
+            {m.key === 'random' &&
+              (blitzRemaining > 0 ? (
+                <span className="chip absolute right-4 top-4 border-cyan/40 text-cyan">
+                  {blitzRemaining} {blitzRemaining === 1 ? 'nova' : 'novas'}
+                </span>
+              ) : (
+                <span className="chip absolute right-4 top-4 border-mint/40 text-mint">
+                  ✓ Todas respondidas · {total}
+                </span>
+              ))}
             <span className={`grid h-12 w-12 place-items-center rounded-xl border border-white/12 bg-white/[0.06] ${m.ring} transition-shadow duration-300 group-hover:[box-shadow:0_0_26px_-6px_currentColor]`}>
               <m.icon size={22} />
             </span>
@@ -283,7 +294,11 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
                 {m.title}
                 <ArrowUpRight size={16} className="opacity-0 -translate-x-1 transition-all group-hover:translate-x-0 group-hover:opacity-60" />
               </div>
-              <div className="mt-0.5 font-body text-sm text-white/50">{m.desc}</div>
+              <div className="mt-0.5 font-body text-sm text-white/50">
+                {m.key === 'random' && blitzRemaining > 0
+                  ? `${blitzRemaining} de ${total} ainda sem resposta.`
+                  : m.desc}
+              </div>
             </div>
           </motion.button>
         ))}

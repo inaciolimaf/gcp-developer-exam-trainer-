@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeft, BarChart3, Layers, TrendingUp, TrendingDown, Flame, CalendarDays, Gauge, RefreshCw, Copy, Check, Upload } from 'lucide-react'
+import { ArrowLeft, BarChart3, Layers, TrendingUp, TrendingDown, Flame, CalendarDays, Gauge, RefreshCw, Copy, Check, Upload, Repeat2, Eye, RotateCcw } from 'lucide-react'
 import { shuffle, DOMAIN_LABELS } from '../lib/data'
 import { examStats, currentDayStreak, exportProgress, importProgress } from '../lib/storage'
 import { srsStats } from '../lib/srs'
@@ -18,6 +18,11 @@ export default function Stats({ bank, state, srs, onStartQuestions, onBack }) {
     const byId = new Map(bank.questions.map((q) => [q.id, q]))
     const seen = Object.keys(answered).length
     let solved = 0
+    let attempts = 0 // total answers given (sums repeats)
+    let once = 0 // questions answered exactly once
+    let twice = 0 // answered exactly twice
+    let thrice = 0 // answered 3+ times
+    let notSolved = 0 // seen but never gotten right
     const dom = new Map()
     const top = new Map()
     for (const [id, a] of Object.entries(answered)) {
@@ -25,6 +30,12 @@ export default function Stats({ bank, state, srs, onStartQuestions, onBack }) {
       if (!q) continue
       const ok = a.correct ? 1 : 0
       solved += ok
+      if (!ok) notSolved += 1
+      const c = a.count || 1
+      attempts += c
+      if (c === 1) once += 1
+      else if (c === 2) twice += 1
+      else thrice += 1
       const d = dom.get(q.domain) || { code: q.domain, name: q.domainName, seen: 0, solved: 0 }
       d.seen += 1
       d.solved += ok
@@ -38,7 +49,7 @@ export default function Stats({ bank, state, srs, onStartQuestions, onBack }) {
     const topics = [...top.values()].filter((t) => t.seen >= 2).map((t) => ({ ...t, ratio: t.solved / t.seen }))
     const strongest = [...topics].sort((a, b) => b.ratio - a.ratio || b.seen - a.seen).slice(0, 5)
     const weakest = [...topics].sort((a, b) => a.ratio - b.ratio || b.seen - a.seen).slice(0, 5)
-    return { seen, solved, domains, strongest, weakest }
+    return { seen, solved, attempts, once, twice, thrice, notSolved, domains, strongest, weakest }
   }, [bank.questions, answered])
 
   const total = bank.indexes.total
@@ -115,6 +126,62 @@ export default function Stats({ bank, state, srs, onStartQuestions, onBack }) {
               <Metric label="Coverage" value={`${Math.round(coverage * 100)}%`} sub={`${data.seen}/${total} seen`} tint="text-cyan" />
               <Metric label="Exam avg" value={exams.count ? `${exams.avg}%` : '—'} sub={`${exams.count} taken`} tint="text-amber" />
               <Metric label="SRS mastered" value={srsM.mastered} sub={`${srsM.scheduled} scheduled`} tint="text-violet" />
+            </div>
+          </div>
+
+          {/* practice volume — how much you've answered and re-answered */}
+          <div className="glass mb-6 p-5">
+            <div className="mb-4 flex items-center gap-2 label">
+              <Repeat2 size={14} /> Volume de prática
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <Metric label="Respondidas" value={data.seen} sub={`de ${total} · faltam ${total - data.seen}`} tint="text-cyan" />
+              <Metric label="Respostas dadas" value={data.attempts} sub={`${(data.attempts / (data.seen || 1)).toFixed(1)}× por questão`} tint="text-violet" />
+              <Metric label="Repetidas 2+×" value={data.twice + data.thrice} sub={`${data.thrice} feitas 3+ vezes`} tint="text-amber" />
+              <Metric label="Ainda sem acerto" value={data.notSolved} sub={`${data.seen - data.notSolved} já acertadas`} tint="text-coral" />
+            </div>
+
+            {/* once / twice / 3+ distribution */}
+            <div className="mt-4">
+              <div className="mb-2 flex items-center justify-between label">
+                <span>Quantas vezes você respondeu cada questão</span>
+                <span className="font-mono text-white/40">{data.seen} questões</span>
+              </div>
+              <div className="flex h-3 overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
+                <span className="bg-cyan/70" style={{ width: `${pctOf(data.once, data.seen)}%` }} title={`1×: ${data.once}`} />
+                <span className="bg-amber/70" style={{ width: `${pctOf(data.twice, data.seen)}%` }} title={`2×: ${data.twice}`} />
+                <span className="bg-coral/70" style={{ width: `${pctOf(data.thrice, data.seen)}%` }} title={`3+×: ${data.thrice}`} />
+              </div>
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-body text-xs text-white/55">
+                <Legend tint="bg-cyan/70" label="1 vez" n={data.once} />
+                <Legend tint="bg-amber/70" label="2 vezes" n={data.twice} />
+                <Legend tint="bg-coral/70" label="3+ vezes" n={data.thrice} />
+              </div>
+            </div>
+
+            {/* quick drills built from these buckets */}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                onClick={() => drill(bank.questions.filter((q) => answered[q.id] && !answered[q.id].correct), 'Ainda sem acerto')}
+                disabled={!data.notSolved}
+                className="btn text-xs disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <RotateCcw size={14} /> Revisar não acertadas ({data.notSolved})
+              </button>
+              <button
+                onClick={() => drill(bank.questions.filter((q) => (answered[q.id]?.count || 0) >= 2), 'Respondidas 2+ vezes')}
+                disabled={!(data.twice + data.thrice)}
+                className="btn text-xs disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Repeat2 size={14} /> Revisar repetidas ({data.twice + data.thrice})
+              </button>
+              <button
+                onClick={() => drill(bank.questions.filter((q) => !answered[q.id]), 'Ainda não respondidas')}
+                disabled={total - data.seen <= 0}
+                className="btn text-xs disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Eye size={14} /> Ver as que faltam ({total - data.seen})
+              </button>
             </div>
           </div>
 
@@ -276,6 +343,19 @@ function SyncCard() {
         you studied last.
       </p>
     </div>
+  )
+}
+
+function pctOf(n, total) {
+  return total ? (n / total) * 100 : 0
+}
+
+function Legend({ tint, label, n }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span className={`h-2.5 w-2.5 rounded-sm ${tint}`} />
+      {label} · <span className="font-mono text-white/70">{n}</span>
+    </span>
   )
 }
 

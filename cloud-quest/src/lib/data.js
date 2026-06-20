@@ -4,6 +4,26 @@ let _cache = null
 
 const EMPTY_SET = new Set()
 
+// HipLocal case-study questions (26). The HipLocal case study was dropped from
+// the current Professional Cloud Developer exam (the April 2026 official exam
+// guide lists no case study), so we exclude them from the whole app.
+//  - std-cep-q*: the original case-study questions (4–5k chars, prefixed
+//    "This is a case study").
+//  - rw4-vmexam-*: still say "HipLocal" literally.
+//  - rw1-cep-*: long rewritten versions (CivicCircles, NeighborNet, CityConnect,
+//    Brookline Hub, PineLoop) that reuse the same HipLocal scenario.
+export const EXCLUDED_IDS = new Set([
+  // original case-study questions
+  'std-cep-q042', 'std-cep-q043', 'std-cep-q044', 'std-cep-q045', 'std-cep-q046',
+  'std-cep-q047', 'std-cep-q048', 'std-cep-q049', 'std-cep-q079', 'std-cep-q080',
+  'std-cep-q081', 'std-cep-q082', 'std-cep-q166', 'std-cep-q167', 'std-cep-q168',
+  'std-cep-q185', 'std-cep-q186', 'std-cep-q187', 'std-cep-q188',
+  // literal HipLocal
+  'rw4-vmexam-q006', 'rw4-vmexam-q009',
+  // rewritten HipLocal (long scenario)
+  'rw1-cep-e3-q005', 'rw1-cep-e4-q026', 'rw1-cep-e4-q045', 'rw1-cep-e5-q040', 'rw1-cep-e5-q049',
+])
+
 export async function loadBank() {
   if (_cache) return _cache
   const [res, manRes] = await Promise.all([
@@ -23,7 +43,9 @@ export async function loadBank() {
       /* no audio manifest — buttons just won't show */
     }
   }
-  const questions = (data.questions || []).map((q) => normalize(q, enSet, ptSet))
+  const questions = (data.questions || [])
+    .filter((q) => !EXCLUDED_IDS.has(q.id))
+    .map((q) => normalize(q, enSet, ptSet))
   _cache = { meta: data.metadata || {}, questions, indexes: buildIndexes(questions) }
   return _cache
 }
