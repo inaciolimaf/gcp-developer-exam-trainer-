@@ -1,263 +1,1150 @@
 import { useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
-import { ArrowLeft, BarChart3, Layers, TrendingUp, TrendingDown, Flame, CalendarDays, Gauge, RefreshCw, Copy, Check, Upload, Repeat2, Eye, RotateCcw } from 'lucide-react'
-import { shuffle, DOMAIN_LABELS } from '../lib/data'
-import { examStats, currentDayStreak, exportProgress, importProgress } from '../lib/storage'
-import { srsStats } from '../lib/srs'
+import {
+  Activity,
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  BarChart3,
+  Brain,
+  CalendarDays,
+  Check,
+  CheckCircle2,
+  Clock,
+  Copy,
+  Eye,
+  Flame,
+  Gauge as GaugeIcon,
+  Info,
+  Layers,
+  Lightbulb,
+  Repeat2,
+  RefreshCw,
+  RotateCcw,
+  Sparkles,
+  Target,
+  Timer,
+  TrendingDown,
+  TrendingUp,
+  Trophy,
+  Upload,
+  Zap,
+} from 'lucide-react'
+import { shuffle } from '../lib/data'
+import { exportProgress, importProgress } from '../lib/storage'
+import { buildAnalytics } from '../lib/analytics'
+import {
+  BarChart,
+  BarRows,
+  Empty,
+  Gauge,
+  Heatmap,
+  Legend,
+  LineChart,
+  Radar,
+  Scatter,
+  Sparkline,
+  StackedBar,
+} from './charts'
+import { SERIES, STATUS, accColor, fmtDateBr, fmtDuration, heatColor, WEEKDAYS_PT } from '../lib/viz'
 
-const HEAT_WEEKS = 18
+const GAP = 'pouco ensinado (gap)'
+const BOX_LABELS = ['nova / errou', '1 dia', '3 dias', '7 dias', '16 dias', '35 dias']
 
-function ymd(d) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
+const TABS = [
+  { id: 'overview', label: 'Visão geral', icon: GaugeIcon },
+  { id: 'domains', label: 'Domínios', icon: Layers },
+  { id: 'trends', label: 'Evolução', icon: TrendingUp },
+  { id: 'habits', label: 'Hábitos', icon: CalendarDays },
+  { id: 'memory', label: 'Memória', icon: Brain },
+  { id: 'exams', label: 'Simulados', icon: Trophy },
+]
 
 export default function Stats({ bank, state, srs, onStartQuestions, onBack }) {
+  const [tab, setTab] = useState('overview')
+  const a = useMemo(() => buildAnalytics({ bank, state, srs }), [bank, state, srs])
   const answered = state.answered || {}
 
-  const data = useMemo(() => {
-    const byId = new Map(bank.questions.map((q) => [q.id, q]))
-    const seen = Object.keys(answered).length
-    let solved = 0
-    let attempts = 0 // total answers given (sums repeats)
-    let once = 0 // questions answered exactly once
-    let twice = 0 // answered exactly twice
-    let thrice = 0 // answered 3+ times
-    let notSolved = 0 // seen but never gotten right
-    const dom = new Map()
-    const top = new Map()
-    for (const [id, a] of Object.entries(answered)) {
-      const q = byId.get(id)
-      if (!q) continue
-      const ok = a.correct ? 1 : 0
-      solved += ok
-      if (!ok) notSolved += 1
-      const c = a.count || 1
-      attempts += c
-      if (c === 1) once += 1
-      else if (c === 2) twice += 1
-      else thrice += 1
-      const d = dom.get(q.domain) || { code: q.domain, name: q.domainName, seen: 0, solved: 0 }
-      d.seen += 1
-      d.solved += ok
-      dom.set(q.domain, d)
-      const t = top.get(q.topicCode) || { code: q.topicCode, name: q.topicName, seen: 0, solved: 0 }
-      t.seen += 1
-      t.solved += ok
-      top.set(q.topicCode, t)
+  const drill = (title, questions) => questions.length && onStartQuestions(title, shuffle(questions))
+
+  // Turns an insight / button descriptor into an actual practice session.
+  function runDrill(d) {
+    if (!d) return
+    const qs = bank.questions
+    switch (d.kind) {
+      case 'domain':
+        return drill(d.title, qs.filter((q) => q.domain === d.code))
+      case 'domain-new':
+        return drill(d.title, qs.filter((q) => q.domain === d.code && !answered[q.id]))
+      case 'topic':
+        return drill(d.title, qs.filter((q) => q.topicCode === d.code))
+      case 'unsolved':
+        return drill(d.title, qs.filter((q) => answered[q.id] && !answered[q.id].correct))
+      case 'unseen':
+        return drill(d.title, qs.filter((q) => !answered[q.id]))
+      case 'repeated':
+        return drill(d.title, qs.filter((q) => (answered[q.id]?.count || 0) >= 2))
+      case 'gaps':
+        return drill(d.title, qs.filter((q) => q.coverage === GAP))
+      case 'leeches':
+        return drill(d.title, a.srs.leeches.map((l) => l.q))
+      case 'stale':
+        return drill(d.title, qs.filter((q) => a.stale.some((t) => t.code === q.topicCode)))
+      default:
+        return
     }
-    const domains = [...dom.values()].sort((a, b) => String(a.code).localeCompare(String(b.code)))
-    const topics = [...top.values()].filter((t) => t.seen >= 2).map((t) => ({ ...t, ratio: t.solved / t.seen }))
-    const strongest = [...topics].sort((a, b) => b.ratio - a.ratio || b.seen - a.seen).slice(0, 5)
-    const weakest = [...topics].sort((a, b) => a.ratio - b.ratio || b.seen - a.seen).slice(0, 5)
-    return { seen, solved, attempts, once, twice, thrice, notSolved, domains, strongest, weakest }
-  }, [bank.questions, answered])
+  }
 
-  const total = bank.indexes.total
-  const exams = examStats(state)
-  const srsM = srsStats(srs)
-  const accuracy = data.seen ? data.solved / data.seen : 0
-  const coverage = data.seen / total
-  const base = 0.6 * accuracy + 0.4 * coverage
-  const readiness = Math.round(100 * (exams.count ? 0.75 * base + 0.25 * (exams.avg / 100) : base))
-  const verdict =
-    readiness >= 80
-      ? { label: 'Exam-ready', tint: 'text-mint', stroke: '#34d399' }
-      : readiness >= 65
-        ? { label: 'Almost there', tint: 'text-cyan', stroke: '#22d3ee' }
-        : readiness >= 40
-          ? { label: 'Building up', tint: 'text-amber', stroke: '#fbbf24' }
-          : { label: 'Just starting', tint: 'text-coral', stroke: '#fb7185' }
-
-  // heatmap cells (oldest → newest), column-major weeks
-  const heat = useMemo(() => {
-    const log = state.activityLog || {}
-    const base = new Date()
-    base.setHours(0, 0, 0, 0)
-    const cells = HEAT_WEEKS * 7
-    const out = []
-    for (let i = cells - 1; i >= 0; i--) {
-      const d = new Date(base)
-      d.setDate(base.getDate() - i)
-      const key = ymd(d)
-      out.push({ key, count: log[key] || 0 })
-    }
-    return out
-  }, [state.activityLog])
-
-  const dayStreak = currentDayStreak(state)
-  const empty = data.seen === 0
-
-  const drill = (questions, title) => questions.length && onStartQuestions(title, shuffle(questions))
+  const empty = a.core.seen === 0
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-24 pt-6">
-      <div className="mb-6 flex items-center gap-3">
+    <div className="mx-auto max-w-5xl px-4 pb-24 pt-6">
+      <div className="mb-5 flex flex-wrap items-center gap-3">
         <button onClick={onBack} className="btn">
           <ArrowLeft size={16} /> Home
         </button>
         <div className="flex items-center gap-2 font-display text-xl font-bold text-white">
-          <BarChart3 size={20} className="text-cyan" /> Statistics
+          <BarChart3 size={20} className="text-cyan" /> Estatísticas
         </div>
+        {!empty && (
+          <span className="ml-auto hidden font-mono text-[11px] text-white/35 sm:block">
+            {a.core.attempts} respostas · {a.core.seen}/{a.core.total} questões · desde {fmtDateBr(new Date(`${a.firstDay}T00:00:00`))}
+          </span>
+        )}
       </div>
 
       {empty ? (
         <div className="glass-strong flex flex-col items-center gap-3 p-10 text-center shadow-glow-soft">
-          <Gauge size={40} className="text-cyan" />
-          <h2 className="font-display text-2xl font-bold text-white">No data yet</h2>
-          <p className="max-w-sm font-body text-white/55">
-            Answer some questions and this dashboard fills with your accuracy by domain and topic, a readiness
-            estimate, and a study-activity heatmap.
+          <GaugeIcon size={40} className="text-cyan" />
+          <h2 className="font-display text-2xl font-bold text-white">Sem dados ainda</h2>
+          <p className="max-w-md font-body text-white/55">
+            Responda algumas questões e este painel se enche: readiness com decomposição por pilar, acerto por
+            domínio e tópico, curvas de evolução, horários em que você rende mais, saúde da memória e histórico de
+            simulados.
           </p>
         </div>
       ) : (
         <>
-          {/* readiness + key metrics */}
-          <div className="mb-6 grid gap-4 sm:grid-cols-[auto_1fr]">
-            <div className="glass-strong flex items-center gap-5 p-6 shadow-glow-soft">
-              <Gauge2 pct={readiness} stroke={verdict.stroke} />
-              <div>
-                <div className="label">Exam readiness</div>
-                <div className={`font-display text-2xl font-bold ${verdict.tint}`}>{verdict.label}</div>
-                <div className="mt-1 font-body text-xs text-white/45">estimate · keep practicing</div>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
-              <Metric label="Accuracy" value={`${Math.round(accuracy * 100)}%`} sub={`${data.solved}/${data.seen} solved`} tint="text-mint" />
-              <Metric label="Coverage" value={`${Math.round(coverage * 100)}%`} sub={`${data.seen}/${total} seen`} tint="text-cyan" />
-              <Metric label="Exam avg" value={exams.count ? `${exams.avg}%` : '—'} sub={`${exams.count} taken`} tint="text-amber" />
-              <Metric label="SRS mastered" value={srsM.mastered} sub={`${srsM.scheduled} scheduled`} tint="text-violet" />
-            </div>
-          </div>
-
-          {/* practice volume — how much you've answered and re-answered */}
-          <div className="glass mb-6 p-5">
-            <div className="mb-4 flex items-center gap-2 label">
-              <Repeat2 size={14} /> Volume de prática
-            </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Metric label="Respondidas" value={data.seen} sub={`de ${total} · faltam ${total - data.seen}`} tint="text-cyan" />
-              <Metric label="Respostas dadas" value={data.attempts} sub={`${(data.attempts / (data.seen || 1)).toFixed(1)}× por questão`} tint="text-violet" />
-              <Metric label="Repetidas 2+×" value={data.twice + data.thrice} sub={`${data.thrice} feitas 3+ vezes`} tint="text-amber" />
-              <Metric label="Ainda sem acerto" value={data.notSolved} sub={`${data.seen - data.notSolved} já acertadas`} tint="text-coral" />
-            </div>
-
-            {/* once / twice / 3+ distribution */}
-            <div className="mt-4">
-              <div className="mb-2 flex items-center justify-between label">
-                <span>Quantas vezes você respondeu cada questão</span>
-                <span className="font-mono text-white/40">{data.seen} questões</span>
-              </div>
-              <div className="flex h-3 overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
-                <span className="bg-cyan/70" style={{ width: `${pctOf(data.once, data.seen)}%` }} title={`1×: ${data.once}`} />
-                <span className="bg-amber/70" style={{ width: `${pctOf(data.twice, data.seen)}%` }} title={`2×: ${data.twice}`} />
-                <span className="bg-coral/70" style={{ width: `${pctOf(data.thrice, data.seen)}%` }} title={`3+×: ${data.thrice}`} />
-              </div>
-              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-body text-xs text-white/55">
-                <Legend tint="bg-cyan/70" label="1 vez" n={data.once} />
-                <Legend tint="bg-amber/70" label="2 vezes" n={data.twice} />
-                <Legend tint="bg-coral/70" label="3+ vezes" n={data.thrice} />
-              </div>
-            </div>
-
-            {/* quick drills built from these buckets */}
-            <div className="mt-4 flex flex-wrap gap-2">
+          {/* tab bar */}
+          <div className="mb-6 flex gap-1 overflow-x-auto rounded-xl border border-white/10 bg-white/[0.04] p-1">
+            {TABS.map((t) => (
               <button
-                onClick={() => drill(bank.questions.filter((q) => answered[q.id] && !answered[q.id].correct), 'Ainda sem acerto')}
-                disabled={!data.notSolved}
-                className="btn text-xs disabled:cursor-not-allowed disabled:opacity-40"
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 font-display text-[13px] font-semibold transition-colors ${
+                  tab === t.id ? 'bg-white/10 text-cyan' : 'text-white/50 hover:text-white'
+                }`}
               >
-                <RotateCcw size={14} /> Revisar não acertadas ({data.notSolved})
+                <t.icon size={15} /> {t.label}
               </button>
-              <button
-                onClick={() => drill(bank.questions.filter((q) => (answered[q.id]?.count || 0) >= 2), 'Respondidas 2+ vezes')}
-                disabled={!(data.twice + data.thrice)}
-                className="btn text-xs disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <Repeat2 size={14} /> Revisar repetidas ({data.twice + data.thrice})
-              </button>
-              <button
-                onClick={() => drill(bank.questions.filter((q) => !answered[q.id]), 'Ainda não respondidas')}
-                disabled={total - data.seen <= 0}
-                className="btn text-xs disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <Eye size={14} /> Ver as que faltam ({total - data.seen})
-              </button>
-            </div>
+            ))}
           </div>
 
-          {/* domain breakdown */}
-          <div className="glass mb-6 p-5">
-            <div className="mb-4 flex items-center gap-2 label">
-              <Layers size={14} /> Accuracy by exam domain
-            </div>
-            <div className="grid gap-3">
-              {data.domains.map((d) => {
-                const pct = Math.round((d.solved / d.seen) * 100)
-                return (
-                  <button
-                    key={d.code}
-                    onClick={() => drill(bank.questions.filter((q) => q.domain === d.code), `Domain · ${d.code}`)}
-                    className="group flex items-center gap-3 text-left"
-                  >
-                    <span className="w-8 shrink-0 font-mono text-xs font-bold text-violet">{d.code}</span>
-                    <span className="hidden min-w-0 flex-1 truncate font-body text-sm text-white/70 group-hover:text-white sm:block">
-                      {DOMAIN_LABELS[d.code] || d.name}
-                    </span>
-                    <div className="h-2.5 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/[0.04] sm:flex-none sm:w-48">
-                      <div
-                        className={`h-full rounded-full ${pct < 50 ? 'bg-coral' : pct < 70 ? 'bg-amber' : 'bg-mint'}`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                    <span className="w-14 shrink-0 text-right font-mono text-xs text-white/60">
-                      {pct}% · {d.solved}/{d.seen}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* activity heatmap */}
-          <div className="glass mb-6 p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <span className="flex items-center gap-2 label">
-                <CalendarDays size={14} /> Activity · last {HEAT_WEEKS} weeks
-              </span>
-              <span className="chip border-amber/40 text-amber">
-                <Flame size={13} /> {dayStreak} day{dayStreak === 1 ? '' : 's'}
-              </span>
-            </div>
-            <div className="overflow-x-auto">
-              <div className="grid grid-flow-col grid-rows-7 gap-1" style={{ width: 'max-content' }}>
-                {heat.map((c) => (
-                  <div
-                    key={c.key}
-                    title={`${c.key} · ${c.count} answered`}
-                    className="h-3 w-3 rounded-sm"
-                    style={{ background: heatColor(c.count) }}
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="mt-3 flex items-center gap-1.5 label">
-              less
-              {[0, 3, 7, 12, 20].map((n) => (
-                <span key={n} className="h-3 w-3 rounded-sm" style={{ background: heatColor(n) }} />
-              ))}
-              more
-            </div>
-          </div>
-
-          {/* strongest / weakest topics */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <TopicList title="Strongest topics" icon={TrendingUp} tint="text-mint" rows={data.strongest} onPick={(code, name) => drill(bank.questions.filter((q) => q.topicCode === code), `Topic · ${name}`)} />
-            <TopicList title="Needs work" icon={TrendingDown} tint="text-coral" rows={data.weakest} onPick={(code, name) => drill(bank.questions.filter((q) => q.topicCode === code), `Topic · ${name}`)} />
-          </div>
+          {tab === 'overview' && <Overview a={a} runDrill={runDrill} />}
+          {tab === 'domains' && <Domains a={a} runDrill={runDrill} />}
+          {tab === 'trends' && <Trends a={a} />}
+          {tab === 'habits' && <Habits a={a} />}
+          {tab === 'memory' && <Memory a={a} runDrill={runDrill} />}
+          {tab === 'exams' && <Exams a={a} />}
         </>
       )}
 
       <SyncCard />
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------- overview
+
+function Overview({ a, runDrill }) {
+  const { core, readiness, pace, time, streak, srs, exams } = a
+  const rollingTail = a.rolling.filter((v) => v != null)
+
+  return (
+    <div className="grid gap-5">
+      {/* readiness + pillar decomposition */}
+      <div className="glass-strong grid gap-6 p-6 shadow-glow-soft sm:grid-cols-[auto_1fr]">
+        <div className="flex items-center gap-5">
+          <Gauge pct={readiness.score} stroke={readiness.verdict.stroke} label="readiness" />
+          <div>
+            <div className="label">Prontidão estimada</div>
+            <div className={`font-display text-2xl font-bold ${readiness.verdict.tint}`}>{readiness.verdict.label}</div>
+            <div className="mt-1 font-body text-xs text-white/45">
+              {readiness.gap > 0 ? `${readiness.gap} pts até a faixa de 80` : 'acima da faixa de 80'}
+            </div>
+          </div>
+        </div>
+        <div>
+          <div className="mb-2 label">Como o número é formado</div>
+          <div className="grid gap-2">
+            {readiness.parts.map((p) => (
+              <div key={p.key} className="flex items-center gap-3">
+                <span className="w-[86px] shrink-0 font-body text-[13px] text-white/70">{p.label}</span>
+                <span className="h-2.5 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
+                  <span
+                    className="block h-full rounded-full"
+                    style={{
+                      width: `${p.value == null ? 0 : Math.min(100, p.value)}%`,
+                      background: p.value == null ? STATUS.idle : accColor(p.value),
+                    }}
+                  />
+                </span>
+                <span className="w-12 shrink-0 text-right font-mono text-[11px] text-white/70">
+                  {p.value == null ? '—' : `${Math.round(p.value)}`}
+                </span>
+                <span className="hidden w-16 shrink-0 text-right font-mono text-[10px] text-white/30 sm:block">
+                  {p.value == null ? 'sem dados' : `peso ${Math.round(p.effWeight * 100)}%`}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 font-body text-[11px] text-white/35">
+            Pilares sem dado são ignorados e o peso é redistribuído — o score não te pune por algo que você ainda
+            não começou.
+          </p>
+        </div>
+      </div>
+
+      {/* headline metrics */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <Metric label="Acerto" value={`${Math.round(core.hitRate)}%`} sub={`${core.rightTotal}/${core.attempts} tentativas`} tint="text-mint" />
+        <Metric
+          label="De primeira"
+          value={core.firstTryRate == null ? '—' : `${Math.round(core.firstTryRate)}%`}
+          sub={core.firstTryRate == null ? 'sem amostra' : `${core.firstTrySample} questões`}
+          tint="text-cyan"
+        />
+        <Metric label="Cobertura" value={`${Math.round(core.coverage)}%`} sub={`${core.seen}/${core.total} vistas`} tint="text-violet" />
+        <Metric label="Simulados" value={exams.count ? `${exams.avg}%` : '—'} sub={`${exams.count} feitos`} tint="text-amber" />
+        <Metric label="Tempo total" value={fmtDuration(time.totalMs)} sub={time.medianMs ? `mediana ${Math.round(time.medianMs / 1000)}s/questão` : 'sem cronômetro ainda'} tint="text-pink" />
+        <Metric label="Sequência" value={`${streak.current}d`} sub={`recorde ${streak.best}d · ${Math.round(streak.consistency)}% dos dias`} tint="text-coral" />
+      </div>
+
+      {/* momentum */}
+      <div className="glass grid gap-5 p-5 sm:grid-cols-[1fr_1.2fr]">
+        <div>
+          <div className="mb-3 flex items-center gap-2 label">
+            <Zap size={14} /> Últimos 7 dias vs. 7 anteriores
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Delta label="Respostas" now={pace.last7.n} before={pace.prev7.n} />
+            <Delta
+              label="Acerto"
+              now={pace.last7.acc == null ? null : Math.round(pace.last7.acc)}
+              before={pace.prev7.acc == null ? null : Math.round(pace.prev7.acc)}
+              suffix="%"
+            />
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <MiniStat label="Ritmo" value={`${pace.perDay.toFixed(1)}/dia`} sub={`meta ${pace.goal}/dia`} />
+            <MiniStat
+              label="Faltam"
+              value={core.remaining}
+              sub={pace.daysToFinish ? `~${pace.daysToFinish} dias no ritmo atual` : 'sem questões novas na semana'}
+            />
+          </div>
+        </div>
+        <div>
+          <div className="mb-1 flex items-center justify-between label">
+            <span>Acerto móvel · janela de 20 respostas</span>
+            <span className="font-mono text-white/40">
+              {rollingTail.length ? `${Math.round(rollingTail[rollingTail.length - 1])}%` : '—'}
+            </span>
+          </div>
+          {rollingTail.length > 3 ? (
+            <>
+              <Sparkline values={a.rolling} color={SERIES[0]} height={64} band={[0, 100]} />
+              <p className="mt-1 font-body text-[11px] text-white/35">
+                últimas {a.rolling.length} respostas · variação de {Math.round(Math.min(...rollingTail))}% a{' '}
+                {Math.round(Math.max(...rollingTail))}%
+              </p>
+            </>
+          ) : (
+            <Empty>Responda ~20 questões para a curva móvel aparecer</Empty>
+          )}
+        </div>
+      </div>
+
+      {/* insight engine */}
+      <div className="glass p-5">
+        <div className="mb-3 flex items-center gap-2 label">
+          <Lightbulb size={14} className="text-amber" /> O que o painel está vendo
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {a.insights.map((i, idx) => (
+            <InsightCard key={idx} insight={i} onDrill={runDrill} />
+          ))}
+        </div>
+      </div>
+
+      {/* practice volume */}
+      <div className="glass p-5">
+        <div className="mb-4 flex items-center gap-2 label">
+          <Repeat2 size={14} /> Volume de prática
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Metric label="Respondidas" value={core.seen} sub={`faltam ${core.remaining}`} tint="text-cyan" />
+          <Metric label="Respostas dadas" value={core.attempts} sub={`${core.attemptsPerQuestion.toFixed(1)}× por questão`} tint="text-violet" />
+          <Metric label="Repetidas 2+×" value={core.twice + core.thrice} sub={`${core.thrice} feitas 3+ vezes`} tint="text-amber" />
+          <Metric label="Sem acerto" value={core.notSolved} sub={`${core.solved} já fechadas`} tint="text-coral" />
+        </div>
+
+        <div className="mt-5">
+          <div className="mb-2 flex items-center justify-between label">
+            <span>Quantas vezes você respondeu cada questão</span>
+            <span className="font-mono text-white/40">{core.seen} questões</span>
+          </div>
+          <StackedBar
+            segments={[
+              { label: '1 vez', value: core.once, color: SERIES[0] },
+              { label: '2 vezes', value: core.twice, color: SERIES[1] },
+              { label: '3+ vezes', value: core.thrice, color: SERIES[3] },
+            ]}
+            total={core.seen}
+          />
+          <Legend
+            className="mt-2"
+            items={[
+              { label: '1 vez', color: SERIES[0], value: core.once },
+              { label: '2 vezes', color: SERIES[1], value: core.twice },
+              { label: '3+ vezes', color: SERIES[3], value: core.thrice },
+            ]}
+          />
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <DrillButton icon={RotateCcw} label={`Revisar não acertadas (${core.notSolved})`} disabled={!core.notSolved} onClick={() => runDrill({ kind: 'unsolved', title: 'Ainda sem acerto' })} />
+          <DrillButton icon={Repeat2} label={`Revisar repetidas (${core.twice + core.thrice})`} disabled={!(core.twice + core.thrice)} onClick={() => runDrill({ kind: 'repeated', title: 'Respondidas 2+ vezes' })} />
+          <DrillButton icon={Eye} label={`Ver as que faltam (${core.remaining})`} disabled={core.remaining <= 0} onClick={() => runDrill({ kind: 'unseen', title: 'Ainda não respondidas' })} />
+          <DrillButton icon={AlertTriangle} label={`Viciadas (${srs.leechCount})`} disabled={!srs.leechCount} onClick={() => runDrill({ kind: 'leeches', title: 'Questões viciadas' })} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------- domains
+
+function Domains({ a, runDrill }) {
+  const [sort, setSort] = useState('acc')
+  const withData = a.domains.filter((d) => d.seen > 0)
+
+  const topicPoints = a.topics
+    .filter((t) => t.seen >= 2)
+    .map((t) => ({
+      key: t.code,
+      x: t.seen,
+      y: t.hitRate,
+      r: Math.max(4, Math.min(13, 3 + Math.sqrt(t.attempts) * 1.5)),
+      label: t.name,
+      sub: `${t.solved}/${t.seen} fechadas · ${t.attempts} tentativas`,
+      color: accColor(t.hitRate),
+      onClick: () => runDrill({ kind: 'topic', code: t.code, title: `Tópico · ${t.name}` }),
+    }))
+
+  const sorted = useMemo(() => {
+    const list = a.topics.filter((t) => t.seen >= 2)
+    const by = {
+      acc: (x, y) => x.hitRate - y.hitRate,
+      volume: (x, y) => y.seen - x.seen,
+      coverage: (x, y) => x.coverage - y.coverage,
+      stale: (x, y) => (y.staleDays ?? -1) - (x.staleDays ?? -1),
+    }
+    return [...list].sort(by[sort]).slice(0, 14)
+  }, [a.topics, sort])
+
+  return (
+    <div className="grid gap-5">
+      <div className="grid gap-5 lg:grid-cols-[auto_1fr]">
+        <div className="glass flex flex-col p-5">
+          <div className="mb-2 label">Perfil por domínio</div>
+          <div className="flex flex-1 flex-col justify-center">
+          <Radar
+            axes={withData.map((d) => ({ label: d.code, value: d.hitRate ?? 0, sub: `${d.seen}/${d.bank} vistas` }))}
+            refAxes={withData.map((d) => ({ label: d.code, value: d.coverage }))}
+            name="acerto"
+            refName="cobertura"
+            color={SERIES[0]}
+            refColor={SERIES[1]}
+          />
+          <Legend
+            className="justify-center"
+            items={[
+              { label: 'acerto por tentativa', color: SERIES[0] },
+              { label: 'cobertura do banco', color: SERIES[1] },
+            ]}
+          />
+          </div>
+        </div>
+
+        <div className="glass p-5">
+          <div className="mb-4 flex items-center gap-2 label">
+            <Layers size={14} /> Acerto por domínio do exame
+          </div>
+          <BarRows
+            rows={a.domains.map((d) => ({
+              key: d.code,
+              label: `${d.code} · ${d.name}`,
+              sub: `${d.seen}/${d.bank} vistas · ${d.attempts} tentativas · ${d.share.toFixed(0)}% do banco`,
+              value: d.hitRate ?? 0,
+              right: d.seen ? `${Math.round(d.hitRate)}% · ${d.solved}/${d.seen}` : 'sem dados',
+              onClick: () => runDrill({ kind: 'domain', code: d.code, title: `Domínio · ${d.code}` }),
+            }))}
+          />
+          <div className="mt-5 mb-3 label">Cobertura por domínio</div>
+          <BarRows
+            rows={a.domains.map((d) => ({
+              key: `c-${d.code}`,
+              label: d.code,
+              sub: `${d.bank} questões no banco`,
+              value: d.coverage,
+              color: SERIES[1],
+              right: `${Math.round(d.coverage)}%`,
+              onClick: () => runDrill({ kind: 'domain-new', code: d.code, title: `${d.code} · não respondidas` }),
+            }))}
+          />
+          <p className="mt-3 font-body text-[11px] text-white/35">
+            Clique numa barra de acerto para treinar o domínio inteiro, ou numa de cobertura para pegar só o que
+            falta.
+          </p>
+        </div>
+      </div>
+
+      {/* topic map */}
+      <div className="glass p-5">
+        <div className="mb-1 flex flex-wrap items-center gap-2 label">
+          <Target size={14} /> Mapa de tópicos · volume × acerto
+          <span className="ml-auto font-mono normal-case tracking-normal text-white/35">
+            eixo y = acerto · bolha = tentativas · clique para treinar
+          </span>
+        </div>
+        {topicPoints.length >= 3 ? (
+          <Scatter points={topicPoints} xLabel="questões respondidas →" yLabel="acerto %" height={260} />
+        ) : (
+          <Empty>Responda questões de pelo menos 3 tópicos</Empty>
+        )}
+        <Legend
+          className="mt-2"
+          items={[
+            { label: '< 50% acerto', color: STATUS.bad },
+            { label: '50–69%', color: STATUS.warn },
+            { label: '≥ 70% (linha de corte)', color: STATUS.good },
+          ]}
+        />
+      </div>
+
+      {/* ranked topics */}
+      <div className="glass p-5">
+        <div className="mb-3 flex flex-wrap items-center gap-3">
+          <span className="label">Tópicos</span>
+          <div className="ml-auto flex gap-1 rounded-lg border border-white/10 bg-white/[0.04] p-0.5">
+            {[
+              { id: 'acc', label: 'Pior acerto' },
+              { id: 'volume', label: 'Mais praticados' },
+              { id: 'coverage', label: 'Menos cobertos' },
+              { id: 'stale', label: 'Mais parados' },
+            ].map((o) => (
+              <button
+                key={o.id}
+                onClick={() => setSort(o.id)}
+                className={`rounded-md px-2.5 py-1 font-display text-[11px] font-semibold transition-colors ${
+                  sort === o.id ? 'bg-white/10 text-cyan' : 'text-white/45 hover:text-white'
+                }`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <BarRows
+          rows={sorted.map((t) => ({
+            key: t.code,
+            label: t.name,
+            sub: `${t.seen}/${t.bank} do banco · ${t.attempts} tentativas${t.staleDays != null ? ` · ${t.staleDays}d parado` : ''}`,
+            value: t.hitRate,
+            right: `${Math.round(t.hitRate)}% · ${t.solved}/${t.seen}`,
+            onClick: () => runDrill({ kind: 'topic', code: t.code, title: `Tópico · ${t.name}` }),
+          }))}
+        />
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        <TopicList title="Mais fortes" icon={TrendingUp} tint="text-mint" rows={a.strongest} onPick={runDrill} />
+        <TopicList title="Precisam de trabalho" icon={TrendingDown} tint="text-coral" rows={a.weakest} onPick={runDrill} />
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div className="glass p-5">
+          <div className="mb-3 label">Acerto vs. cobertura do curso</div>
+          <BarRows
+            rows={a.byCoverage.map((b) => ({
+              key: b.key,
+              label: b.label,
+              sub: `${b.seen}/${b.bank} respondidas`,
+              value: b.hitRate ?? 0,
+              right: b.seen ? `${Math.round(b.hitRate)}%` : '—',
+              onClick: b.key === GAP ? () => runDrill({ kind: 'gaps', title: 'Study the Gaps' }) : undefined,
+            }))}
+          />
+          <p className="mt-3 font-body text-[11px] text-white/35">
+            Se as "pouco ensinadas" ficam bem abaixo das "ensinadas", o buraco é de conteúdo do curso, não de
+            treino.
+          </p>
+        </div>
+        <div className="glass p-5">
+          <div className="mb-3 label">Por qualidade da questão</div>
+          <BarRows
+            rows={a.byQuality.map((b) => ({
+              key: b.key,
+              label: b.label,
+              sub: `${b.seen}/${b.bank} respondidas`,
+              value: b.hitRate ?? 0,
+              right: b.seen ? `${Math.round(b.hitRate)}%` : '—',
+            }))}
+          />
+          {a.untouched.length > 0 && (
+            <>
+              <div className="mb-2 mt-5 label">Tópicos ainda intocados</div>
+              <div className="flex flex-wrap gap-1.5">
+                {a.untouched.map((t) => (
+                  <button
+                    key={t.code}
+                    onClick={() => runDrill({ kind: 'topic', code: t.code, title: `Tópico · ${t.name}` })}
+                    className="chip border-white/10 text-white/60 hover:border-cyan/40 hover:text-cyan"
+                  >
+                    {t.name} <span className="font-mono text-white/35">{t.bank}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------- trends
+
+function Trends({ a }) {
+  const [range, setRange] = useState(30)
+  const daily = range === 30 ? a.daily : a.daily90
+  const hasAcc = daily.some((d) => d.acc != null)
+  const rollingTail = a.rolling.filter((v) => v != null)
+
+  return (
+    <div className="grid gap-5">
+      <div className="glass p-5">
+        <div className="mb-3 flex flex-wrap items-center gap-3">
+          <span className="flex items-center gap-2 label">
+            <Activity size={14} /> Questões respondidas por dia
+          </span>
+          <div className="ml-auto flex gap-1 rounded-lg border border-white/10 bg-white/[0.04] p-0.5">
+            {[30, 90].map((r) => (
+              <button
+                key={r}
+                onClick={() => setRange(r)}
+                className={`rounded-md px-2.5 py-1 font-display text-[11px] font-semibold transition-colors ${
+                  range === r ? 'bg-white/10 text-cyan' : 'text-white/45 hover:text-white'
+                }`}
+              >
+                {r} dias
+              </button>
+            ))}
+          </div>
+        </div>
+        <BarChart
+          bars={daily.map((d) => ({
+            label: d.label,
+            value: d.answers,
+            color: d.answers >= a.pace.goal ? SERIES[0] : 'rgba(51,163,180,0.45)',
+            tip: (
+              <>
+                <div className="mb-0.5 font-display text-[11px] font-semibold text-white">{d.label}</div>
+                <div className="flex justify-between gap-3">
+                  <span className="text-white/55">respostas</span>
+                  <span className="font-mono text-white">{d.answers}</span>
+                </div>
+                {d.acc != null && (
+                  <div className="flex justify-between gap-3">
+                    <span className="text-white/55">acerto</span>
+                    <span className="font-mono" style={{ color: accColor(d.acc) }}>
+                      {Math.round(d.acc)}%
+                    </span>
+                  </div>
+                )}
+              </>
+            ),
+          }))}
+          height={150}
+        />
+        <Legend
+          className="mt-2"
+          items={[
+            { label: `dia com meta batida (${a.pace.goal}+)`, color: SERIES[0] },
+            { label: 'abaixo da meta', color: 'rgba(51,163,180,0.45)' },
+          ]}
+        />
+      </div>
+
+      <div className="glass p-5">
+        <div className="mb-3 flex items-center gap-2 label">
+          <Target size={14} /> Acerto por dia
+        </div>
+        {/* no area fill here: days without study leave holes in the line, and
+            isolated filled segments would read as bars next to the chart above */}
+        {hasAcc ? (
+          <LineChart
+            labels={daily.map((d) => d.label)}
+            series={[{ name: 'acerto do dia', color: SERIES[0], values: daily.map((d) => d.acc) }]}
+            yMax={100}
+            yFormat={(v) => `${v}%`}
+            refLine={{ value: 70, label: 'corte 70%', color: STATUS.warn }}
+            height={180}
+            showDots={range === 30}
+          />
+        ) : (
+          <Empty>O acerto por dia começa a ser registrado a partir de agora</Empty>
+        )}
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-2">
+        <div className="glass p-5">
+          <div className="mb-3 flex items-center gap-2 label">
+            <Sparkles size={14} /> Acerto móvel (janela de 20)
+          </div>
+          {rollingTail.length > 3 ? (
+            <LineChart
+              labels={a.rolling.map((_, i) => `#${i + 1}`)}
+              series={[{ name: 'acerto móvel', color: SERIES[1], values: a.rolling, area: true }]}
+              yMax={100}
+              yFormat={(v) => `${v}%`}
+              refLine={{ value: 70, label: '70%', color: STATUS.warn }}
+              height={180}
+            />
+          ) : (
+            <Empty>Precisa de pelo menos 24 respostas registradas</Empty>
+          )}
+        </div>
+
+        <div className="glass p-5">
+          <div className="mb-3 flex items-center gap-2 label">
+            <Layers size={14} /> Cobertura acumulada do banco
+          </div>
+          <LineChart
+            labels={a.cumulative.map((c) => c.label)}
+            series={[{ name: 'questões vistas', color: SERIES[2], values: a.cumulative.map((c) => c.value), area: true }]}
+            yMax={a.core.total}
+            height={180}
+          />
+          <div className="mt-2 flex items-center justify-between font-body text-[11px] text-white/40">
+            <span>
+              {a.core.seen} de {a.core.total} questões ({Math.round(a.core.coverage)}%)
+            </span>
+            <span>
+              {a.pace.daysToFinish
+                ? `fim previsto em ${fmtDateBr(a.pace.finishEta)}`
+                : 'ritmo de questões novas parado'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass grid gap-3 p-5 sm:grid-cols-4">
+        <MiniStat label="Últimos 7 dias" value={a.pace.volume7} sub="respostas" />
+        <MiniStat label="Últimos 30 dias" value={a.pace.volume30} sub="respostas" />
+        <MiniStat label="Questões novas/dia" value={a.pace.newPerDay7.toFixed(1)} sub="média da semana" />
+        <MiniStat
+          label="Previsão de término"
+          value={a.pace.daysToFinish ? `${a.pace.daysToFinish}d` : '—'}
+          sub={a.pace.finishEta ? fmtDateBr(a.pace.finishEta) : 'sem ritmo para projetar'}
+        />
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------- habits
+
+function Habits({ a }) {
+  const hoursWithData = a.hours.filter((h) => h.n > 0)
+  const accHours = a.hours.map((h) => (h.n >= 5 ? h.acc : null))
+  const wd = a.weekdays.map((w) => ({ ...w, label: WEEKDAYS_PT[w.d] }))
+
+  return (
+    <div className="grid gap-5">
+      <div className="glass p-5">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <span className="flex items-center gap-2 label">
+            <CalendarDays size={14} /> Atividade · 26 semanas
+          </span>
+          <div className="flex flex-wrap gap-2">
+            <span className="chip border-amber/40 text-amber">
+              <Flame size={13} /> {a.streak.current} dia{a.streak.current === 1 ? '' : 's'}
+            </span>
+            <span className="chip border-white/12 text-white/60">recorde {a.streak.best}d</span>
+            <span className="chip border-white/12 text-white/60">
+              {a.streak.activeDays} dias ativos de {a.streak.spanDays}
+            </span>
+          </div>
+        </div>
+        <Heatmap cells={a.heat} weeks={Math.ceil(a.heat.length / 7)} colorFor={(c) => heatColor(c.count, a.heatMax)} />
+        <div className="mt-3 flex items-center gap-1.5 label">
+          menos
+          {[0, 2, 5, 10, a.heatMax].map((n, i) => (
+            <span key={i} className="h-3 w-3 rounded-sm" style={{ background: heatColor(n, a.heatMax) }} />
+          ))}
+          mais
+        </div>
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-2">
+        <div className="glass p-5">
+          <div className="mb-3 flex items-center gap-2 label">
+            <Clock size={14} /> Quando você estuda
+          </div>
+          {hoursWithData.length ? (
+            <BarChart
+              bars={a.hours.map((h) => ({
+                label: String(h.h).padStart(2, '0'),
+                value: h.n,
+                tip: (
+                  <>
+                    <div className="mb-0.5 font-display text-[11px] font-semibold text-white">
+                      {String(h.h).padStart(2, '0')}h
+                    </div>
+                    <div className="flex justify-between gap-3">
+                      <span className="text-white/55">respostas</span>
+                      <span className="font-mono text-white">{h.n}</span>
+                    </div>
+                    {h.acc != null && (
+                      <div className="flex justify-between gap-3">
+                        <span className="text-white/55">acerto</span>
+                        <span className="font-mono" style={{ color: accColor(h.acc) }}>
+                          {Math.round(h.acc)}%
+                        </span>
+                      </div>
+                    )}
+                  </>
+                ),
+              }))}
+              height={140}
+              labelEvery={3}
+            />
+          ) : (
+            <Empty />
+          )}
+        </div>
+
+        <div className="glass p-5">
+          <div className="mb-3 flex items-center gap-2 label">
+            <Target size={14} /> Acerto por horário
+          </div>
+          {accHours.some((v) => v != null) ? (
+            <>
+              <LineChart
+                labels={a.hours.map((h) => String(h.h).padStart(2, '0'))}
+                series={[{ name: 'acerto', color: SERIES[3], values: accHours }]}
+                yMax={100}
+                yFormat={(v) => `${v}%`}
+                refLine={{ value: 70, label: '70%', color: STATUS.warn }}
+                height={140}
+                showDots
+              />
+              <p className="mt-1 font-body text-[11px] text-white/40">
+                só horários com 5+ respostas ·{' '}
+                {a.bestHour
+                  ? `melhor às ${String(a.bestHour.h).padStart(2, '0')}h (${Math.round(a.bestHour.acc)}%)`
+                  : 'ainda sem horário destacado'}
+              </p>
+            </>
+          ) : (
+            <Empty>Precisa de 5+ respostas num mesmo horário</Empty>
+          )}
+        </div>
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-2">
+        <div className="glass p-5">
+          <div className="mb-3 label">Por dia da semana</div>
+          <BarRows
+            valueFormat={(v) => `${Math.round(v)}`}
+            rows={wd.map((w) => ({
+              key: w.label,
+              label: w.label,
+              sub: w.acc == null ? 'sem dados' : `${Math.round(w.acc)}% de acerto`,
+              value: w.n,
+              max: Math.max(1, ...wd.map((x) => x.n)),
+              color: SERIES[0],
+              right: `${w.n}`,
+            }))}
+          />
+        </div>
+
+        <div className="glass p-5">
+          <div className="mb-3 flex items-center gap-2 label">
+            <Timer size={14} /> Sessões de estudo
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <MiniStat label="Sessões" value={a.sessions.count} sub="pausa de 30 min separa uma da outra" />
+            <MiniStat label="Média" value={`${a.sessions.avgN.toFixed(0)} q`} sub={fmtDuration(a.sessions.avgMs)} />
+            <MiniStat
+              label="Maior sessão"
+              value={a.sessions.longest ? `${a.sessions.longest.n} q` : '—'}
+              sub={a.sessions.longest ? fmtDuration(a.sessions.longest.end - a.sessions.longest.start) : ''}
+            />
+            <MiniStat
+              label="Melhor sessão"
+              value={a.sessions.best ? `${Math.round((a.sessions.best.ok / a.sessions.best.n) * 100)}%` : '—'}
+              sub={a.sessions.best ? `${a.sessions.best.n} questões` : 'mínimo de 10 questões'}
+            />
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <MiniStat label="Mediana por questão" value={a.time.medianMs ? `${Math.round(a.time.medianMs / 1000)}s` : '—'} sub="tempo até responder" />
+            <MiniStat
+              label="Certas vs. erradas"
+              value={a.time.medianOkMs ? `${Math.round(a.time.medianOkMs / 1000)}s / ${Math.round(a.time.medianBadMs / 1000)}s` : '—'}
+              sub="mediana acerto / erro"
+            />
+          </div>
+          {a.time.speedAccuracy != null && (
+            <p className="mt-3 font-body text-[11px] text-white/40">
+              Correlação tempo × acerto: <span className="font-mono text-white/70">{a.time.speedAccuracy.toFixed(2)}</span>{' '}
+              — {a.time.speedAccuracy < -0.1 ? 'demorar mais não está ajudando' : a.time.speedAccuracy > 0.1 ? 'pensar mais tempo está rendendo acertos' : 'tempo e acerto praticamente independentes'}.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------- memory
+
+function Memory({ a, runDrill }) {
+  const { srs } = a
+  const maxBox = Math.max(1, ...srs.boxes.map((b) => b.q + b.c))
+
+  return (
+    <div className="grid gap-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Metric label="Agendados" value={srs.scheduled} sub="questões + flashcards" tint="text-cyan" />
+        <Metric label="Maduros" value={srs.matured} sub={`${Math.round(srs.maturity)}% do total`} tint="text-mint" />
+        <Metric label="Vencidos" value={srs.due} sub={`${srs.dueQ} questões · ${srs.dueC} cards`} tint="text-coral" />
+        <Metric label="Recaídas" value={srs.lapsesTotal} sub={`${srs.leechCount} itens viciados`} tint="text-amber" />
+      </div>
+
+      <div className="glass p-5">
+        <div className="mb-3 flex items-center gap-2 label">
+          <Brain size={14} /> Distribuição pelas caixas de repetição
+        </div>
+        <div className="grid gap-2">
+          {srs.boxes.map((b) => (
+            <div key={b.box} className="flex items-center gap-3">
+              <span className="w-24 shrink-0">
+                <span className="block font-body text-[13px] text-white/75">Caixa {b.box}</span>
+                <span className="block font-mono text-[10px] text-white/35">{BOX_LABELS[b.box]}</span>
+              </span>
+              <span className="flex-1">
+                <StackedBar
+                  segments={[
+                    { label: 'questões', value: b.q, color: SERIES[0] },
+                    { label: 'flashcards', value: b.c, color: SERIES[1] },
+                  ]}
+                  total={maxBox}
+                  height={10}
+                />
+              </span>
+              <span className="w-16 shrink-0 text-right font-mono text-[11px] text-white/60">{b.q + b.c}</span>
+            </div>
+          ))}
+        </div>
+        <Legend
+          className="mt-3"
+          items={[
+            { label: 'questões', color: SERIES[0] },
+            { label: 'flashcards', color: SERIES[1] },
+          ]}
+        />
+        <p className="mt-2 font-body text-[11px] text-white/35">
+          Cada acerto empurra o item uma caixa adiante (intervalo maior); um erro devolve à caixa 0. Uma barriga na
+          caixa 0 significa que você está reaprendendo mais do que consolidando.
+        </p>
+      </div>
+
+      <div className="glass p-5">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span className="flex items-center gap-2 label">
+            <CalendarDays size={14} /> Revisões chegando · 14 dias
+          </span>
+          {srs.due > 0 && (
+            <span className="chip border-coral/40 text-coral">
+              <AlertTriangle size={13} /> {srs.due} já vencidas
+            </span>
+          )}
+        </div>
+        <BarChart bars={srs.forecast.map((f) => ({ label: f.label, value: f.value }))} height={140} labelEvery={2} />
+        <p className="mt-2 font-body text-[11px] text-white/35">
+          Só o que ainda vai vencer — o atrasado está no selo acima, fora da escala para não achatar o gráfico.
+          Picos altos avisam que vale antecipar revisões antes que se acumulem.
+        </p>
+      </div>
+
+      <div className="glass p-5">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span className="flex items-center gap-2 label">
+            <AlertTriangle size={14} className="text-coral" /> Questões viciadas
+          </span>
+          <span className="font-body text-[11px] text-white/40">erradas 2+ vezes mesmo depois de acertadas</span>
+          {srs.leechCount > 0 && (
+            <button
+              onClick={() => runDrill({ kind: 'leeches', title: 'Questões viciadas' })}
+              className="btn ml-auto text-xs"
+            >
+              Treinar as {Math.min(srs.leechCount, 8)} piores <ArrowRight size={14} />
+            </button>
+          )}
+        </div>
+        {srs.leeches.length ? (
+          <ul className="grid gap-2">
+            {srs.leeches.map((l) => (
+              <li key={l.id} className="flex items-start gap-3 rounded-lg border border-white/[0.07] bg-white/[0.02] p-3">
+                <span className="chip shrink-0 border-coral/40 font-mono text-coral">{l.lapses}× erros</span>
+                <span className="min-w-0 flex-1">
+                  <span className="line-clamp-2 font-body text-[13px] text-white/80">{l.q.question}</span>
+                  <span className="mt-0.5 block font-mono text-[10px] text-white/35">
+                    {l.q.domain} · {l.q.topicName} · caixa {l.box} · {l.reps} revisões
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <Empty>Nenhuma questão viciada — o que você acerta está ficando acertado</Empty>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------- exams
+
+function Exams({ a }) {
+  const { exams } = a
+  if (!exams.count) {
+    return (
+      <div className="glass-strong flex flex-col items-center gap-3 p-10 text-center">
+        <Trophy size={36} className="text-amber" />
+        <h3 className="font-display text-xl font-bold text-white">Nenhum simulado ainda</h3>
+        <p className="max-w-sm font-body text-white/55">
+          O simulado é o pilar que mais move o readiness. Faça um de 20 questões para calibrar o painel.
+        </p>
+      </div>
+    )
+  }
+
+  const trendTxt =
+    exams.slope > 0.8 ? 'em alta' : exams.slope < -0.8 ? 'em queda' : 'estável'
+  const trendTint = exams.slope > 0.8 ? 'text-mint' : exams.slope < -0.8 ? 'text-coral' : 'text-white/60'
+
+  return (
+    <div className="grid gap-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <Metric label="Simulados" value={exams.count} sub={`${exams.passed} aprovados`} tint="text-cyan" />
+        <Metric label="Média" value={`${exams.avg}%`} sub={`últimos 5: ${Math.round(exams.last5Avg)}%`} tint="text-violet" />
+        <Metric label="Melhor" value={`${exams.best}%`} sub={`taxa de aprovação ${exams.passRate}%`} tint="text-mint" />
+        <Metric label="Tendência" value={`${exams.slope > 0 ? '+' : ''}${exams.slope.toFixed(1)}`} sub={`pts por prova · ${trendTxt}`} tint={trendTint} />
+        <Metric
+          label="Ritmo"
+          value={exams.avgSecPerQuestion ? `${Math.round(exams.avgSecPerQuestion)}s` : '—'}
+          sub="por questão · limite 90s"
+          tint="text-amber"
+        />
+      </div>
+
+      <div className="glass p-5">
+        <div className="mb-3 flex items-center gap-2 label">
+          <Trophy size={14} /> Histórico de notas
+        </div>
+        <LineChart
+          labels={exams.recent.map((e, i) => `#${exams.history.length - exams.recent.length + i + 1}`)}
+          series={[{ name: 'nota', color: SERIES[0], values: exams.recent.map((e) => e.pct), area: true }]}
+          yMax={100}
+          yFormat={(v) => `${v}%`}
+          refLine={{ value: 70, label: 'aprovação 70%', color: STATUS.warn }}
+          height={190}
+          showDots
+        />
+      </div>
+
+      {exams.byDomain.length > 0 && (
+        <div className="glass p-5">
+          <div className="mb-3 flex items-center gap-2 label">
+            <Layers size={14} /> Desempenho por domínio · somando todos os simulados
+          </div>
+          <BarRows
+            rows={exams.byDomain.map((d) => ({
+              key: d.code,
+              label: `${d.code} · ${d.name}`,
+              sub: `${d.correct}/${d.total} em prova`,
+              value: d.acc,
+              right: `${Math.round(d.acc)}%`,
+            }))}
+          />
+        </div>
+      )}
+
+      <div className="glass p-5">
+        <div className="mb-3 label">Últimas provas</div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[420px] border-collapse font-body text-sm">
+            <thead>
+              <tr className="border-b border-white/10 text-left font-display text-[11px] uppercase tracking-wider text-white/40">
+                <th className="py-2 pr-3 font-semibold">Data</th>
+                <th className="py-2 pr-3 font-semibold">Nota</th>
+                <th className="py-2 pr-3 font-semibold">Acertos</th>
+                <th className="py-2 pr-3 font-semibold">Duração</th>
+                <th className="py-2 font-semibold">Modo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...exams.history]
+                .reverse()
+                .slice(0, 12)
+                .map((e) => (
+                  <tr key={e.date} className="border-b border-white/[0.06] last:border-0">
+                    <td className="py-2 pr-3 font-mono text-[12px] text-white/60">{fmtDateBr(e.ts)}</td>
+                    <td className="py-2 pr-3">
+                      <span className="inline-flex items-center gap-1.5 font-mono font-bold" style={{ color: accColor(e.pct) }}>
+                        {e.passed ? <CheckCircle2 size={13} /> : <AlertTriangle size={13} />}
+                        {e.pct}%
+                      </span>
+                    </td>
+                    <td className="py-2 pr-3 font-mono text-[12px] text-white/60">
+                      {e.correct}/{e.total}
+                    </td>
+                    <td className="py-2 pr-3 font-mono text-[12px] text-white/60">{e.ms ? fmtDuration(e.ms) : '—'}</td>
+                    <td className="py-2 font-mono text-[12px] text-white/45">
+                      {e.feedback === 'instant' ? 'imediato' : 'clássico'}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------- pieces
+
+function InsightCard({ insight, onDrill }) {
+  const tone = {
+    good: { icon: CheckCircle2, tint: 'text-mint', border: 'border-mint/25' },
+    warn: { icon: AlertTriangle, tint: 'text-amber', border: 'border-amber/25' },
+    bad: { icon: AlertTriangle, tint: 'text-coral', border: 'border-coral/25' },
+    info: { icon: Info, tint: 'text-cyan', border: 'border-cyan/25' },
+  }[insight.tone]
+  const Icon = tone.icon
+  return (
+    <div className={`flex gap-3 rounded-xl border ${tone.border} bg-white/[0.03] p-3.5`}>
+      <Icon size={16} className={`mt-0.5 shrink-0 ${tone.tint}`} />
+      <div className="min-w-0">
+        <div className="font-display text-[13px] font-semibold text-white">{insight.title}</div>
+        <p className="mt-0.5 font-body text-[12px] leading-snug text-white/55">{insight.text}</p>
+        {insight.drill && (
+          <button
+            onClick={() => onDrill(insight.drill)}
+            className={`mt-2 inline-flex items-center gap-1 font-display text-[12px] font-semibold ${tone.tint} hover:underline`}
+          >
+            Treinar isso <ArrowRight size={13} />
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function Delta({ label, now, before, suffix = '' }) {
+  const has = now != null && before != null
+  const d = has ? now - before : null
+  const up = d != null && d > 0
+  const flat = d === 0 || d == null
+  return (
+    <div className="glass flex flex-col justify-center p-3.5">
+      <div className="font-mono text-2xl font-bold leading-none text-white">
+        {now == null ? '—' : now}
+        {now != null && suffix}
+      </div>
+      <div className="mt-1.5 label">{label}</div>
+      <div
+        className={`mt-0.5 flex items-center gap-1 font-mono text-[11px] ${
+          flat ? 'text-white/35' : up ? 'text-mint' : 'text-coral'
+        }`}
+      >
+        {!flat && (up ? <TrendingUp size={12} /> : <TrendingDown size={12} />)}
+        {d == null ? 'sem comparação' : `${up ? '+' : ''}${d}${suffix} vs. semana anterior`}
+      </div>
+    </div>
+  )
+}
+
+function Metric({ label, value, sub, tint }) {
+  return (
+    <div className="glass flex flex-col justify-center p-3.5">
+      <div className={`font-mono text-2xl font-bold leading-none ${tint}`}>{value}</div>
+      <div className="mt-1.5 label">{label}</div>
+      <div className="mt-0.5 font-body text-[11px] leading-tight text-white/40">{sub}</div>
+    </div>
+  )
+}
+
+function MiniStat({ label, value, sub }) {
+  return (
+    <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
+      <div className="font-mono text-lg font-bold leading-none text-white">{value}</div>
+      <div className="mt-1 label">{label}</div>
+      {sub && <div className="mt-0.5 font-body text-[11px] leading-tight text-white/35">{sub}</div>}
+    </div>
+  )
+}
+
+function DrillButton({ icon: Icon, label, disabled, onClick }) {
+  return (
+    <button onClick={onClick} disabled={disabled} className="btn text-xs disabled:cursor-not-allowed disabled:opacity-40">
+      <Icon size={14} /> {label}
+    </button>
+  )
+}
+
+function TopicList({ title, icon: Icon, tint, rows, onPick }) {
+  return (
+    <div className="glass p-5">
+      <div className={`mb-3 flex items-center gap-2 label ${tint}`}>
+        <Icon size={14} /> {title}
+      </div>
+      {rows.length === 0 ? (
+        <p className="font-body text-sm text-white/40">Responda mais algumas para ranquear os tópicos.</p>
+      ) : (
+        <ul className="space-y-1.5">
+          {rows.map((t) => (
+            <li key={t.code}>
+              <button
+                onClick={() => onPick({ kind: 'topic', code: t.code, title: `Tópico · ${t.name}` })}
+                className="group flex w-full items-center gap-3 rounded-lg px-1 py-1 text-left transition-colors hover:bg-white/[0.05]"
+              >
+                <span className="min-w-0 flex-1 truncate font-body text-sm text-white/80">{t.name}</span>
+                <span className="shrink-0 font-mono text-xs font-bold" style={{ color: accColor(t.hitRate) }}>
+                  {Math.round(t.hitRate)}%
+                </span>
+                <span className="shrink-0 font-mono text-[11px] text-white/40">
+                  {t.solved}/{t.seen}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
@@ -284,29 +1171,28 @@ function SyncCard() {
   const handleRestore = () => {
     try {
       const n = importProgress(paste)
-      setMsg({ ok: true, text: `Restored ${n} item${n === 1 ? '' : 's'} — reloading…` })
+      setMsg({ ok: true, text: `Restaurado ${n} item${n === 1 ? '' : 's'} — recarregando…` })
       setTimeout(() => window.location.reload(), 700)
     } catch {
-      setMsg({ ok: false, text: 'Invalid code — copy the full text and try again.' })
+      setMsg({ ok: false, text: 'Código inválido — copie o texto inteiro e tente de novo.' })
     }
   }
 
   return (
     <div className="glass mt-6 p-5">
       <div className="mb-1 flex items-center gap-2 label">
-        <RefreshCw size={14} className="text-cyan" /> Sync progress (Linux ⇄ Windows)
+        <RefreshCw size={14} className="text-cyan" /> Sincronizar progresso (Linux ⇄ Windows)
       </div>
       <p className="mb-4 font-body text-xs text-white/45">
-        Your progress lives only in this browser. To carry it to the other OS: <b>copy</b> the code here, then{' '}
-        <b>paste &amp; restore</b> it over there. No account, no internet.
+        Seu progresso vive só neste navegador. Para levar para o outro SO: <b>copie</b> o código aqui e{' '}
+        <b>cole &amp; restaure</b> lá. Sem conta, sem internet.
       </p>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        {/* export */}
         <div>
           <button onClick={handleCopy} className="btn w-full justify-center">
             {copied ? <Check size={16} className="text-mint" /> : <Copy size={16} />}
-            {copied ? 'Copied!' : 'Copy my progress'}
+            {copied ? 'Copiado!' : 'Copiar meu progresso'}
           </button>
           {code && (
             <textarea
@@ -318,12 +1204,11 @@ function SyncCard() {
           )}
         </div>
 
-        {/* import */}
         <div>
           <textarea
             value={paste}
             onChange={(e) => setPaste(e.target.value)}
-            placeholder="Paste the code from the other OS here…"
+            placeholder="Cole aqui o código do outro SO…"
             className="h-20 w-full resize-none rounded-lg border border-white/10 bg-white/[0.04] p-2 font-mono text-[10px] leading-tight text-white placeholder:text-white/30"
           />
           <button
@@ -331,108 +1216,15 @@ function SyncCard() {
             disabled={!paste.trim()}
             className="btn mt-2 w-full justify-center disabled:cursor-not-allowed disabled:opacity-40"
           >
-            <Upload size={16} /> Paste &amp; restore
+            <Upload size={16} /> Colar &amp; restaurar
           </button>
-          {msg && (
-            <p className={`mt-2 font-body text-xs ${msg.ok ? 'text-mint' : 'text-coral'}`}>{msg.text}</p>
-          )}
+          {msg && <p className={`mt-2 font-body text-xs ${msg.ok ? 'text-mint' : 'text-coral'}`}>{msg.text}</p>}
         </div>
       </div>
       <p className="mt-3 font-body text-[11px] text-white/35">
-        Restoring <b>overwrites</b> this machine's progress with the pasted one. Newest copy wins — copy on the side
-        you studied last.
+        Restaurar <b>sobrescreve</b> o progresso desta máquina. A cópia mais nova vence — copie do lado em que você
+        estudou por último.
       </p>
-    </div>
-  )
-}
-
-function pctOf(n, total) {
-  return total ? (n / total) * 100 : 0
-}
-
-function Legend({ tint, label, n }) {
-  return (
-    <span className="inline-flex items-center gap-1.5">
-      <span className={`h-2.5 w-2.5 rounded-sm ${tint}`} />
-      {label} · <span className="font-mono text-white/70">{n}</span>
-    </span>
-  )
-}
-
-function heatColor(n) {
-  if (n <= 0) return 'rgba(255,255,255,0.05)'
-  if (n < 4) return 'rgba(52,211,153,0.30)'
-  if (n < 8) return 'rgba(52,211,153,0.52)'
-  if (n < 15) return 'rgba(52,211,153,0.78)'
-  return 'rgba(52,211,153,1)'
-}
-
-function Gauge2({ pct, stroke }) {
-  const r = 34
-  const c = 2 * Math.PI * r
-  const off = c * (1 - Math.min(pct, 100) / 100)
-  return (
-    <span className="relative grid h-24 w-24 shrink-0 place-items-center">
-      <svg width="96" height="96" viewBox="0 0 96 96" className="-rotate-90">
-        <circle cx="48" cy="48" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
-        <motion.circle
-          cx="48"
-          cy="48"
-          r={r}
-          fill="none"
-          stroke={stroke}
-          strokeWidth="8"
-          strokeLinecap="round"
-          strokeDasharray={c}
-          initial={{ strokeDashoffset: c }}
-          animate={{ strokeDashoffset: off }}
-          transition={{ type: 'spring', stiffness: 80, damping: 18 }}
-        />
-      </svg>
-      <span className="absolute font-mono text-2xl font-bold text-white">{pct}</span>
-    </span>
-  )
-}
-
-function Metric({ label, value, sub, tint }) {
-  return (
-    <div className="glass flex flex-col justify-center p-3.5">
-      <div className={`font-mono text-2xl font-bold leading-none ${tint}`}>{value}</div>
-      <div className="mt-1.5 label">{label}</div>
-      <div className="mt-0.5 font-body text-xs text-white/40">{sub}</div>
-    </div>
-  )
-}
-
-function TopicList({ title, icon: Icon, tint, rows, onPick }) {
-  return (
-    <div className="glass p-5">
-      <div className={`mb-3 flex items-center gap-2 label ${tint}`}>
-        <Icon size={14} /> {title}
-      </div>
-      {rows.length === 0 ? (
-        <p className="font-body text-sm text-white/40">Answer a few more to rank topics.</p>
-      ) : (
-        <ul className="space-y-1.5">
-          {rows.map((t) => {
-            const pct = Math.round(t.ratio * 100)
-            return (
-              <li key={t.code}>
-                <button
-                  onClick={() => onPick(t.code, t.name)}
-                  className="group flex w-full items-center gap-3 rounded-lg px-1 py-1 text-left transition-colors hover:bg-white/[0.05]"
-                >
-                  <span className="min-w-0 flex-1 truncate font-body text-sm text-white/80">{t.name}</span>
-                  <span className={`shrink-0 font-mono text-xs font-bold ${pct < 50 ? 'text-coral' : pct < 70 ? 'text-amber' : 'text-mint'}`}>
-                    {pct}%
-                  </span>
-                  <span className="shrink-0 font-mono text-[11px] text-white/40">{t.solved}/{t.seen}</span>
-                </button>
-              </li>
-            )
-          })}
-        </ul>
-      )}
     </div>
   )
 }

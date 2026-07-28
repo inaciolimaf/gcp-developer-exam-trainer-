@@ -7,7 +7,11 @@ const DEFAULT = {
   xp: 0,
   streak: 0, // consecutive correct answers (resets on wrong)
   bestStreak: 0,
-  answered: {}, // id -> { correct: bool, count: number }
+  // id -> { correct, count, right, wrong, firstOk, first, last, lastOk, ms }
+  //   correct  = ever got it right     right/wrong = tally per attempt
+  //   firstOk  = nailed it first try   first/last  = epoch ms
+  //   ms       = total time spent on the question, across attempts
+  answered: {},
   examsTaken: 0,
   examsPassed: 0,
   badges: [], // array of badge ids
@@ -18,7 +22,13 @@ const DEFAULT = {
   lastActiveDate: null, // YYYY-MM-DD of last active day
   dailyGoal: 10,
   activityLog: {}, // YYYY-MM-DD -> questions answered that day (for heatmap)
+  // Rolling event log powering the trend/habit charts. One entry per answer,
+  // kept small on purpose: [t]imestamp, question [i]d, [o]k, [ms], [m]ode.
+  answerLog: [],
 }
+
+// Keep the log bounded so localStorage never blows up (~90 bytes/entry).
+const LOG_CAP = 6000
 
 export function loadState() {
   try {
@@ -72,17 +82,39 @@ export function levelTitle(level) {
   return LEVEL_TITLES[Math.min(level - 1, LEVEL_TITLES.length - 1)]
 }
 
-// Record one answer, mutating + returning a fresh state object.
-export function recordAnswer(state, q, isCorrect, xpGain) {
+// Record one answer, returning a fresh state object.
+// `meta` carries the extra telemetry the dashboard feeds on: { ms, mode }.
+// Old saves only have { correct, count } — the missing fields are backfilled
+// from what we do know so nothing reads as NaN.
+export function recordAnswer(state, q, isCorrect, xpGain, meta = {}) {
+  const now = meta.now || Date.now()
+  const ms = Math.max(0, Math.min(meta.ms || 0, 15 * 60_000)) // cap idle tabs
   const prev = state.answered[q.id] || { correct: false, count: 0 }
+  const count = prev.count + 1
+  // legacy entries: assume the recorded outcome held for every past attempt
+  const right = (prev.right ?? (prev.correct ? prev.count : 0)) + (isCorrect ? 1 : 0)
   const answered = {
     ...state.answered,
-    [q.id]: { correct: prev.correct || isCorrect, count: prev.count + 1 },
+    [q.id]: {
+      correct: prev.correct || isCorrect,
+      count,
+      right,
+      wrong: count - right,
+      firstOk: prev.count === 0 ? isCorrect : (prev.firstOk ?? prev.correct ?? false),
+      first: prev.first || now,
+      last: now,
+      lastOk: isCorrect,
+      ms: (prev.ms || 0) + ms,
+    },
   }
   const streak = isCorrect ? state.streak + 1 : 0
+  const entry = { t: now, i: q.id, o: isCorrect ? 1 : 0, m: meta.mode || 'p' }
+  if (ms) entry.ms = ms
+  const answerLog = [...(state.answerLog || []), entry].slice(-LOG_CAP)
   return {
     ...state,
     answered,
+    answerLog,
     xp: state.xp + (isCorrect ? xpGain : 0),
     streak,
     bestStreak: Math.max(state.bestStreak, streak),
@@ -91,8 +123,10 @@ export function recordAnswer(state, q, isCorrect, xpGain) {
 
 // ---- Exam history -------------------------------------------------------
 
-export function recordExam(state, { correct, total, pct, passed }) {
-  const entry = { date: new Date().toISOString(), correct, total, pct, passed }
+// `extra` may carry { ms, mode, domains: { S1: {correct,total}, … } } so the
+// exam tab can chart pace and per-domain scores, not just the final %.
+export function recordExam(state, { correct, total, pct, passed }, extra = {}) {
+  const entry = { date: new Date().toISOString(), correct, total, pct, passed, ...extra }
   const examHistory = [...(state.examHistory || []), entry].slice(-100)
   return { ...state, examHistory }
 }

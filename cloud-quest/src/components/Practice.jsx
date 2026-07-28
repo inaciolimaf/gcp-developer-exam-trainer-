@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Flame, PartyPopper, Home as HomeIcon, Check } from 'lucide-react'
 import QuestionCard from './QuestionCard'
@@ -11,6 +11,7 @@ export default function Practice({ title, questions, streak, allAnswered = false
   const [revealed, setRevealed] = useState(false)
   const [done, setDone] = useState(false)
   const [hits, setHits] = useState(0)
+  const shownAt = useRef(Date.now()) // when the current question went on screen
 
   const total = questions.length
   const q = questions[index]
@@ -34,7 +35,7 @@ export default function Practice({ title, questions, streak, allAnswered = false
       const pt = ev?.clientX ? { x: ev.clientX, y: ev.clientY } : undefined
       popBurst(pt)
     }
-    onAnswer(q, correct)
+    onAnswer(q, correct, { ms: Date.now() - shownAt.current, mode: 'p' })
   }
 
   function next() {
@@ -46,6 +47,7 @@ export default function Practice({ title, questions, streak, allAnswered = false
     setIndex((i) => i + 1)
     setSelected([])
     setRevealed(false)
+    shownAt.current = Date.now()
   }
 
   if (done) return <Completion title={title} hits={hits} total={total} onExit={onExit} />

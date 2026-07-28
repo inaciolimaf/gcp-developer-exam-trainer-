@@ -118,13 +118,13 @@ export default function App() {
     )
   }, [])
 
-  // single-question answer (Practice modes)
+  // single-question answer (Practice modes). `meta` carries { ms, mode }.
   const onAnswer = useCallback(
-    (q, isCorrect) => {
+    (q, isCorrect, meta) => {
       setSrs((s) => scheduleItem(s, q.id, isCorrect))
       setGame((prev) => {
         const xpGain = 10 + Math.min(prev.streak, 12) * 2
-        let next = recordAnswer(prev, q, isCorrect, xpGain)
+        let next = recordAnswer(prev, q, isCorrect, xpGain, meta)
         next = recordActivity(next, 1)
         const { state, newBadges } = refreshBadges(next)
         if (newBadges.length) showBadges(newBadges)
@@ -134,9 +134,9 @@ export default function App() {
     [showBadges],
   )
 
-  // batch answer (Exam submit)
+  // batch answer (Exam submit). `meta` = { times: {id: ms}, ms, feedback }.
   const onAnswerBatch = useCallback(
-    (questions, answers, passed, perfect) => {
+    (questions, answers, passed, perfect, meta = {}) => {
       setSrs((s) => {
         let next = s
         for (const q of questions) next = scheduleItem(next, q.id, isAnswerCorrect(q, answers[q.id]))
@@ -145,15 +145,29 @@ export default function App() {
       const correctCt = questions.filter((q) => isAnswerCorrect(q, answers[q.id])).length
       const total = questions.length
       const pct = Math.round((correctCt / total) * 100)
+      // per-domain scorecard for this sitting, charted in Stats › Simulados
+      const domains = {}
+      for (const q of questions) {
+        const d = (domains[q.domain] ??= { correct: 0, total: 0 })
+        d.total += 1
+        if (isAnswerCorrect(q, answers[q.id])) d.correct += 1
+      }
       setGame((prev) => {
         let next = { ...prev, examsTaken: prev.examsTaken + 1 }
         for (const q of questions) {
           const correct = isAnswerCorrect(q, answers[q.id])
-          next = recordAnswer(next, q, correct, correct ? 12 : 0)
+          next = recordAnswer(next, q, correct, correct ? 12 : 0, {
+            ms: meta.times?.[q.id] || 0,
+            mode: 'e',
+          })
         }
         if (passed) next.examsPassed += 1
         if (perfect) next.badges = [...new Set([...next.badges, 'exam-ace'])]
-        next = recordExam(next, { correct: correctCt, total, pct, passed })
+        next = recordExam(
+          next,
+          { correct: correctCt, total, pct, passed },
+          { ms: meta.ms || 0, feedback: meta.feedback || 'submit', domains },
+        )
         next = recordActivity(next, total)
         const { state, newBadges } = refreshBadges(next)
         if (newBadges.length) showBadges(newBadges)

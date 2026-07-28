@@ -17,6 +17,9 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
   const [feedback, setFeedback] = useState('submit') // 'submit' (classic) | 'instant'
   const [revealed, setRevealed] = useState(() => new Set()) // ids locked+shown (instant mode)
   const timerRef = useRef(null)
+  // how long each question stayed on screen, so Stats can chart exam pace
+  const dwell = useRef({ times: {}, id: null, since: 0 })
+  const startedAt = useRef(0)
 
   function begin(n) {
     setQuestions(sample(pool, n))
@@ -24,8 +27,25 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
     setRevealed(new Set())
     setIndex(0)
     setSecondsLeft(n * 90) // 90s per question
+    dwell.current = { times: {}, id: null, since: 0 }
+    startedAt.current = Date.now()
     setPhase('run')
   }
+
+  // charge the elapsed time to the question we're leaving, then start the clock
+  // on the one we're landing on
+  function markDwell(nextId) {
+    const d = dwell.current
+    const now = Date.now()
+    if (d.id) d.times[d.id] = (d.times[d.id] || 0) + (now - d.since)
+    d.id = nextId
+    d.since = now
+  }
+
+  useEffect(() => {
+    if (phase !== 'run') return
+    markDwell(questions[index]?.id || null)
+  }, [phase, index, questions])
 
   useEffect(() => {
     if (phase !== 'run') return
@@ -51,9 +71,14 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
 
   function finish() {
     clearInterval(timerRef.current)
+    markDwell(null)
     const correct = questions.filter((q) => isAnswerCorrect(q, answers[q.id])).length
     const pct = Math.round((correct / questions.length) * 100)
-    onAnswerBatch(questions, answers, pct >= PASS_PCT, pct === 100)
+    onAnswerBatch(questions, answers, pct >= PASS_PCT, pct === 100, {
+      times: dwell.current.times,
+      ms: startedAt.current ? Date.now() - startedAt.current : 0,
+      feedback,
+    })
     if (pct >= PASS_PCT) setTimeout(bigCelebration, 250)
     setPhase('result')
   }
