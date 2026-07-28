@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Clock, Flag, Trophy, BarChart3, Layers, Check, Eye, EyeOff, Pause, Play, Coffee } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Clock, Flag, Trophy, BarChart3, Layers, Check, Eye, EyeOff, Pause, Play, Coffee, Globe, Sparkles } from 'lucide-react'
 import { sample, DOMAIN_LABELS, isAnswerCorrect, hasAnswer } from '../lib/data'
 import QuestionCard from './QuestionCard'
 import { bigCelebration } from '../lib/confetti'
 
 const PASS_PCT = 70
 
-export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
+export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory }) {
   const [phase, setPhase] = useState('setup') // setup | run | result
+  const [source, setSource] = useState('all') // 'all' (banco inteiro) | 'new' (só não respondidas)
   const [questions, setQuestions] = useState([])
   const [answers, setAnswers] = useState({})
   const [index, setIndex] = useState(0)
@@ -24,8 +25,11 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
   const startedAt = useRef(0)
   const pausedAt = useRef(0) // início da pausa atual
 
+  const newPool = unseen || []
+  const activePool = source === 'new' ? newPool : pool
+
   function begin(n) {
-    setQuestions(sample(pool, n))
+    setQuestions(sample(activePool, n))
     setAnswers({})
     setRevealed(new Set())
     setIndex(0)
@@ -113,7 +117,8 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
 
   // ---------- SETUP ----------
   if (phase === 'setup') {
-    const opts = [20, 40, 50, Math.min(60, pool.length)].filter((n, i, a) => n <= pool.length && a.indexOf(n) === i)
+    const size = activePool.length
+    const opts = [20, 40, 50, Math.min(60, size)].filter((n, i, a) => n > 0 && n <= size && a.indexOf(n) === i)
     return (
       <div className="mx-auto max-w-lg px-4 pt-12 text-center">
         <button onClick={onExit} className="btn mb-6">
@@ -132,8 +137,42 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
             o cronômetro a qualquer momento se precisar parar no meio.
           </p>
 
-          {/* feedback mode: classic (no peeking) vs instant (reveal as you go) */}
+          {/* de onde saem as questões: banco inteiro ou só as que você nunca respondeu */}
           <div className="mt-6 text-left">
+            <div className="mb-2 label text-center">Questões</div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setSource('all')}
+                className={`flex flex-col items-center gap-1 rounded-xl border p-3 transition-colors ${
+                  source === 'all'
+                    ? 'border-violet/50 bg-violet/10 text-violet shadow-glow-violet'
+                    : 'border-white/12 bg-white/[0.04] text-white/55 hover:border-white/25 hover:text-white'
+                }`}
+              >
+                <Globe size={18} />
+                <span className="font-display text-sm font-semibold">Banco inteiro</span>
+                <span className="font-mono text-[11px] leading-tight opacity-80">{pool.length} disponíveis</span>
+              </button>
+              <button
+                onClick={() => setSource('new')}
+                disabled={newPool.length === 0}
+                className={`flex flex-col items-center gap-1 rounded-xl border p-3 transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                  source === 'new'
+                    ? 'border-mint/50 bg-mint/10 text-mint shadow-glow-mint'
+                    : 'border-white/12 bg-white/[0.04] text-white/55 hover:border-white/25 hover:text-white'
+                }`}
+              >
+                <Sparkles size={18} />
+                <span className="font-display text-sm font-semibold">Só as novas</span>
+                <span className="font-mono text-[11px] leading-tight opacity-80">
+                  {newPool.length} sem resposta
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* feedback mode: classic (no peeking) vs instant (reveal as you go) */}
+          <div className="mt-5 text-left">
             <div className="mb-2 label text-center">Modo de resposta</div>
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -170,7 +209,14 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
               </button>
             ))}
           </div>
-          <p className="mt-4 font-mono text-xs text-white/35">{pool.length} questions available</p>
+          {opts.length === 0 && (
+            <p className="mt-6 font-body text-sm text-mint">
+              Você já respondeu o banco inteiro — não sobrou questão nova. Escolha “Banco inteiro”.
+            </p>
+          )}
+          <p className="mt-4 font-mono text-xs text-white/35">
+            {size} questions available{source === 'new' ? ' · só as que você ainda não respondeu' : ''}
+          </p>
         </motion.div>
       </div>
     )

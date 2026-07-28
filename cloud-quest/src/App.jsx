@@ -209,7 +209,9 @@ export default function App() {
           questions: shuffle(all.filter((q) => q.coverage === GAP)),
         })
       case 'exam':
-        return setScreen({ name: 'exam', pool: all })
+        // snapshot dos "ainda não respondidas" no momento em que a prova abre,
+        // para o setup poder oferecer um simulado só com questões novas
+        return setScreen({ name: 'exam', pool: all, unseen: all.filter((q) => !game.answered[q.id]) })
       case 'guide':
         return setScreen({ name: 'guide' })
       case 'lessons':
@@ -308,6 +310,7 @@ export default function App() {
           {screen.name === 'exam' && (
             <Exam
               pool={screen.pool}
+              unseen={screen.unseen}
               onAnswerBatch={onAnswerBatch}
               onExit={home}
               onHistory={() => start('examHistory')}
