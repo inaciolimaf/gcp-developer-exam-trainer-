@@ -166,7 +166,7 @@ export default function App() {
         next = recordExam(
           next,
           { correct: correctCt, total, pct, passed },
-          { ms: meta.ms || 0, feedback: meta.feedback || 'submit', domains },
+          { ms: meta.ms || 0, pausedMs: meta.pausedMs || 0, feedback: meta.feedback || 'submit', domains },
         )
         next = recordActivity(next, total)
         const { state, newBadges } = refreshBadges(next)

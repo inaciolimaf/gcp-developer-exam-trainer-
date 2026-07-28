@@ -1022,7 +1022,12 @@ function Exams({ a }) {
                     <td className="py-2 pr-3 font-mono text-[12px] text-white/60">
                       {e.correct}/{e.total}
                     </td>
-                    <td className="py-2 pr-3 font-mono text-[12px] text-white/60">{e.ms ? fmtDuration(e.ms) : '—'}</td>
+                    <td className="py-2 pr-3 font-mono text-[12px] text-white/60">
+                      {e.ms ? fmtDuration(e.ms) : '—'}
+                      {e.pausedMs > 0 && (
+                        <span className="ml-1 text-white/30">+{fmtDuration(e.pausedMs)} pausa</span>
+                      )}
+                    </td>
                     <td className="py-2 font-mono text-[12px] text-white/45">
                       {e.feedback === 'instant' ? 'imediato' : 'clássico'}
                     </td>

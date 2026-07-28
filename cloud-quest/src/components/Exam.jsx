@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Clock, Flag, Trophy, BarChart3, Layers, Check, Eye, EyeOff } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Clock, Flag, Trophy, BarChart3, Layers, Check, Eye, EyeOff, Pause, Play, Coffee } from 'lucide-react'
 import { sample, DOMAIN_LABELS, isAnswerCorrect, hasAnswer } from '../lib/data'
 import QuestionCard from './QuestionCard'
 import { bigCelebration } from '../lib/confetti'
@@ -13,6 +13,8 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
   const [answers, setAnswers] = useState({})
   const [index, setIndex] = useState(0)
   const [secondsLeft, setSecondsLeft] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const [pausedMs, setPausedMs] = useState(0) // tempo total parado, para o relatório
   const [reviewAll, setReviewAll] = useState(false)
   const [feedback, setFeedback] = useState('submit') // 'submit' (classic) | 'instant'
   const [revealed, setRevealed] = useState(() => new Set()) // ids locked+shown (instant mode)
@@ -20,6 +22,7 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
   // how long each question stayed on screen, so Stats can chart exam pace
   const dwell = useRef({ times: {}, id: null, since: 0 })
   const startedAt = useRef(0)
+  const pausedAt = useRef(0) // início da pausa atual
 
   function begin(n) {
     setQuestions(sample(pool, n))
@@ -27,9 +30,30 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
     setRevealed(new Set())
     setIndex(0)
     setSecondsLeft(n * 90) // 90s per question
+    setPaused(false)
+    setPausedMs(0)
     dwell.current = { times: {}, id: null, since: 0 }
+    pausedAt.current = 0
     startedAt.current = Date.now()
     setPhase('run')
+  }
+
+  // Pausar congela o relógio E a medição de tempo por questão — a questão sai
+  // da tela enquanto isso, senão a pausa viraria tempo extra de leitura.
+  // Os efeitos ficam FORA do setState: em StrictMode o updater roda duas vezes
+  // e a segunda passada somaria a pausa de novo (com o relógio já zerado).
+  function togglePause() {
+    if (paused) {
+      const chunk = pausedAt.current ? Date.now() - pausedAt.current : 0
+      pausedAt.current = 0
+      setPausedMs((ms) => ms + chunk)
+      markDwell(questions[index]?.id || null)
+      setPaused(false)
+    } else {
+      pausedAt.current = Date.now()
+      markDwell(null)
+      setPaused(true)
+    }
   }
 
   // charge the elapsed time to the question we're leaving, then start the clock
@@ -43,12 +67,12 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
   }
 
   useEffect(() => {
-    if (phase !== 'run') return
+    if (phase !== 'run' || paused) return
     markDwell(questions[index]?.id || null)
-  }, [phase, index, questions])
+  }, [phase, index, questions, paused])
 
   useEffect(() => {
-    if (phase !== 'run') return
+    if (phase !== 'run' || paused) return
     timerRef.current = setInterval(() => {
       setSecondsLeft((s) => {
         if (s <= 1) {
@@ -61,7 +85,7 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
     }, 1000)
     return () => clearInterval(timerRef.current)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase])
+  }, [phase, paused])
 
   const score = useMemo(() => {
     if (phase !== 'result') return null
@@ -72,11 +96,15 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
   function finish() {
     clearInterval(timerRef.current)
     markDwell(null)
+    // pausas não contam como tempo de prova (nem no total, nem por questão)
+    const breaks = pausedMs + (paused && pausedAt.current ? Date.now() - pausedAt.current : 0)
+    setPaused(false)
     const correct = questions.filter((q) => isAnswerCorrect(q, answers[q.id])).length
     const pct = Math.round((correct / questions.length) * 100)
     onAnswerBatch(questions, answers, pct >= PASS_PCT, pct === 100, {
       times: dwell.current.times,
-      ms: startedAt.current ? Date.now() - startedAt.current : 0,
+      ms: startedAt.current ? Math.max(0, Date.now() - startedAt.current - breaks) : 0,
+      pausedMs: breaks,
       feedback,
     })
     if (pct >= PASS_PCT) setTimeout(bigCelebration, 250)
@@ -100,7 +128,8 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
           <h2 className="font-display text-3xl font-bold text-white">Mock Exam</h2>
           <p className="mx-auto mt-2 max-w-sm font-body text-white/55">
             Pick a length. You get <span className="text-white/90">90 seconds</span> per question. Pass mark is{' '}
-            <span className="text-white/90">{PASS_PCT}%</span>.
+            <span className="text-white/90">{PASS_PCT}%</span>. Dá para <span className="text-white/90">pausar</span>{' '}
+            o cronômetro a qualquer momento se precisar parar no meio.
           </p>
 
           {/* feedback mode: classic (no peeking) vs instant (reveal as you go) */}
@@ -303,14 +332,64 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
         <button onClick={onExit} className="btn px-3">
           <ArrowLeft size={16} />
         </button>
-        <div className={`chip font-mono ${low ? 'animate-wiggle border-coral/60 text-coral shadow-glow-coral' : ''}`}>
-          <Clock size={14} /> {mm}:{ss}
+        <div className="flex items-center gap-2">
+          <div
+            className={`chip font-mono ${
+              paused
+                ? 'border-amber/50 text-amber'
+                : low
+                  ? 'animate-wiggle border-coral/60 text-coral shadow-glow-coral'
+                  : ''
+            }`}
+          >
+            <Clock size={14} /> {mm}:{ss}
+          </div>
+          <button
+            onClick={togglePause}
+            className={`btn px-3 ${paused ? 'border-amber/50 text-amber hover:bg-amber/10' : ''}`}
+            title={paused ? 'Retomar o cronômetro' : 'Pausar o cronômetro'}
+          >
+            {paused ? <Play size={15} /> : <Pause size={15} />}
+            <span className="hidden sm:inline">{paused ? 'Retomar' : 'Pausar'}</span>
+          </button>
         </div>
         <button onClick={finish} className="btn border-coral/40 text-coral hover:bg-coral/10">
           <Flag size={14} /> Submit
         </button>
       </div>
 
+      {/* pausado: a prova sai da tela para a pausa não virar tempo extra de leitura */}
+      {paused && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass-strong flex flex-col items-center gap-3 p-10 text-center shadow-glow-soft"
+        >
+          <Coffee size={40} className="text-amber" />
+          <h2 className="font-display text-2xl font-bold text-white">Simulado pausado</h2>
+          <p className="max-w-sm font-body text-white/55">
+            O cronômetro está parado em <span className="font-mono text-white/90">{mm}:{ss}</span> e a prova fica
+            escondida enquanto isso. Volte quando quiser — o tempo de pausa não entra no seu ritmo por questão.
+          </p>
+          <div className="mt-1 flex flex-wrap justify-center gap-2 font-mono text-xs text-white/40">
+            <span className="chip border-white/12 text-white/60">
+              {answeredCount}/{questions.length} respondidas
+            </span>
+            <span className="chip border-white/12 text-white/60">questão {index + 1}</span>
+            {pausedMs > 0 && (
+              <span className="chip border-white/12 text-white/60">
+                {Math.round(pausedMs / 60000)} min de pausa até agora
+              </span>
+            )}
+          </div>
+          <button onClick={togglePause} className="btn-accent mt-4">
+            <Play size={18} /> Retomar simulado
+          </button>
+        </motion.div>
+      )}
+
+      {!paused && (
+        <>
       {/* navigator */}
       <div className="mb-5 flex flex-wrap gap-1.5">
         {questions.map((qq, i) => {
@@ -372,6 +451,8 @@ export default function Exam({ pool, onAnswerBatch, onExit, onHistory }) {
           </button>
         )}
       </div>
+        </>
+      )}
     </div>
   )
 }
