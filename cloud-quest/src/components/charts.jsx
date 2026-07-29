@@ -28,7 +28,7 @@ function Tooltip({ tip }) {
   if (!tip) return null
   return (
     <div
-      className="pointer-events-none absolute z-20 min-w-[92px] -translate-x-1/2 rounded-lg border border-white/15 bg-[#12131f]/95 px-2.5 py-1.5 font-body text-[11px] leading-tight text-white/85 shadow-glow-soft backdrop-blur"
+      className="pointer-events-none absolute z-20 min-w-[92px] -translate-x-1/2 rounded-lg border border-line bg-surface px-2.5 py-1.5 font-body text-[11px] leading-tight text-ink shadow-glow-soft backdrop-blur"
       style={{ left: tip.x, top: tip.y, transform: `translate(-50%, calc(-100% - 10px))` }}
     >
       {tip.node}
@@ -47,15 +47,15 @@ function TipRow({ color, label, value }) {
   return (
     <div className="flex items-center gap-1.5 whitespace-nowrap">
       {color && <span className="h-2 w-2 shrink-0 rounded-sm" style={{ background: color }} />}
-      <span className="text-white/55">{label}</span>
-      <span className="ml-auto font-mono text-white">{value}</span>
+      <span className="text-muted">{label}</span>
+      <span className="ml-auto font-mono text-ink">{value}</span>
     </div>
   )
 }
 
 export function Legend({ items, className = '' }) {
   return (
-    <div className={`flex flex-wrap items-center gap-x-4 gap-y-1.5 font-body text-[11px] text-white/55 ${className}`}>
+    <div className={`flex flex-wrap items-center gap-x-4 gap-y-1.5 font-body text-[11px] text-muted ${className}`}>
       {items.map((it) => (
         <span key={it.label} className="inline-flex items-center gap-1.5">
           <span
@@ -63,7 +63,7 @@ export function Legend({ items, className = '' }) {
             style={{ background: it.color, opacity: it.faded ? 0.45 : 1 }}
           />
           {it.label}
-          {it.value != null && <span className="font-mono text-white/75">{it.value}</span>}
+          {it.value != null && <span className="font-mono text-muted">{it.value}</span>}
         </span>
       ))}
     </div>
@@ -72,7 +72,7 @@ export function Legend({ items, className = '' }) {
 
 export function Empty({ children = 'Sem dados ainda' }) {
   return (
-    <div className="grid place-items-center rounded-xl border border-dashed border-white/10 py-8 text-center font-body text-xs text-white/35">
+    <div className="grid place-items-center rounded-xl border border-dashed border-line py-8 text-center font-body text-xs text-faint">
       {children}
     </div>
   )
@@ -168,7 +168,7 @@ export function LineChart({
       xAt(idx),
       yAt(top),
       <>
-        <div className="mb-1 font-display text-[11px] font-semibold text-white">{labels[idx]}</div>
+        <div className="mb-1 font-display text-[11px] font-semibold text-ink">{labels[idx]}</div>
         {series.map((s) => (
           <TipRow
             key={s.name}
@@ -229,7 +229,7 @@ export function LineChart({
               {showDots &&
                 s.values.map((v, i) =>
                   v == null ? null : (
-                    <circle key={i} cx={xAt(i)} cy={yAt(v)} r="3" fill={s.color} stroke="#0f1018" strokeWidth="2" />
+                    <circle key={i} cx={xAt(i)} cy={yAt(v)} r="3" fill={s.color} stroke="#FFFFFF" strokeWidth="2" />
                   ),
                 )}
             </g>
@@ -237,7 +237,7 @@ export function LineChart({
 
           {hoverI != null && (
             <g>
-              <line x1={xAt(hoverI)} x2={xAt(hoverI)} y1={padT} y2={padT + ih} stroke="rgba(255,255,255,0.28)" strokeWidth="1" />
+              <line x1={xAt(hoverI)} x2={xAt(hoverI)} y1={padT} y2={padT + ih} stroke="rgba(19,23,32,0.30)" strokeWidth="1" />
               {series.map((s) =>
                 s.values[hoverI] == null ? null : (
                   <circle
@@ -246,7 +246,7 @@ export function LineChart({
                     cy={yAt(s.values[hoverI])}
                     r="4.5"
                     fill={s.color}
-                    stroke="#0f1018"
+                    stroke="#FFFFFF"
                     strokeWidth="2"
                   />
                 ),
@@ -338,7 +338,7 @@ export function BarChart({ bars, height = 150, yFormat = (v) => v, color = SERIE
                       padT,
                       b.tip || (
                         <>
-                          <div className="mb-0.5 font-display text-[11px] font-semibold text-white">{b.label}</div>
+                          <div className="mb-0.5 font-display text-[11px] font-semibold text-ink">{b.label}</div>
                           <TipRow color={b.color || color} label="valor" value={yFormat(b.value)} />
                         </>
                       ),
@@ -388,20 +388,20 @@ export function BarRows({ rows, valueFormat = (v) => `${Math.round(v)}%` }) {
             key={r.key}
             onClick={r.onClick}
             className={`group flex w-full items-center gap-3 rounded-lg px-1 py-1 text-left ${
-              r.onClick ? 'transition-colors hover:bg-white/[0.05]' : ''
+              r.onClick ? 'transition-colors hover:bg-sunken' : ''
             }`}
           >
             <span className="w-[42%] min-w-0 shrink-0 sm:w-[34%]">
-              <span className="block truncate font-body text-[13px] text-white/80 group-hover:text-white">{r.label}</span>
-              {r.sub && <span className="block truncate font-mono text-[10px] text-white/35">{r.sub}</span>}
+              <span className="block truncate font-body text-[13px] text-ink group-hover:text-ink">{r.label}</span>
+              {r.sub && <span className="block truncate font-mono text-[10px] text-faint">{r.sub}</span>}
             </span>
-            <span className="h-2.5 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
+            <span className="h-2.5 flex-1 overflow-hidden rounded-full border border-line bg-sunken">
               <span
                 className="block h-full rounded-full transition-[width] duration-500"
                 style={{ width: `${w}%`, background: r.color || accColor(r.value) }}
               />
             </span>
-            <span className="w-24 shrink-0 whitespace-nowrap text-right font-mono text-[11px] text-white/70">
+            <span className="w-24 shrink-0 whitespace-nowrap text-right font-mono text-[11px] text-muted">
               {r.right ?? valueFormat(r.value)}
             </span>
           </Tag>
@@ -417,7 +417,7 @@ export function BarRows({ rows, valueFormat = (v) => `${Math.round(v)}%` }) {
 export function StackedBar({ segments, total, height = 12 }) {
   const sum = total ?? segments.reduce((s, x) => s + x.value, 0)
   return (
-    <div className="flex overflow-hidden rounded-full border border-white/10 bg-white/[0.04]" style={{ height }}>
+    <div className="flex overflow-hidden rounded-full border border-line bg-sunken" style={{ height }}>
       {segments.map((s, i) =>
         s.value <= 0 ? null : (
           <span
@@ -488,17 +488,17 @@ export function Radar({ axes, size = 230, color = SERIES[0], refAxes, refColor =
                 cy={y}
                 r="5"
                 fill={color}
-                stroke="#0f1018"
+                stroke="#FFFFFF"
                 strokeWidth="2"
                 onMouseEnter={() =>
                   show(
                     x,
                     y,
                     <>
-                      <div className="mb-0.5 font-display text-[11px] font-semibold text-white">{a.label}</div>
+                      <div className="mb-0.5 font-display text-[11px] font-semibold text-ink">{a.label}</div>
                       <TipRow color={color} label={name || 'acerto'} value={`${Math.round(a.value)}%`} />
                       {refAxes && <TipRow color={refColor} label={refName} value={`${Math.round(refAxes[i].value)}%`} />}
-                      {a.sub && <div className="mt-0.5 text-white/45">{a.sub}</div>}
+                      {a.sub && <div className="mt-0.5 text-faint">{a.sub}</div>}
                     </>,
                   )
                 }
@@ -507,7 +507,7 @@ export function Radar({ axes, size = 230, color = SERIES[0], refAxes, refColor =
                 x={lx}
                 y={ly + 3}
                 textAnchor={Math.abs(lx - cx) < 12 ? 'middle' : lx > cx ? 'start' : 'end'}
-                fill="rgba(255,255,255,0.65)"
+                fill="rgba(19,23,32,0.62)"
                 className="font-mono"
                 fontSize="10"
               >
@@ -575,12 +575,12 @@ export function Scatter({ points, height = 240, xLabel, yLabel, xMax, yBand = 70
                   xAt(p.x),
                   yAt(p.y),
                   <>
-                    <div className="mb-0.5 max-w-[180px] font-display text-[11px] font-semibold leading-snug text-white">
+                    <div className="mb-0.5 max-w-[180px] font-display text-[11px] font-semibold leading-snug text-ink">
                       {p.label}
                     </div>
                     <TipRow color={p.color || SERIES[0]} label="acerto" value={`${Math.round(p.y)}%`} />
                     <TipRow label="respondidas" value={p.x} />
-                    {p.sub && <div className="mt-0.5 text-white/45">{p.sub}</div>}
+                    {p.sub && <div className="mt-0.5 text-faint">{p.sub}</div>}
                   </>,
                 )
               }
@@ -621,7 +621,7 @@ export function Gauge({ pct, stroke, size = 104, label }) {
   return (
     <span className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="9" />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(19,23,32,0.09)" strokeWidth="9" />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -636,8 +636,8 @@ export function Gauge({ pct, stroke, size = 104, label }) {
         />
       </svg>
       <span className="absolute grid place-items-center">
-        <span className="font-mono text-2xl font-bold leading-none text-white">{Math.round(pct)}</span>
-        {label && <span className="mt-0.5 font-mono text-[9px] uppercase tracking-wider text-white/40">{label}</span>}
+        <span className="font-mono text-2xl font-bold leading-none text-ink">{Math.round(pct)}</span>
+        {label && <span className="mt-0.5 font-mono text-[9px] uppercase tracking-wider text-faint">{label}</span>}
       </span>
     </span>
   )
@@ -704,7 +704,7 @@ export function Heatmap({ cells, colorFor, weeks }) {
                   x + cell / 2,
                   y,
                   <>
-                    <div className="mb-0.5 font-display text-[11px] font-semibold text-white">{c.key}</div>
+                    <div className="mb-0.5 font-display text-[11px] font-semibold text-ink">{c.key}</div>
                     <TipRow label="respostas" value={c.count} />
                     {c.acc != null && <TipRow color={accColor(c.acc)} label="acerto" value={`${Math.round(c.acc)}%`} />}
                   </>,
@@ -760,7 +760,7 @@ export function Sparkline({ values, color = SERIES[0], height = 34, band }) {
         <svg width={w} height={height}>
           <path d={area} fill={color} opacity="0.1" />
           <path d={line} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          {li >= 0 && <circle cx={xAt(li)} cy={yAt(values[li])} r="3" fill={color} stroke="#0f1018" strokeWidth="2" />}
+          {li >= 0 && <circle cx={xAt(li)} cy={yAt(values[li])} r="3" fill={color} stroke="#FFFFFF" strokeWidth="2" />}
         </svg>
       )}
     </div>

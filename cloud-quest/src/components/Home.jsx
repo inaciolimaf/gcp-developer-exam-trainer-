@@ -51,17 +51,17 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
           animate={{ opacity: 1, y: 0 }}
           whileHover={{ y: -3 }}
           whileTap={{ scale: 0.99 }}
-          className="group glass-strong relative mb-6 flex w-full items-center gap-4 overflow-hidden p-4 text-left shadow-glow-soft transition-colors hover:border-white/25"
+          className="group glass-strong relative mb-6 flex w-full items-center gap-4 overflow-hidden p-4 text-left shadow-glow-soft transition-colors hover:border-line-strong"
         >
           <div className="absolute inset-0 -z-10 bg-gradient-to-r from-coral/15 via-violet/10 to-transparent" />
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/12 bg-white/[0.06] text-coral">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-line bg-sunken text-coral">
             <Brain size={20} />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="font-display text-base font-semibold text-white">
+            <div className="font-display text-base font-semibold text-ink">
               {dueCount} {dueCount === 1 ? 'item' : 'items'} due for review
             </div>
-            <div className="font-body text-sm text-white/55">Spaced repetition keeps it from slipping away.</div>
+            <div className="font-body text-sm text-muted">Spaced repetition keeps it from slipping away.</div>
           </div>
           <span className="btn-accent shrink-0 px-4 py-2">
             Review <ArrowRight size={16} />
@@ -75,16 +75,16 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
         transition={{ type: 'spring', stiffness: 200, damping: 22 }}
         className="mb-10 text-center"
       >
-        <span className="label inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1">
+        <span className="label inline-flex items-center gap-2 rounded-full border border-line bg-sunken px-3 py-1">
           <span className="h-1.5 w-1.5 rounded-full bg-mint animate-pulse-glow" />
           {total} questions · Professional Cloud Developer
         </span>
         <h1 className="mt-5 font-display text-6xl font-extrabold leading-none tracking-tight sm:text-7xl">
-          <span className="bg-gradient-to-r from-cyan via-violet to-pink bg-clip-text text-transparent [text-shadow:0_0_40px_rgba(139,92,246,0.35)]">
+          <span className="bg-gradient-to-r from-cyan via-violet to-pink bg-clip-text text-transparent">
             Cloud Quest
           </span>
         </h1>
-        <p className="mx-auto mt-4 max-w-md font-body text-white/55">
+        <p className="mx-auto mt-4 max-w-md font-body text-muted">
           Turn {total} exam questions into a game. Pick how you want to play, then chase the streak.
         </p>
 
@@ -95,7 +95,7 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
             className={`group inline-flex items-center gap-2.5 rounded-full border px-4 py-2 font-display text-sm font-semibold transition-colors ${
               hqOnly
                 ? 'border-mint/50 bg-mint/15 text-mint shadow-glow-mint'
-                : 'border-white/12 bg-white/[0.04] text-white/60 hover:border-white/25 hover:text-white'
+                : 'border-line bg-sunken text-muted hover:border-line-strong hover:text-ink'
             }`}
             title={hqOnly ? 'Showing only Alta qualidade questions' : 'Showing all questions'}
           >
@@ -103,14 +103,14 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
             Alta qualidade
             <span
               className={`grid h-5 items-center rounded-full px-2 font-mono text-[11px] ${
-                hqOnly ? 'bg-mint/25 text-mint' : 'bg-white/10 text-white/55'
+                hqOnly ? 'bg-mint/25 text-mint' : 'bg-sunken text-muted'
               }`}
             >
               {hqOnly ? `${hqCount}` : `${hqCount}/${fullCount}`}
             </span>
             <span
               className={`relative ml-0.5 h-4 w-7 rounded-full transition-colors ${
-                hqOnly ? 'bg-mint/70' : 'bg-white/15'
+                hqOnly ? 'bg-mint/70' : 'bg-sunken'
               }`}
             >
               <span
@@ -131,14 +131,14 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
         transition={{ type: 'spring', stiffness: 220, damping: 22 }}
         whileHover={{ y: -3 }}
         whileTap={{ scale: 0.99 }}
-        className="group glass relative mb-4 flex w-full items-center gap-5 overflow-hidden p-5 text-left transition-colors hover:border-white/25"
+        className="group glass relative mb-4 flex w-full items-center gap-5 overflow-hidden p-5 text-left transition-colors hover:border-line-strong"
       >
         <Ring pct={daily.pct} count={daily.count} goal={daily.goal} met={daily.met} />
         <div className="min-w-0 flex-1">
-          <div className="font-display text-lg font-semibold text-white">
+          <div className="font-display text-lg font-semibold text-ink">
             {daily.met ? 'Daily goal hit 🎉' : 'Daily goal'}
           </div>
-          <div className="mt-0.5 font-body text-sm text-white/55">
+          <div className="mt-0.5 font-body text-sm text-muted">
             {daily.met
               ? `${daily.count} questions today — keep the streak alive.`
               : `${daily.count} / ${daily.goal} questions today. ${daily.goal - daily.count} to go.`}
@@ -160,27 +160,27 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
         transition={{ delay: 0.04, type: 'spring', stiffness: 220, damping: 22 }}
         whileHover={{ y: -3 }}
         whileTap={{ scale: 0.99 }}
-        className="group glass relative mb-10 flex w-full items-center gap-4 overflow-hidden p-4 text-left transition-colors hover:border-white/25"
+        className="group glass relative mb-10 flex w-full items-center gap-4 overflow-hidden p-4 text-left transition-colors hover:border-line-strong"
       >
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-amber/12 to-transparent opacity-70 transition-opacity group-hover:opacity-100" />
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/12 bg-white/[0.06] text-amber">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-line bg-sunken text-amber">
           <Trophy size={20} />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="font-display text-base font-semibold text-white">Exam History</div>
-          <div className="font-body text-sm text-white/55">
+          <div className="font-display text-base font-semibold text-ink">Exam History</div>
+          <div className="font-body text-sm text-muted">
             {exams.count
               ? `${exams.count} attempt${exams.count === 1 ? '' : 's'} · best ${exams.best}% · ${exams.passed} passed`
               : 'Track your mock-exam scores over time.'}
           </div>
         </div>
-        <ArrowRight size={18} className="shrink-0 text-white/40 transition-transform group-hover:translate-x-1" />
+        <ArrowRight size={18} className="shrink-0 text-faint transition-transform group-hover:translate-x-1" />
       </motion.button>
 
       {/* Progress strip — tap any stat to open the full dashboard */}
       <div className="mb-2 flex items-center justify-between">
         <span className="label">Your progress</span>
-        <button onClick={() => onStart('stats')} className="label flex items-center gap-1 text-cyan hover:text-white">
+        <button onClick={() => onStart('stats')} className="label flex items-center gap-1 text-cyan hover:text-ink">
           View stats <ArrowRight size={12} />
         </button>
       </div>
@@ -199,19 +199,19 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
         transition={{ type: 'spring', stiffness: 220, damping: 22 }}
         whileHover={{ y: -4 }}
         whileTap={{ scale: 0.99 }}
-        className="group glass relative mb-4 flex w-full items-center gap-4 overflow-hidden p-5 text-left transition-colors hover:border-white/25"
+        className="group glass relative mb-4 flex w-full items-center gap-4 overflow-hidden p-5 text-left transition-colors hover:border-line-strong"
       >
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan/15 via-violet/10 to-transparent opacity-70 transition-opacity group-hover:opacity-100" />
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-white/12 bg-white/[0.06] text-cyan transition-shadow group-hover:[box-shadow:0_0_26px_-6px_currentColor]">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-line bg-sunken text-cyan transition-shadow group-hover:[box-shadow:0_0_26px_-6px_currentColor]">
           <BookOpenText size={22} />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="font-display text-xl font-semibold text-white">Study Guide</div>
-          <div className="mt-0.5 font-body text-sm text-white/55">
+          <div className="font-display text-xl font-semibold text-ink">Study Guide</div>
+          <div className="mt-0.5 font-body text-sm text-muted">
             What actually gets tested vs. what the course teaches — gaps, module roadmap, lecture-by-lecture.
           </div>
         </div>
-        <ArrowRight size={20} className="shrink-0 text-white/40 transition-transform group-hover:translate-x-1" />
+        <ArrowRight size={20} className="shrink-0 text-faint transition-transform group-hover:translate-x-1" />
       </motion.button>
 
       {/* Featured: Aulas (lessons) */}
@@ -222,19 +222,19 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
         transition={{ delay: 0.025, type: 'spring', stiffness: 220, damping: 22 }}
         whileHover={{ y: -4 }}
         whileTap={{ scale: 0.99 }}
-        className="group glass relative mb-4 flex w-full items-center gap-4 overflow-hidden p-5 text-left transition-colors hover:border-white/25"
+        className="group glass relative mb-4 flex w-full items-center gap-4 overflow-hidden p-5 text-left transition-colors hover:border-line-strong"
       >
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-violet/15 via-pink/10 to-transparent opacity-70 transition-opacity group-hover:opacity-100" />
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-white/12 bg-white/[0.06] text-violet transition-shadow group-hover:[box-shadow:0_0_26px_-6px_currentColor]">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-line bg-sunken text-violet transition-shadow group-hover:[box-shadow:0_0_26px_-6px_currentColor]">
           <GraduationCap size={22} />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="font-display text-xl font-semibold text-white">Lessons</div>
-          <div className="mt-0.5 font-body text-sm text-white/55">
+          <div className="font-display text-xl font-semibold text-ink">Lessons</div>
+          <div className="mt-0.5 font-body text-sm text-muted">
             Exam topics with narrated audio (1×–3×) and a board for each lesson. Toggle PT/EN inside.
           </div>
         </div>
-        <ArrowRight size={20} className="shrink-0 text-white/40 transition-transform group-hover:translate-x-1" />
+        <ArrowRight size={20} className="shrink-0 text-faint transition-transform group-hover:translate-x-1" />
       </motion.button>
 
       {/* Featured: Flashcards */}
@@ -245,19 +245,19 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
         transition={{ delay: 0.05, type: 'spring', stiffness: 220, damping: 22 }}
         whileHover={{ y: -4 }}
         whileTap={{ scale: 0.99 }}
-        className="group glass relative mb-4 flex w-full items-center gap-4 overflow-hidden p-5 text-left transition-colors hover:border-white/25"
+        className="group glass relative mb-4 flex w-full items-center gap-4 overflow-hidden p-5 text-left transition-colors hover:border-line-strong"
       >
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-mint/15 via-cyan/10 to-transparent opacity-70 transition-opacity group-hover:opacity-100" />
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-white/12 bg-white/[0.06] text-mint transition-shadow group-hover:[box-shadow:0_0_26px_-6px_currentColor]">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-line bg-sunken text-mint transition-shadow group-hover:[box-shadow:0_0_26px_-6px_currentColor]">
           <Sparkles size={22} />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="font-display text-xl font-semibold text-white">Flashcards</div>
-          <div className="mt-0.5 font-body text-sm text-white/55">
+          <div className="font-display text-xl font-semibold text-ink">Flashcards</div>
+          <div className="mt-0.5 font-body text-sm text-muted">
             272 service cards — flip, recall, self-grade. Drill any category or just the newest additions.
           </div>
         </div>
-        <ArrowRight size={20} className="shrink-0 text-white/40 transition-transform group-hover:translate-x-1" />
+        <ArrowRight size={20} className="shrink-0 text-faint transition-transform group-hover:translate-x-1" />
       </motion.button>
 
       {/* Mode grid */}
@@ -271,7 +271,7 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
             transition={{ delay: 0.05 * i, type: 'spring', stiffness: 220, damping: 22 }}
             whileHover={{ y: -5 }}
             whileTap={{ scale: 0.98 }}
-            className="group glass relative flex flex-col items-start gap-4 overflow-hidden p-5 text-left transition-colors hover:border-white/25"
+            className="group glass relative flex flex-col items-start gap-4 overflow-hidden p-5 text-left transition-colors hover:border-line-strong"
           >
             {/* hover wash */}
             <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${m.from} to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
@@ -286,15 +286,15 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
                   ✓ Todas respondidas · {total}
                 </span>
               ))}
-            <span className={`grid h-12 w-12 place-items-center rounded-xl border border-white/12 bg-white/[0.06] ${m.ring} transition-shadow duration-300 group-hover:[box-shadow:0_0_26px_-6px_currentColor]`}>
+            <span className={`grid h-12 w-12 place-items-center rounded-xl border border-line bg-sunken ${m.ring} transition-shadow duration-300 group-hover:[box-shadow:0_0_26px_-6px_currentColor]`}>
               <m.icon size={22} />
             </span>
             <div>
-              <div className="flex items-center gap-1 font-display text-xl font-semibold text-white">
+              <div className="flex items-center gap-1 font-display text-xl font-semibold text-ink">
                 {m.title}
                 <ArrowUpRight size={16} className="opacity-0 -translate-x-1 transition-all group-hover:translate-x-0 group-hover:opacity-60" />
               </div>
-              <div className="mt-0.5 font-body text-sm text-white/50">
+              <div className="mt-0.5 font-body text-sm text-muted">
                 {m.key === 'random' && blitzRemaining > 0
                   ? `${blitzRemaining} de ${total} ainda sem resposta.`
                   : m.desc}
@@ -314,13 +314,13 @@ function Ring({ pct, count, goal, met }) {
   return (
     <span className="relative grid h-16 w-16 shrink-0 place-items-center">
       <svg width="64" height="64" viewBox="0 0 64 64" className="-rotate-90">
-        <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="6" />
+        <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(19,23,32,0.09)" strokeWidth="6" />
         <motion.circle
           cx="32"
           cy="32"
           r={r}
           fill="none"
-          stroke={met ? '#34d399' : '#22d3ee'}
+          stroke={met ? '#12894C' : '#1A6FE0'}
           strokeWidth="6"
           strokeLinecap="round"
           strokeDasharray={c}
@@ -329,8 +329,8 @@ function Ring({ pct, count, goal, met }) {
           transition={{ type: 'spring', stiffness: 90, damping: 20 }}
         />
       </svg>
-      <span className="absolute font-mono text-sm font-bold text-white">
-        {count}<span className="text-white/40">/{goal}</span>
+      <span className="absolute font-mono text-sm font-bold text-ink">
+        {count}<span className="text-faint">/{goal}</span>
       </span>
     </span>
   )
@@ -340,13 +340,13 @@ function Stat({ label, value, icon: Icon, tint, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="glass flex items-center gap-3 p-3.5 text-left transition-colors hover:border-white/25"
+      className="glass flex items-center gap-3 p-3.5 text-left transition-colors hover:border-line-strong"
     >
-      <span className={`grid h-10 w-10 place-items-center rounded-lg border border-white/10 bg-white/[0.05] ${tint}`}>
+      <span className={`grid h-10 w-10 place-items-center rounded-lg border border-line bg-sunken ${tint}`}>
         <Icon size={18} />
       </span>
       <div>
-        <div className="font-mono text-xl font-bold leading-none text-white">{value}</div>
+        <div className="font-mono text-xl font-bold leading-none text-ink">{value}</div>
         <div className="mt-1 label">{label}</div>
       </div>
     </button>

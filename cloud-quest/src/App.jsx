@@ -343,7 +343,7 @@ export default function App() {
                 }
               />
             ) : (
-              <div className="grid place-items-center pt-24 font-display text-white/70">
+              <div className="grid place-items-center pt-24 font-display text-muted">
                 <span className="animate-pulse">Loading flashcards…</span>
               </div>
             ))}
@@ -373,12 +373,12 @@ export default function App() {
               transition={{ type: 'spring', stiffness: 260, damping: 18 }}
               className="glass-strong flex items-center gap-3 px-4 py-3 shadow-glow-violet"
             >
-              <span className="grid h-11 w-11 place-items-center rounded-xl border border-white/12 bg-white/[0.06] text-2xl">
+              <span className="grid h-11 w-11 place-items-center rounded-xl border border-line bg-sunken text-2xl">
                 {b.emoji}
               </span>
               <div>
                 <div className="label text-cyan">Badge unlocked</div>
-                <div className="font-display text-lg font-bold leading-tight text-white">{b.name}</div>
+                <div className="font-display text-lg font-bold leading-tight text-ink">{b.name}</div>
               </div>
             </motion.div>
           ))}
@@ -390,7 +390,7 @@ export default function App() {
 
 function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onLessons, lessonsActive, onFlashcards, flashActive, onReview, reviewActive, dueCount, onStats, statsActive }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-base/70 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-line bg-base/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
         <button
           onClick={clickable ? onHome : undefined}
@@ -399,13 +399,13 @@ function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onLessons,
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-cyan to-violet shadow-glow-violet">
             <span className="h-3 w-3 rounded-full border-2 border-white/90" />
           </span>
-          <span className="font-display text-lg font-bold tracking-tight text-white">Cloud Quest</span>
+          <span className="font-display text-lg font-bold tracking-tight text-ink">Cloud Quest</span>
         </button>
 
         <button
           onClick={onGuide}
           className={`ml-1 hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-display text-sm font-semibold transition-colors sm:flex ${
-            guideActive ? 'text-cyan' : 'text-white/55 hover:text-white'
+            guideActive ? 'text-cyan' : 'text-muted hover:text-ink'
           }`}
         >
           <BookOpenText size={16} /> Guide
@@ -414,7 +414,7 @@ function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onLessons,
         <button
           onClick={onLessons}
           className={`hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-display text-sm font-semibold transition-colors sm:flex ${
-            lessonsActive ? 'text-cyan' : 'text-white/55 hover:text-white'
+            lessonsActive ? 'text-cyan' : 'text-muted hover:text-ink'
           }`}
         >
           <GraduationCap size={16} /> Lessons
@@ -423,7 +423,7 @@ function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onLessons,
         <button
           onClick={onFlashcards}
           className={`hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-display text-sm font-semibold transition-colors sm:flex ${
-            flashActive ? 'text-cyan' : 'text-white/55 hover:text-white'
+            flashActive ? 'text-cyan' : 'text-muted hover:text-ink'
           }`}
         >
           <Layers size={16} /> Flashcards
@@ -432,7 +432,7 @@ function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onLessons,
         <button
           onClick={onReview}
           className={`hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-display text-sm font-semibold transition-colors sm:flex ${
-            reviewActive ? 'text-cyan' : 'text-white/55 hover:text-white'
+            reviewActive ? 'text-cyan' : 'text-muted hover:text-ink'
           }`}
         >
           <Brain size={16} /> Review
@@ -446,7 +446,7 @@ function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onLessons,
         <button
           onClick={onStats}
           className={`hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-display text-sm font-semibold transition-colors sm:flex ${
-            statsActive ? 'text-cyan' : 'text-white/55 hover:text-white'
+            statsActive ? 'text-cyan' : 'text-muted hover:text-ink'
           }`}
         >
           <BarChart3 size={16} /> Stats
@@ -454,11 +454,11 @@ function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onLessons,
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
           <div className="hidden items-center gap-2 sm:flex">
-            <span className="font-display text-sm font-semibold text-white/80">Lv {lvl.level}</span>
-            <span className="font-display text-sm text-white/45">{levelTitle(lvl.level)}</span>
+            <span className="font-display text-sm font-semibold text-ink">Lv {lvl.level}</span>
+            <span className="font-display text-sm text-faint">{levelTitle(lvl.level)}</span>
           </div>
           {/* xp bar */}
-          <div className="hidden h-2.5 w-28 overflow-hidden rounded-full border border-white/10 bg-white/[0.05] sm:block">
+          <div className="hidden h-2.5 w-28 overflow-hidden rounded-full border border-line bg-sunken sm:block">
             <motion.div
               className="h-full rounded-full bg-gradient-to-r from-cyan to-violet"
               animate={{ width: `${lvl.pct}%` }}
@@ -478,7 +478,7 @@ function TopBar({ game, lvl, onHome, clickable, onGuide, guideActive, onLessons,
 
 function Centered({ children }) {
   return (
-    <div className="grid min-h-screen place-items-center font-display text-xl text-white/80">
+    <div className="grid min-h-screen place-items-center font-display text-xl text-ink">
       <Background />
       {children}
     </div>

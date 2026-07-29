@@ -90,20 +90,20 @@ export default function Lessons({ onExit }) {
         <button onClick={onExit} className="btn">
           <ArrowLeft size={16} /> {t.home}
         </button>
-        <div className="flex items-center gap-2 font-display text-xl font-bold text-white">
+        <div className="flex items-center gap-2 font-display text-xl font-bold text-ink">
           <GraduationCap size={20} className="text-violet" /> {t.aulas}
         </div>
         <LangToggle lang={lang} setLang={setLang} />
       </div>
 
-      <p className="mb-6 max-w-2xl font-body text-sm text-white/55">{t.intro}</p>
+      <p className="mb-6 max-w-2xl font-body text-sm text-muted">{t.intro}</p>
 
       {list === null ? (
-        <div className="grid place-items-center pt-20 font-display text-white/60">
+        <div className="grid place-items-center pt-20 font-display text-muted">
           <span className="animate-pulse">{t.loading}</span>
         </div>
       ) : list.length === 0 ? (
-        <div className="glass p-6 font-body text-white/60">{t.empty}</div>
+        <div className="glass p-6 font-body text-muted">{t.empty}</div>
       ) : (
         <>
           <Section
@@ -128,13 +128,13 @@ export default function Lessons({ onExit }) {
 
 function LangToggle({ lang, setLang }) {
   return (
-    <div className="ml-auto flex items-center rounded-lg border border-white/12 bg-white/[0.05] p-0.5 font-display text-xs font-bold">
+    <div className="ml-auto flex items-center rounded-lg border border-line bg-sunken p-0.5 font-display text-xs font-bold">
       {['pt', 'en'].map((l) => (
         <button
           key={l}
           onClick={() => setLang(l)}
           className={`rounded-md px-2.5 py-1 transition-colors ${
-            lang === l ? 'bg-violet/30 text-white' : 'text-white/45 hover:text-white/80'
+            lang === l ? 'bg-violet/30 text-white' : 'text-faint hover:text-ink'
           }`}
         >
           {l.toUpperCase()}
@@ -153,10 +153,10 @@ function Section({ label, hint, items, lang, onPick }) {
   return (
     <section className="mb-10">
       <div className="mb-1 flex items-baseline gap-3">
-        <h2 className="font-display text-lg font-bold text-white">{label}</h2>
-        <span className="font-mono text-xs text-white/40">{items.length}</span>
+        <h2 className="font-display text-lg font-bold text-ink">{label}</h2>
+        <span className="font-mono text-xs text-faint">{items.length}</span>
       </div>
-      <p className="mb-4 font-body text-sm text-white/45">{hint}</p>
+      <p className="mb-4 font-body text-sm text-faint">{hint}</p>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((l, i) => (
           <LessonCard key={l.slug} lesson={l} index={i} lang={lang} onPick={onPick} />
@@ -176,13 +176,13 @@ function LessonCard({ lesson: l, index: i, lang, onPick }) {
       transition={{ delay: 0.04 * i, type: 'spring', stiffness: 220, damping: 22 }}
       whileHover={{ y: -5 }}
       whileTap={{ scale: 0.98 }}
-      className="group glass relative flex flex-col items-start gap-3 overflow-hidden p-5 text-left transition-colors hover:border-white/25"
+      className="group glass relative flex flex-col items-start gap-3 overflow-hidden p-5 text-left transition-colors hover:border-line-strong"
     >
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-violet/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-      <span className="grid h-11 w-11 place-items-center rounded-xl border border-white/12 bg-white/[0.06] font-mono text-lg font-bold text-violet transition-shadow duration-300 group-hover:[box-shadow:0_0_26px_-6px_currentColor]">
+      <span className="grid h-11 w-11 place-items-center rounded-xl border border-line bg-sunken font-mono text-lg font-bold text-violet transition-shadow duration-300 group-hover:[box-shadow:0_0_26px_-6px_currentColor]">
         {badge}
       </span>
-      <div className="flex items-start gap-1 font-display text-base font-semibold leading-snug text-white">
+      <div className="flex items-start gap-1 font-display text-base font-semibold leading-snug text-ink">
         {lessonTitle(l, lang)}
         <ArrowUpRight size={15} className="mt-0.5 shrink-0 opacity-0 -translate-x-1 transition-all group-hover:translate-x-0 group-hover:opacity-60" />
       </div>
@@ -210,17 +210,17 @@ function LessonDetail({ lesson, lang, setLang, t, onBack, onHome }) {
         <button onClick={onBack} className="btn">
           <ArrowLeft size={16} /> {t.backList}
         </button>
-        <button onClick={onHome} className="btn text-white/55">
+        <button onClick={onHome} className="btn text-muted">
           {t.home}
         </button>
         <LangToggle lang={lang} setLang={setLang} />
       </div>
 
       <div className="mb-5 flex items-baseline gap-3">
-        <h1 className="font-display text-2xl font-bold leading-tight text-white sm:text-3xl">
+        <h1 className="font-display text-2xl font-bold leading-tight text-ink sm:text-3xl">
           {lessonTitle(lesson, lang)}
         </h1>
-        <span className="shrink-0 font-mono text-sm text-white/40">
+        <span className="shrink-0 font-mono text-sm text-faint">
           {t.lesson} {String(lesson.id).padStart(2, '0')}
         </span>
       </div>
@@ -228,7 +228,7 @@ function LessonDetail({ lesson, lang, setLang, t, onBack, onHome }) {
       {audioPath ? (
         <AudioPlayer key={audioPath} src={`${import.meta.env.BASE_URL}lessons/${audioPath}`} />
       ) : (
-        <div className="glass flex items-center gap-2 p-3 font-body text-sm text-white/45">
+        <div className="glass flex items-center gap-2 p-3 font-body text-sm text-faint">
           <Headphones size={15} /> {lang === 'en' ? t.audioEnSoon : t.audioSoon}
         </div>
       )}

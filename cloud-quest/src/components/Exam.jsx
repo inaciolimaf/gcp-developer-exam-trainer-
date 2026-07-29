@@ -147,10 +147,10 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
           className="glass-strong p-7 shadow-glow-soft"
         >
           <Clock className="mx-auto mb-3 text-coral" size={44} />
-          <h2 className="font-display text-3xl font-bold text-white">Mock Exam</h2>
-          <p className="mx-auto mt-2 max-w-sm font-body text-white/55">
-            Pick a length. You get <span className="text-white/90">90 seconds</span> per question. Pass mark is{' '}
-            <span className="text-white/90">{PASS_PCT}%</span>. Dá para <span className="text-white/90">pausar</span>{' '}
+          <h2 className="font-display text-3xl font-bold text-ink">Mock Exam</h2>
+          <p className="mx-auto mt-2 max-w-sm font-body text-muted">
+            Pick a length. You get <span className="text-ink">90 seconds</span> per question. Pass mark is{' '}
+            <span className="text-ink">{PASS_PCT}%</span>. Dá para <span className="text-ink">pausar</span>{' '}
             o cronômetro a qualquer momento se precisar parar no meio.
           </p>
 
@@ -163,7 +163,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
                 className={`flex flex-col items-center gap-1 rounded-xl border p-3 transition-colors ${
                   source === 'all'
                     ? 'border-violet/50 bg-violet/10 text-violet shadow-glow-violet'
-                    : 'border-white/12 bg-white/[0.04] text-white/55 hover:border-white/25 hover:text-white'
+                    : 'border-line bg-sunken text-muted hover:border-line-strong hover:text-ink'
                 }`}
               >
                 <Globe size={18} />
@@ -176,7 +176,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
                 className={`flex flex-col items-center gap-1 rounded-xl border p-3 transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                   source === 'new'
                     ? 'border-mint/50 bg-mint/10 text-mint shadow-glow-mint'
-                    : 'border-white/12 bg-white/[0.04] text-white/55 hover:border-white/25 hover:text-white'
+                    : 'border-line bg-sunken text-muted hover:border-line-strong hover:text-ink'
                 }`}
               >
                 <Sparkles size={18} />
@@ -197,7 +197,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
                 className={`flex flex-col items-center gap-1 rounded-xl border p-3 transition-colors ${
                   feedback === 'submit'
                     ? 'border-coral/50 bg-coral/10 text-coral shadow-glow-coral'
-                    : 'border-white/12 bg-white/[0.04] text-white/55 hover:border-white/25 hover:text-white'
+                    : 'border-line bg-sunken text-muted hover:border-line-strong hover:text-ink'
                 }`}
               >
                 <EyeOff size={18} />
@@ -209,7 +209,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
                 className={`flex flex-col items-center gap-1 rounded-xl border p-3 transition-colors ${
                   feedback === 'instant'
                     ? 'border-cyan/50 bg-cyan/10 text-cyan shadow-glow-cyan'
-                    : 'border-white/12 bg-white/[0.04] text-white/55 hover:border-white/25 hover:text-white'
+                    : 'border-line bg-sunken text-muted hover:border-line-strong hover:text-ink'
                 }`}
               >
                 <Eye size={18} />
@@ -233,7 +233,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
               Você já respondeu o banco inteiro — não sobrou questão nova. Escolha “Banco inteiro”.
             </p>
           )}
-          <p className="mt-4 font-mono text-xs text-white/35">
+          <p className="mt-4 font-mono text-xs text-faint">
             {size} questions available{source === 'new' ? ' · só as que você ainda não respondeu' : ''}
           </p>
         </motion.div>
@@ -264,18 +264,18 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
           transition={{ type: 'spring', stiffness: 200, damping: 14 }}
           className="glass-strong p-8 text-center shadow-glow-soft"
         >
-          <Trophy className={`mx-auto mb-2 ${passed ? 'text-amber' : 'text-white/30'}`} size={52} />
-          <h2 className="font-display text-3xl font-bold text-white">
+          <Trophy className={`mx-auto mb-2 ${passed ? 'text-amber' : 'text-faint'}`} size={52} />
+          <h2 className="font-display text-3xl font-bold text-ink">
             {passed ? 'You passed!' : 'Not yet — keep going'}
           </h2>
           <div
             className={`my-4 font-mono text-7xl font-bold tracking-tight ${
-              passed ? 'text-mint [text-shadow:0_0_36px_rgba(52,211,153,0.45)]' : 'text-coral'
+              passed ? 'text-mint' : 'text-coral'
             }`}
           >
             {score.pct}%
           </div>
-          <p className="font-body text-white/65">
+          <p className="font-body text-muted">
             {score.correct} / {score.total} correct · pass mark {PASS_PCT}%
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -301,16 +301,16 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
               return (
                 <div key={d.code} className="flex items-center gap-3">
                   <span className="w-8 shrink-0 font-mono text-xs font-bold text-violet">{d.code}</span>
-                  <span className="hidden min-w-0 flex-1 truncate font-body text-sm text-white/70 sm:block">
+                  <span className="hidden min-w-0 flex-1 truncate font-body text-sm text-muted sm:block">
                     {DOMAIN_LABELS[d.code] || d.name}
                   </span>
-                  <div className="h-2 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/[0.04] sm:flex-none sm:w-40">
+                  <div className="h-2 flex-1 overflow-hidden rounded-full border border-line bg-sunken sm:flex-none sm:w-40">
                     <div
                       className={`h-full rounded-full ${pct < 50 ? 'bg-coral' : pct < 70 ? 'bg-amber' : 'bg-mint'}`}
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <span className="shrink-0 font-mono text-xs text-white/60">
+                  <span className="shrink-0 font-mono text-xs text-muted">
                     {d.correct}/{d.total}
                   </span>
                 </div>
@@ -322,14 +322,14 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
         {/* answer review */}
         <div className="mt-9">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h3 className="font-display text-2xl font-bold text-white">
+            <h3 className="font-display text-2xl font-bold text-ink">
               Review answers {reviewAll ? `(${questions.length})` : `(${wrong.length} missed)`}
             </h3>
-            <div className="flex gap-1 rounded-xl border border-white/10 bg-white/[0.04] p-1">
+            <div className="flex gap-1 rounded-xl border border-line bg-sunken p-1">
               <button
                 onClick={() => setReviewAll(false)}
                 className={`rounded-lg px-3 py-1.5 font-display text-sm font-semibold transition-colors ${
-                  !reviewAll ? 'bg-white/10 text-coral' : 'text-white/55 hover:text-white'
+                  !reviewAll ? 'bg-sunken text-coral' : 'text-muted hover:text-ink'
                 }`}
               >
                 Missed
@@ -337,7 +337,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
               <button
                 onClick={() => setReviewAll(true)}
                 className={`rounded-lg px-3 py-1.5 font-display text-sm font-semibold transition-colors ${
-                  reviewAll ? 'bg-white/10 text-cyan' : 'text-white/55 hover:text-white'
+                  reviewAll ? 'bg-sunken text-cyan' : 'text-muted hover:text-ink'
                 }`}
               >
                 All
@@ -345,7 +345,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
             </div>
           </div>
           {reviewList.length === 0 ? (
-            <div className="glass p-6 text-center font-body text-white/60">
+            <div className="glass p-6 text-center font-body text-muted">
               Perfect run — nothing missed. 🎉
             </div>
           ) : (
@@ -431,18 +431,18 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
           className="glass-strong flex flex-col items-center gap-3 p-10 text-center shadow-glow-soft"
         >
           <Coffee size={40} className="text-amber" />
-          <h2 className="font-display text-2xl font-bold text-white">Simulado pausado</h2>
-          <p className="max-w-sm font-body text-white/55">
-            O cronômetro está parado em <span className="font-mono text-white/90">{mm}:{ss}</span> e a prova fica
+          <h2 className="font-display text-2xl font-bold text-ink">Simulado pausado</h2>
+          <p className="max-w-sm font-body text-muted">
+            O cronômetro está parado em <span className="font-mono text-ink">{mm}:{ss}</span> e a prova fica
             escondida enquanto isso. Volte quando quiser — o tempo de pausa não entra no seu ritmo por questão.
           </p>
-          <div className="mt-1 flex flex-wrap justify-center gap-2 font-mono text-xs text-white/40">
-            <span className="chip border-white/12 text-white/60">
+          <div className="mt-1 flex flex-wrap justify-center gap-2 font-mono text-xs text-faint">
+            <span className="chip border-line text-muted">
               {answeredCount}/{questions.length} respondidas
             </span>
-            <span className="chip border-white/12 text-white/60">questão {index + 1}</span>
+            <span className="chip border-line text-muted">questão {index + 1}</span>
             {pausedMs > 0 && (
-              <span className="chip border-white/12 text-white/60">
+              <span className="chip border-line text-muted">
                 {Math.round(pausedMs / 60000)} min de pausa até agora
               </span>
             )}
@@ -466,7 +466,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
               className={[
                 'h-7 w-7 rounded-md border font-mono text-[11px] font-bold transition-all',
                 i === index ? 'ring-1 ring-violet ring-offset-1 ring-offset-base' : '',
-                answered ? 'border-cyan/40 bg-cyan/15 text-cyan' : 'border-white/10 bg-white/[0.03] text-white/50',
+                answered ? 'border-cyan/40 bg-cyan/15 text-cyan' : 'border-line bg-sunken text-muted',
               ].join(' ')}
             >
               {i + 1}
@@ -484,7 +484,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
         >
           <Pause size={16} className="shrink-0 text-amber" />
           <p className="flex-1 font-body text-sm text-amber/90">
-            Cronômetro pausado em <span className="font-mono text-white/90">{mm}:{ss}</span> — leia a explicação sem
+            Cronômetro pausado em <span className="font-mono text-ink">{mm}:{ss}</span> — leia a explicação sem
             pressa. Ele volta a correr na próxima questão.
           </p>
           <button
@@ -511,7 +511,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
       {/* instant + multi-select: confirm the selection to reveal */}
       {canCheckMulti && (
         <div className="mt-5 flex items-center justify-between gap-3">
-          <span className="font-body text-sm text-white/50">
+          <span className="font-body text-sm text-muted">
             Marque {q.correctSet.length} · {selCount} escolhidas
           </span>
           <button onClick={checkMulti} className="btn-accent">
@@ -524,7 +524,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
         <button onClick={() => setIndex((i) => Math.max(0, i - 1))} disabled={index === 0} className="btn">
           <ArrowLeft size={18} /> Prev
         </button>
-        <span className="font-mono text-xs text-white/45">
+        <span className="font-mono text-xs text-faint">
           {answeredCount}/{questions.length} answered
         </span>
         {index + 1 < questions.length ? (

@@ -102,11 +102,11 @@ export default function Stats({ bank, state, srs, onStartQuestions, onBack }) {
         <button onClick={onBack} className="btn">
           <ArrowLeft size={16} /> Home
         </button>
-        <div className="flex items-center gap-2 font-display text-xl font-bold text-white">
+        <div className="flex items-center gap-2 font-display text-xl font-bold text-ink">
           <BarChart3 size={20} className="text-cyan" /> Estatísticas
         </div>
         {!empty && (
-          <span className="ml-auto hidden font-mono text-[11px] text-white/35 sm:block">
+          <span className="ml-auto hidden font-mono text-[11px] text-faint sm:block">
             {a.core.attempts} respostas · {a.core.seen}/{a.core.total} questões · desde {fmtDateBr(new Date(`${a.firstDay}T00:00:00`))}
           </span>
         )}
@@ -115,8 +115,8 @@ export default function Stats({ bank, state, srs, onStartQuestions, onBack }) {
       {empty ? (
         <div className="glass-strong flex flex-col items-center gap-3 p-10 text-center shadow-glow-soft">
           <GaugeIcon size={40} className="text-cyan" />
-          <h2 className="font-display text-2xl font-bold text-white">Sem dados ainda</h2>
-          <p className="max-w-md font-body text-white/55">
+          <h2 className="font-display text-2xl font-bold text-ink">Sem dados ainda</h2>
+          <p className="max-w-md font-body text-muted">
             Responda algumas questões e este painel se enche: readiness com decomposição por pilar, acerto por
             domínio e tópico, curvas de evolução, horários em que você rende mais, saúde da memória e histórico de
             simulados.
@@ -125,13 +125,13 @@ export default function Stats({ bank, state, srs, onStartQuestions, onBack }) {
       ) : (
         <>
           {/* tab bar */}
-          <div className="mb-6 flex gap-1 overflow-x-auto rounded-xl border border-white/10 bg-white/[0.04] p-1">
+          <div className="mb-6 flex gap-1 overflow-x-auto rounded-xl border border-line bg-sunken p-1">
             {TABS.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 font-display text-[13px] font-semibold transition-colors ${
-                  tab === t.id ? 'bg-white/10 text-cyan' : 'text-white/50 hover:text-white'
+                  tab === t.id ? 'bg-sunken text-cyan' : 'text-muted hover:text-ink'
                 }`}
               >
                 <t.icon size={15} /> {t.label}
@@ -168,7 +168,7 @@ function Overview({ a, runDrill }) {
           <div>
             <div className="label">Prontidão estimada</div>
             <div className={`font-display text-2xl font-bold ${readiness.verdict.tint}`}>{readiness.verdict.label}</div>
-            <div className="mt-1 font-body text-xs text-white/45">
+            <div className="mt-1 font-body text-xs text-faint">
               {readiness.gap > 0 ? `${readiness.gap} pts até a faixa de 80` : 'acima da faixa de 80'}
             </div>
           </div>
@@ -178,8 +178,8 @@ function Overview({ a, runDrill }) {
           <div className="grid gap-2">
             {readiness.parts.map((p) => (
               <div key={p.key} className="flex items-center gap-3">
-                <span className="w-[86px] shrink-0 font-body text-[13px] text-white/70">{p.label}</span>
-                <span className="h-2.5 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
+                <span className="w-[86px] shrink-0 font-body text-[13px] text-muted">{p.label}</span>
+                <span className="h-2.5 flex-1 overflow-hidden rounded-full border border-line bg-sunken">
                   <span
                     className="block h-full rounded-full"
                     style={{
@@ -188,16 +188,16 @@ function Overview({ a, runDrill }) {
                     }}
                   />
                 </span>
-                <span className="w-12 shrink-0 text-right font-mono text-[11px] text-white/70">
+                <span className="w-12 shrink-0 text-right font-mono text-[11px] text-muted">
                   {p.value == null ? '—' : `${Math.round(p.value)}`}
                 </span>
-                <span className="hidden w-16 shrink-0 text-right font-mono text-[10px] text-white/30 sm:block">
+                <span className="hidden w-16 shrink-0 text-right font-mono text-[10px] text-faint sm:block">
                   {p.value == null ? 'sem dados' : `peso ${Math.round(p.effWeight * 100)}%`}
                 </span>
               </div>
             ))}
           </div>
-          <p className="mt-2 font-body text-[11px] text-white/35">
+          <p className="mt-2 font-body text-[11px] text-faint">
             Pilares sem dado são ignorados e o peso é redistribuído — o score não te pune por algo que você ainda
             não começou.
           </p>
@@ -246,14 +246,14 @@ function Overview({ a, runDrill }) {
         <div>
           <div className="mb-1 flex items-center justify-between label">
             <span>Acerto móvel · janela de 20 respostas</span>
-            <span className="font-mono text-white/40">
+            <span className="font-mono text-faint">
               {rollingTail.length ? `${Math.round(rollingTail[rollingTail.length - 1])}%` : '—'}
             </span>
           </div>
           {rollingTail.length > 3 ? (
             <>
               <Sparkline values={a.rolling} color={SERIES[0]} height={64} band={[0, 100]} />
-              <p className="mt-1 font-body text-[11px] text-white/35">
+              <p className="mt-1 font-body text-[11px] text-faint">
                 últimas {a.rolling.length} respostas · variação de {Math.round(Math.min(...rollingTail))}% a{' '}
                 {Math.round(Math.max(...rollingTail))}%
               </p>
@@ -291,7 +291,7 @@ function Overview({ a, runDrill }) {
         <div className="mt-5">
           <div className="mb-2 flex items-center justify-between label">
             <span>Quantas vezes você respondeu cada questão</span>
-            <span className="font-mono text-white/40">{core.seen} questões</span>
+            <span className="font-mono text-faint">{core.seen} questões</span>
           </div>
           <StackedBar
             segments={[
@@ -402,7 +402,7 @@ function Domains({ a, runDrill }) {
               onClick: () => runDrill({ kind: 'domain-new', code: d.code, title: `${d.code} · não respondidas` }),
             }))}
           />
-          <p className="mt-3 font-body text-[11px] text-white/35">
+          <p className="mt-3 font-body text-[11px] text-faint">
             Clique numa barra de acerto para treinar o domínio inteiro, ou numa de cobertura para pegar só o que
             falta.
           </p>
@@ -413,7 +413,7 @@ function Domains({ a, runDrill }) {
       <div className="glass p-5">
         <div className="mb-1 flex flex-wrap items-center gap-2 label">
           <Target size={14} /> Mapa de tópicos · volume × acerto
-          <span className="ml-auto font-mono normal-case tracking-normal text-white/35">
+          <span className="ml-auto font-mono normal-case tracking-normal text-faint">
             eixo y = acerto · bolha = tentativas · clique para treinar
           </span>
         </div>
@@ -436,7 +436,7 @@ function Domains({ a, runDrill }) {
       <div className="glass p-5">
         <div className="mb-3 flex flex-wrap items-center gap-3">
           <span className="label">Tópicos</span>
-          <div className="ml-auto flex gap-1 rounded-lg border border-white/10 bg-white/[0.04] p-0.5">
+          <div className="ml-auto flex gap-1 rounded-lg border border-line bg-sunken p-0.5">
             {[
               { id: 'acc', label: 'Pior acerto' },
               { id: 'volume', label: 'Mais praticados' },
@@ -447,7 +447,7 @@ function Domains({ a, runDrill }) {
                 key={o.id}
                 onClick={() => setSort(o.id)}
                 className={`rounded-md px-2.5 py-1 font-display text-[11px] font-semibold transition-colors ${
-                  sort === o.id ? 'bg-white/10 text-cyan' : 'text-white/45 hover:text-white'
+                  sort === o.id ? 'bg-sunken text-cyan' : 'text-faint hover:text-ink'
                 }`}
               >
                 {o.label}
@@ -485,7 +485,7 @@ function Domains({ a, runDrill }) {
               onClick: b.key === GAP ? () => runDrill({ kind: 'gaps', title: 'Study the Gaps' }) : undefined,
             }))}
           />
-          <p className="mt-3 font-body text-[11px] text-white/35">
+          <p className="mt-3 font-body text-[11px] text-faint">
             Se as "pouco ensinadas" ficam bem abaixo das "ensinadas", o buraco é de conteúdo do curso, não de
             treino.
           </p>
@@ -509,9 +509,9 @@ function Domains({ a, runDrill }) {
                   <button
                     key={t.code}
                     onClick={() => runDrill({ kind: 'topic', code: t.code, title: `Tópico · ${t.name}` })}
-                    className="chip border-white/10 text-white/60 hover:border-cyan/40 hover:text-cyan"
+                    className="chip border-line text-muted hover:border-cyan/40 hover:text-cyan"
                   >
-                    {t.name} <span className="font-mono text-white/35">{t.bank}</span>
+                    {t.name} <span className="font-mono text-faint">{t.bank}</span>
                   </button>
                 ))}
               </div>
@@ -538,13 +538,13 @@ function Trends({ a }) {
           <span className="flex items-center gap-2 label">
             <Activity size={14} /> Questões respondidas por dia
           </span>
-          <div className="ml-auto flex gap-1 rounded-lg border border-white/10 bg-white/[0.04] p-0.5">
+          <div className="ml-auto flex gap-1 rounded-lg border border-line bg-sunken p-0.5">
             {[30, 90].map((r) => (
               <button
                 key={r}
                 onClick={() => setRange(r)}
                 className={`rounded-md px-2.5 py-1 font-display text-[11px] font-semibold transition-colors ${
-                  range === r ? 'bg-white/10 text-cyan' : 'text-white/45 hover:text-white'
+                  range === r ? 'bg-sunken text-cyan' : 'text-faint hover:text-ink'
                 }`}
               >
                 {r} dias
@@ -556,17 +556,17 @@ function Trends({ a }) {
           bars={daily.map((d) => ({
             label: d.label,
             value: d.answers,
-            color: d.answers >= a.pace.goal ? SERIES[0] : 'rgba(51,163,180,0.45)',
+            color: d.answers >= a.pace.goal ? SERIES[0] : 'rgba(26,111,224,0.30)',
             tip: (
               <>
-                <div className="mb-0.5 font-display text-[11px] font-semibold text-white">{d.label}</div>
+                <div className="mb-0.5 font-display text-[11px] font-semibold text-ink">{d.label}</div>
                 <div className="flex justify-between gap-3">
-                  <span className="text-white/55">respostas</span>
-                  <span className="font-mono text-white">{d.answers}</span>
+                  <span className="text-muted">respostas</span>
+                  <span className="font-mono text-ink">{d.answers}</span>
                 </div>
                 {d.acc != null && (
                   <div className="flex justify-between gap-3">
-                    <span className="text-white/55">acerto</span>
+                    <span className="text-muted">acerto</span>
                     <span className="font-mono" style={{ color: accColor(d.acc) }}>
                       {Math.round(d.acc)}%
                     </span>
@@ -581,7 +581,7 @@ function Trends({ a }) {
           className="mt-2"
           items={[
             { label: `dia com meta batida (${a.pace.goal}+)`, color: SERIES[0] },
-            { label: 'abaixo da meta', color: 'rgba(51,163,180,0.45)' },
+            { label: 'abaixo da meta', color: 'rgba(26,111,224,0.30)' },
           ]}
         />
       </div>
@@ -636,7 +636,7 @@ function Trends({ a }) {
             yMax={a.core.total}
             height={180}
           />
-          <div className="mt-2 flex items-center justify-between font-body text-[11px] text-white/40">
+          <div className="mt-2 flex items-center justify-between font-body text-[11px] text-faint">
             <span>
               {a.core.seen} de {a.core.total} questões ({Math.round(a.core.coverage)}%)
             </span>
@@ -681,8 +681,8 @@ function Habits({ a }) {
             <span className="chip border-amber/40 text-amber">
               <Flame size={13} /> {a.streak.current} dia{a.streak.current === 1 ? '' : 's'}
             </span>
-            <span className="chip border-white/12 text-white/60">recorde {a.streak.best}d</span>
-            <span className="chip border-white/12 text-white/60">
+            <span className="chip border-line text-muted">recorde {a.streak.best}d</span>
+            <span className="chip border-line text-muted">
               {a.streak.activeDays} dias ativos de {a.streak.spanDays}
             </span>
           </div>
@@ -709,16 +709,16 @@ function Habits({ a }) {
                 value: h.n,
                 tip: (
                   <>
-                    <div className="mb-0.5 font-display text-[11px] font-semibold text-white">
+                    <div className="mb-0.5 font-display text-[11px] font-semibold text-ink">
                       {String(h.h).padStart(2, '0')}h
                     </div>
                     <div className="flex justify-between gap-3">
-                      <span className="text-white/55">respostas</span>
-                      <span className="font-mono text-white">{h.n}</span>
+                      <span className="text-muted">respostas</span>
+                      <span className="font-mono text-ink">{h.n}</span>
                     </div>
                     {h.acc != null && (
                       <div className="flex justify-between gap-3">
-                        <span className="text-white/55">acerto</span>
+                        <span className="text-muted">acerto</span>
                         <span className="font-mono" style={{ color: accColor(h.acc) }}>
                           {Math.round(h.acc)}%
                         </span>
@@ -750,7 +750,7 @@ function Habits({ a }) {
                 height={140}
                 showDots
               />
-              <p className="mt-1 font-body text-[11px] text-white/40">
+              <p className="mt-1 font-body text-[11px] text-faint">
                 só horários com 5+ respostas ·{' '}
                 {a.bestHour
                   ? `melhor às ${String(a.bestHour.h).padStart(2, '0')}h (${Math.round(a.bestHour.acc)}%)`
@@ -807,8 +807,8 @@ function Habits({ a }) {
             />
           </div>
           {a.time.speedAccuracy != null && (
-            <p className="mt-3 font-body text-[11px] text-white/40">
-              Correlação tempo × acerto: <span className="font-mono text-white/70">{a.time.speedAccuracy.toFixed(2)}</span>{' '}
+            <p className="mt-3 font-body text-[11px] text-faint">
+              Correlação tempo × acerto: <span className="font-mono text-muted">{a.time.speedAccuracy.toFixed(2)}</span>{' '}
               — {a.time.speedAccuracy < -0.1 ? 'demorar mais não está ajudando' : a.time.speedAccuracy > 0.1 ? 'pensar mais tempo está rendendo acertos' : 'tempo e acerto praticamente independentes'}.
             </p>
           )}
@@ -841,8 +841,8 @@ function Memory({ a, runDrill }) {
           {srs.boxes.map((b) => (
             <div key={b.box} className="flex items-center gap-3">
               <span className="w-24 shrink-0">
-                <span className="block font-body text-[13px] text-white/75">Caixa {b.box}</span>
-                <span className="block font-mono text-[10px] text-white/35">{BOX_LABELS[b.box]}</span>
+                <span className="block font-body text-[13px] text-muted">Caixa {b.box}</span>
+                <span className="block font-mono text-[10px] text-faint">{BOX_LABELS[b.box]}</span>
               </span>
               <span className="flex-1">
                 <StackedBar
@@ -854,7 +854,7 @@ function Memory({ a, runDrill }) {
                   height={10}
                 />
               </span>
-              <span className="w-16 shrink-0 text-right font-mono text-[11px] text-white/60">{b.q + b.c}</span>
+              <span className="w-16 shrink-0 text-right font-mono text-[11px] text-muted">{b.q + b.c}</span>
             </div>
           ))}
         </div>
@@ -865,7 +865,7 @@ function Memory({ a, runDrill }) {
             { label: 'flashcards', color: SERIES[1] },
           ]}
         />
-        <p className="mt-2 font-body text-[11px] text-white/35">
+        <p className="mt-2 font-body text-[11px] text-faint">
           Cada acerto empurra o item uma caixa adiante (intervalo maior); um erro devolve à caixa 0. Uma barriga na
           caixa 0 significa que você está reaprendendo mais do que consolidando.
         </p>
@@ -883,7 +883,7 @@ function Memory({ a, runDrill }) {
           )}
         </div>
         <BarChart bars={srs.forecast.map((f) => ({ label: f.label, value: f.value }))} height={140} labelEvery={2} />
-        <p className="mt-2 font-body text-[11px] text-white/35">
+        <p className="mt-2 font-body text-[11px] text-faint">
           Só o que ainda vai vencer — o atrasado está no selo acima, fora da escala para não achatar o gráfico.
           Picos altos avisam que vale antecipar revisões antes que se acumulem.
         </p>
@@ -894,7 +894,7 @@ function Memory({ a, runDrill }) {
           <span className="flex items-center gap-2 label">
             <AlertTriangle size={14} className="text-coral" /> Questões viciadas
           </span>
-          <span className="font-body text-[11px] text-white/40">erradas 2+ vezes mesmo depois de acertadas</span>
+          <span className="font-body text-[11px] text-faint">erradas 2+ vezes mesmo depois de acertadas</span>
           {srs.leechCount > 0 && (
             <button
               onClick={() => runDrill({ kind: 'leeches', title: 'Questões viciadas' })}
@@ -907,11 +907,11 @@ function Memory({ a, runDrill }) {
         {srs.leeches.length ? (
           <ul className="grid gap-2">
             {srs.leeches.map((l) => (
-              <li key={l.id} className="flex items-start gap-3 rounded-lg border border-white/[0.07] bg-white/[0.02] p-3">
+              <li key={l.id} className="flex items-start gap-3 rounded-lg border border-line bg-sunken p-3">
                 <span className="chip shrink-0 border-coral/40 font-mono text-coral">{l.lapses}× erros</span>
                 <span className="min-w-0 flex-1">
-                  <span className="line-clamp-2 font-body text-[13px] text-white/80">{l.q.question}</span>
-                  <span className="mt-0.5 block font-mono text-[10px] text-white/35">
+                  <span className="line-clamp-2 font-body text-[13px] text-ink">{l.q.question}</span>
+                  <span className="mt-0.5 block font-mono text-[10px] text-faint">
                     {l.q.domain} · {l.q.topicName} · caixa {l.box} · {l.reps} revisões
                   </span>
                 </span>
@@ -934,8 +934,8 @@ function Exams({ a }) {
     return (
       <div className="glass-strong flex flex-col items-center gap-3 p-10 text-center">
         <Trophy size={36} className="text-amber" />
-        <h3 className="font-display text-xl font-bold text-white">Nenhum simulado ainda</h3>
-        <p className="max-w-sm font-body text-white/55">
+        <h3 className="font-display text-xl font-bold text-ink">Nenhum simulado ainda</h3>
+        <p className="max-w-sm font-body text-muted">
           O simulado é o pilar que mais move o readiness. Faça um de 20 questões para calibrar o painel.
         </p>
       </div>
@@ -944,7 +944,7 @@ function Exams({ a }) {
 
   const trendTxt =
     exams.slope > 0.8 ? 'em alta' : exams.slope < -0.8 ? 'em queda' : 'estável'
-  const trendTint = exams.slope > 0.8 ? 'text-mint' : exams.slope < -0.8 ? 'text-coral' : 'text-white/60'
+  const trendTint = exams.slope > 0.8 ? 'text-mint' : exams.slope < -0.8 ? 'text-coral' : 'text-muted'
 
   return (
     <div className="grid gap-5">
@@ -998,7 +998,7 @@ function Exams({ a }) {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[420px] border-collapse font-body text-sm">
             <thead>
-              <tr className="border-b border-white/10 text-left font-display text-[11px] uppercase tracking-wider text-white/40">
+              <tr className="border-b border-line text-left font-display text-[11px] uppercase tracking-wider text-faint">
                 <th className="py-2 pr-3 font-semibold">Data</th>
                 <th className="py-2 pr-3 font-semibold">Nota</th>
                 <th className="py-2 pr-3 font-semibold">Acertos</th>
@@ -1011,24 +1011,24 @@ function Exams({ a }) {
                 .reverse()
                 .slice(0, 12)
                 .map((e) => (
-                  <tr key={e.date} className="border-b border-white/[0.06] last:border-0">
-                    <td className="py-2 pr-3 font-mono text-[12px] text-white/60">{fmtDateBr(e.ts)}</td>
+                  <tr key={e.date} className="border-b border-line last:border-0">
+                    <td className="py-2 pr-3 font-mono text-[12px] text-muted">{fmtDateBr(e.ts)}</td>
                     <td className="py-2 pr-3">
                       <span className="inline-flex items-center gap-1.5 font-mono font-bold" style={{ color: accColor(e.pct) }}>
                         {e.passed ? <CheckCircle2 size={13} /> : <AlertTriangle size={13} />}
                         {e.pct}%
                       </span>
                     </td>
-                    <td className="py-2 pr-3 font-mono text-[12px] text-white/60">
+                    <td className="py-2 pr-3 font-mono text-[12px] text-muted">
                       {e.correct}/{e.total}
                     </td>
-                    <td className="py-2 pr-3 font-mono text-[12px] text-white/60">
+                    <td className="py-2 pr-3 font-mono text-[12px] text-muted">
                       {e.ms ? fmtDuration(e.ms) : '—'}
                       {e.pausedMs > 0 && (
-                        <span className="ml-1 text-white/30">+{fmtDuration(e.pausedMs)} pausa</span>
+                        <span className="ml-1 text-faint">+{fmtDuration(e.pausedMs)} pausa</span>
                       )}
                     </td>
-                    <td className="py-2 font-mono text-[12px] text-white/45">
+                    <td className="py-2 font-mono text-[12px] text-faint">
                       {e.feedback === 'instant' ? 'imediato' : 'clássico'}
                     </td>
                   </tr>
@@ -1052,11 +1052,11 @@ function InsightCard({ insight, onDrill }) {
   }[insight.tone]
   const Icon = tone.icon
   return (
-    <div className={`flex gap-3 rounded-xl border ${tone.border} bg-white/[0.03] p-3.5`}>
+    <div className={`flex gap-3 rounded-xl border ${tone.border} bg-sunken p-3.5`}>
       <Icon size={16} className={`mt-0.5 shrink-0 ${tone.tint}`} />
       <div className="min-w-0">
-        <div className="font-display text-[13px] font-semibold text-white">{insight.title}</div>
-        <p className="mt-0.5 font-body text-[12px] leading-snug text-white/55">{insight.text}</p>
+        <div className="font-display text-[13px] font-semibold text-ink">{insight.title}</div>
+        <p className="mt-0.5 font-body text-[12px] leading-snug text-muted">{insight.text}</p>
         {insight.drill && (
           <button
             onClick={() => onDrill(insight.drill)}
@@ -1077,14 +1077,14 @@ function Delta({ label, now, before, suffix = '' }) {
   const flat = d === 0 || d == null
   return (
     <div className="glass flex flex-col justify-center p-3.5">
-      <div className="font-mono text-2xl font-bold leading-none text-white">
+      <div className="font-mono text-2xl font-bold leading-none text-ink">
         {now == null ? '—' : now}
         {now != null && suffix}
       </div>
       <div className="mt-1.5 label">{label}</div>
       <div
         className={`mt-0.5 flex items-center gap-1 font-mono text-[11px] ${
-          flat ? 'text-white/35' : up ? 'text-mint' : 'text-coral'
+          flat ? 'text-faint' : up ? 'text-mint' : 'text-coral'
         }`}
       >
         {!flat && (up ? <TrendingUp size={12} /> : <TrendingDown size={12} />)}
@@ -1099,17 +1099,17 @@ function Metric({ label, value, sub, tint }) {
     <div className="glass flex flex-col justify-center p-3.5">
       <div className={`font-mono text-2xl font-bold leading-none ${tint}`}>{value}</div>
       <div className="mt-1.5 label">{label}</div>
-      <div className="mt-0.5 font-body text-[11px] leading-tight text-white/40">{sub}</div>
+      <div className="mt-0.5 font-body text-[11px] leading-tight text-faint">{sub}</div>
     </div>
   )
 }
 
 function MiniStat({ label, value, sub }) {
   return (
-    <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
-      <div className="font-mono text-lg font-bold leading-none text-white">{value}</div>
+    <div className="rounded-xl border border-line bg-sunken p-3">
+      <div className="font-mono text-lg font-bold leading-none text-ink">{value}</div>
       <div className="mt-1 label">{label}</div>
-      {sub && <div className="mt-0.5 font-body text-[11px] leading-tight text-white/35">{sub}</div>}
+      {sub && <div className="mt-0.5 font-body text-[11px] leading-tight text-faint">{sub}</div>}
     </div>
   )
 }
@@ -1129,20 +1129,20 @@ function TopicList({ title, icon: Icon, tint, rows, onPick }) {
         <Icon size={14} /> {title}
       </div>
       {rows.length === 0 ? (
-        <p className="font-body text-sm text-white/40">Responda mais algumas para ranquear os tópicos.</p>
+        <p className="font-body text-sm text-faint">Responda mais algumas para ranquear os tópicos.</p>
       ) : (
         <ul className="space-y-1.5">
           {rows.map((t) => (
             <li key={t.code}>
               <button
                 onClick={() => onPick({ kind: 'topic', code: t.code, title: `Tópico · ${t.name}` })}
-                className="group flex w-full items-center gap-3 rounded-lg px-1 py-1 text-left transition-colors hover:bg-white/[0.05]"
+                className="group flex w-full items-center gap-3 rounded-lg px-1 py-1 text-left transition-colors hover:bg-sunken"
               >
-                <span className="min-w-0 flex-1 truncate font-body text-sm text-white/80">{t.name}</span>
+                <span className="min-w-0 flex-1 truncate font-body text-sm text-ink">{t.name}</span>
                 <span className="shrink-0 font-mono text-xs font-bold" style={{ color: accColor(t.hitRate) }}>
                   {Math.round(t.hitRate)}%
                 </span>
-                <span className="shrink-0 font-mono text-[11px] text-white/40">
+                <span className="shrink-0 font-mono text-[11px] text-faint">
                   {t.solved}/{t.seen}
                 </span>
               </button>
@@ -1188,7 +1188,7 @@ function SyncCard() {
       <div className="mb-1 flex items-center gap-2 label">
         <RefreshCw size={14} className="text-cyan" /> Sincronizar progresso (Linux ⇄ Windows)
       </div>
-      <p className="mb-4 font-body text-xs text-white/45">
+      <p className="mb-4 font-body text-xs text-faint">
         Seu progresso vive só neste navegador. Para levar para o outro SO: <b>copie</b> o código aqui e{' '}
         <b>cole &amp; restaure</b> lá. Sem conta, sem internet.
       </p>
@@ -1204,7 +1204,7 @@ function SyncCard() {
               readOnly
               value={code}
               onFocus={(e) => e.target.select()}
-              className="mt-2 h-20 w-full resize-none rounded-lg border border-white/10 bg-white/[0.04] p-2 font-mono text-[10px] leading-tight text-white/60"
+              className="mt-2 h-20 w-full resize-none rounded-lg border border-line bg-sunken p-2 font-mono text-[10px] leading-tight text-muted"
             />
           )}
         </div>
@@ -1214,7 +1214,7 @@ function SyncCard() {
             value={paste}
             onChange={(e) => setPaste(e.target.value)}
             placeholder="Cole aqui o código do outro SO…"
-            className="h-20 w-full resize-none rounded-lg border border-white/10 bg-white/[0.04] p-2 font-mono text-[10px] leading-tight text-white placeholder:text-white/30"
+            className="h-20 w-full resize-none rounded-lg border border-line bg-sunken p-2 font-mono text-[10px] leading-tight text-ink placeholder:text-faint"
           />
           <button
             onClick={handleRestore}
@@ -1226,7 +1226,7 @@ function SyncCard() {
           {msg && <p className={`mt-2 font-body text-xs ${msg.ok ? 'text-mint' : 'text-coral'}`}>{msg.text}</p>}
         </div>
       </div>
-      <p className="mt-3 font-body text-[11px] text-white/35">
+      <p className="mt-3 font-body text-[11px] text-faint">
         Restaurar <b>sobrescreve</b> o progresso desta máquina. A cópia mais nova vence — copie do lado em que você
         estudou por último.
       </p>

@@ -1,6 +1,8 @@
 import confetti from 'canvas-confetti'
 
-const CANDY = ['#22d3ee', '#8b5cf6', '#f472b6', '#34d399', '#fbbf24', '#60a5fa']
+// Celebration only — these carry no meaning, so they get to be loud. Picked to
+// stay legible as they fall across the light paper background.
+const CANDY = ['#1A6FE0', '#16A05A', '#F2A20C', '#D6398B', '#8B3FD9', '#E8542F']
 
 // Small celebratory pop, optionally originating from a screen point.
 export function popBurst(origin) {

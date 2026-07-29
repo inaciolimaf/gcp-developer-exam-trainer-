@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Check, X, Lightbulb, BookOpen, Layers, CheckSquare, ListChecks } from 'lucide-react'
+import { Check, X, Lightbulb, BookOpen, CheckSquare } from 'lucide-react'
 import AudioPlayer from './AudioPlayer'
 
 export default function QuestionCard({ q, index, total, selected, revealed, onSelect }) {
@@ -26,70 +26,47 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
   const explText = lang === 'pt' ? q.explanationPt || q.explanation : q.explanation
   const hasAudio = lang === 'pt' ? q.audioPt : q.audioEn
   const audioSrc = `${import.meta.env.BASE_URL}q-audio/${q.audioId}${lang === 'pt' ? '.pt' : ''}.mp3`
+
   return (
     <motion.div
       key={q.id}
-      initial={{ opacity: 0, y: 24, scale: 0.985 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -24, scale: 0.985 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 24 }}
-      className={`glass-strong p-5 shadow-glow-soft sm:p-7 ${
-        isMulti && !revealed ? 'ring-2 ring-amber/50 shadow-glow-amber' : ''
-      }`}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -16 }}
+      transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+      className="glass-strong p-5 sm:p-7"
     >
-      {/* meta row */}
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <span className="chip bg-white/10 font-mono">
-          {typeof index === 'number' ? `${String(index + 1).padStart(2, '0')} / ${total}` : `#${q.number}`}
+      {/* meta: position and domain lead, everything else stays quiet */}
+      <div className="mb-4 flex flex-wrap items-center gap-x-2.5 gap-y-2">
+        <span className="font-mono text-xs font-extrabold text-faint">
+          {typeof index === 'number' ? `${String(index + 1).padStart(2, '0')}/${total}` : `#${q.number}`}
         </span>
-        <span className="chip border-cyan/30 text-cyan">
-          <Layers size={13} /> {q.domain}
-        </span>
-        <span className="chip">{q.topicName}</span>
-        {q.highQuality && (
-          <span className="chip border-mint/40 text-mint">Alta qualidade</span>
-        )}
-        {isMulti && (
-          <span className="chip border-amber/60 bg-amber/15 font-bold text-amber">
-            <CheckSquare size={13} /> marque {needed}
-          </span>
-        )}
+        <span className="font-display text-xs font-extrabold uppercase tracking-wide text-brand">{q.domain}</span>
+        <span className="text-faint">·</span>
+        <span className="font-display text-xs font-bold text-muted">{q.topicName}</span>
+        {q.highQuality && <span className="chip border-mint/30 bg-mint/10 text-mint">Alta qualidade</span>}
         {q.coverage === 'pouco ensinado (gap)' && (
-          <span className="chip border-coral/40 text-coral">low coverage</span>
+          <span className="chip border-amber/30 bg-amber/10 text-amber">pouco coberto</span>
         )}
       </div>
 
-      <h2 className="font-body text-lg leading-relaxed text-white/95 sm:text-xl">{q.question}</h2>
+      <h2 className="font-body text-[19px] font-semibold leading-relaxed text-ink sm:text-[22px]">{q.question}</h2>
 
-      {isMulti && !revealed && (
-        <motion.div
-          initial={{ opacity: 0, y: -6 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-5 flex items-center gap-3 rounded-xl border border-amber/50 bg-amber/[0.12] px-4 py-3"
-        >
-          <ListChecks size={20} className="shrink-0 text-amber" />
-          <div className="flex-1">
-            <p className="font-display text-sm font-bold text-amber">
-              Múltipla escolha — selecione {needed} alternativas
-            </p>
-            <p className="font-body text-xs text-amber/80">
-              {sel.length} de {needed} marcadas
-            </p>
-          </div>
-          <div className="flex gap-1.5">
-            {Array.from({ length: needed }).map((_, i) => (
-              <span
-                key={i}
-                className={`h-2.5 w-2.5 rounded-full transition-colors ${
-                  i < sel.length ? 'bg-amber' : 'border border-amber/50 bg-transparent'
-                }`}
-              />
-            ))}
-          </div>
-        </motion.div>
+      {isMulti && (
+        <div className="mt-4 flex items-center gap-2.5 rounded-xl border-2 border-amber/30 bg-amber/10 px-3.5 py-2.5">
+          <CheckSquare size={18} className="shrink-0 text-amber" />
+          <p className="font-display text-sm font-bold text-amber">
+            Marque {needed} alternativas
+            {!revealed && (
+              <span className="ml-1.5 font-mono font-extrabold">
+                ({sel.length}/{needed})
+              </span>
+            )}
+          </p>
+        </div>
       )}
 
-      <div className="mt-5 grid gap-2.5">
+      <div className="mt-5 grid gap-3">
         {q.options.map((opt, i) => {
           const isSelected = sel.includes(opt.letter)
           const isCorrect = correct.includes(opt.letter)
@@ -103,42 +80,42 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
                 ? 'wrong'
                 : 'dim'
 
-          const styles = {
-            idle: 'border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.07]',
-            selected: 'border-cyan/60 bg-cyan/10 shadow-glow-cyan',
-            correct: 'border-mint/70 bg-mint/12 shadow-glow-mint',
-            wrong: 'border-coral/70 bg-coral/12 shadow-glow-coral',
-            dim: 'border-white/8 bg-white/[0.02] opacity-45',
+          const box = {
+            idle: 'opt-idle',
+            selected: 'opt-selected',
+            correct: 'opt-correct',
+            wrong: 'opt-wrong',
+            dim: 'opt-dim',
           }[state]
 
-          const badge = {
-            idle: 'border-white/15 bg-white/5 text-white/70',
-            selected: 'border-cyan/50 bg-cyan/20 text-cyan',
-            correct: 'border-mint/50 bg-mint/20 text-mint',
-            wrong: 'border-coral/50 bg-coral/20 text-coral',
-            dim: 'border-white/10 bg-white/5 text-white/40',
+          const key = {
+            idle: 'border-line bg-sunken text-muted',
+            selected: 'border-brand-deep bg-brand text-white',
+            correct: 'border-[#0C6537] bg-[#16A05A] text-white',
+            wrong: 'border-[#99202A] bg-[#D93843] text-white',
+            dim: 'border-line bg-sunken text-faint',
           }[state]
 
           return (
             <motion.button
               key={opt.letter}
               disabled={revealed}
-              onClick={(e) => onSelect(opt.letter, e)}
-              whileHover={!revealed ? { x: 3 } : {}}
-              whileTap={!revealed ? { scale: 0.995 } : {}}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.04 * i }}
-              className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-all duration-150 ${styles}`}
+              onClick={(e) => onSelect?.(opt.letter, e)}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.03 * i, duration: 0.18 }}
+              className={`opt ${box}`}
             >
-              <span
-                className={`grid h-8 w-8 shrink-0 place-items-center border font-mono text-sm font-bold ${
-                  isMulti ? 'rounded-md' : 'rounded-lg'
-                } ${badge}`}
-              >
-                {state === 'correct' ? <Check size={16} /> : state === 'wrong' ? <X size={16} /> : opt.letter}
+              <span className={`opt-key ${key}`}>
+                {state === 'correct' ? (
+                  <Check size={18} strokeWidth={3.5} />
+                ) : state === 'wrong' ? (
+                  <X size={18} strokeWidth={3.5} />
+                ) : (
+                  opt.letter
+                )}
               </span>
-              <span className="pt-0.5 font-body text-[15px] leading-snug text-white/85">{opt.text}</span>
+              <span className="font-body text-[15px] font-medium leading-snug text-ink sm:text-base">{opt.text}</span>
             </motion.button>
           )
         })}
@@ -150,16 +127,15 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 26 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 30 }}
             className="overflow-hidden"
           >
-            <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.04] p-4">
-              <div className="mb-2 flex items-center gap-2 font-display text-sm font-semibold text-white/90">
-                <Lightbulb size={16} className="text-amber" /> Why{' '}
-                <span className="rounded-md border border-mint/40 bg-mint/15 px-1.5 py-0.5 font-mono text-mint">
-                  {correct.join(' + ')}
-                </span>
-                {correct.length > 1 ? 'are correct' : 'is correct'}
+            <div className="mt-5 rounded-2xl border-2 border-line bg-sunken p-4 sm:p-5">
+              <div className="mb-2.5 flex flex-wrap items-center gap-2 font-display text-sm font-extrabold text-ink">
+                <Lightbulb size={17} className="text-amber" />
+                Por que{' '}
+                <span className="rounded-md bg-[#16A05A] px-2 py-0.5 font-mono text-white">{correct.join(' + ')}</span>
+                {correct.length > 1 ? 'estão certas' : 'está certa'}
                 {(q.explanationPt || q.audioPt) && (
                   <span className="ml-auto">
                     <ExplLangToggle lang={lang} setLang={setLang} />
@@ -171,20 +147,18 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
                   <AudioPlayer key={audioSrc} src={audioSrc} />
                 </div>
               )}
-              <p className="whitespace-pre-line font-body text-[15px] leading-relaxed text-white/70">
-                {explText || (
-                  <span className="italic text-white/40">Detailed explanation coming soon.</span>
-                )}
+              <p className="whitespace-pre-line font-body text-[15px] leading-relaxed text-muted">
+                {explText || <span className="italic text-faint">Explicação detalhada em breve.</span>}
               </p>
 
               {q.modules.length > 0 && (
-                <div className="mt-4 border-t border-dashed border-white/10 pt-3">
-                  <div className="mb-2 flex items-center gap-2 label text-white/50">
-                    <BookOpen size={14} /> Study in the course
+                <div className="mt-4 border-t-2 border-dashed border-line pt-3">
+                  <div className="mb-2 flex items-center gap-2 label">
+                    <BookOpen size={14} /> Estude no curso
                   </div>
                   <ul className="flex flex-wrap gap-2">
                     {q.modules.map((m) => (
-                      <li key={m.id} className="chip border-violet/25 text-violet/90">
+                      <li key={m.id} className="chip border-brand/25 bg-brand/[0.07] text-brand-deep">
                         M{m.id} · {m.title}
                       </li>
                     ))}
@@ -201,14 +175,14 @@ export default function QuestionCard({ q, index, total, selected, revealed, onSe
 
 function ExplLangToggle({ lang, setLang }) {
   return (
-    <span className="flex items-center rounded-md border border-white/12 bg-white/[0.05] p-0.5 font-mono text-[10px] font-bold">
+    <span className="flex items-center rounded-lg border-2 border-line bg-surface p-0.5 font-mono text-[10px] font-extrabold">
       {['en', 'pt'].map((l) => (
         <button
           key={l}
           type="button"
           onClick={() => setLang(l)}
-          className={`rounded px-1.5 py-0.5 transition-colors ${
-            lang === l ? 'bg-violet/30 text-white' : 'text-white/45 hover:text-white/80'
+          className={`rounded px-2 py-0.5 transition-colors ${
+            lang === l ? 'bg-brand text-white' : 'text-faint hover:text-ink'
           }`}
         >
           {l.toUpperCase()}
@@ -217,4 +191,3 @@ function ExplLangToggle({ lang, setLang }) {
     </span>
   )
 }
-
