@@ -18,11 +18,13 @@ import {
   Brain,
   Trophy,
   GraduationCap,
+  RotateCcw,
 } from 'lucide-react'
 import { correctCount, seenCount, dailyProgress, currentDayStreak, examStats } from '../lib/storage'
 
 const MODES = [
   { key: 'random', title: 'Random Blitz', desc: 'Endless shuffled questions, instant feedback.', icon: Shuffle, glow: 'shadow-glow-cyan', ring: 'text-cyan', from: 'from-cyan/25' },
+  { key: 'missed', title: 'Refazer as que errei', desc: 'Só o que você já errou, das piores para as melhores.', icon: RotateCcw, glow: 'shadow-glow-coral', ring: 'text-coral', from: 'from-coral/25' },
   { key: 'exam', title: 'Mock Exam', desc: 'Timed simulation. No peeking until you submit.', icon: Timer, glow: 'shadow-glow-coral', ring: 'text-coral', from: 'from-coral/25' },
   { key: 'list', title: 'Question List', desc: 'Walk the full bank in order, start to end.', icon: ListOrdered, glow: 'shadow-glow-violet', ring: 'text-violet', from: 'from-violet/25' },
   { key: 'topic', title: 'By Topic', desc: 'Drill one service: GKE, Pub/Sub, IAM…', icon: Tags, glow: 'shadow-glow-mint', ring: 'text-mint', from: 'from-mint/25' },
@@ -31,7 +33,7 @@ const MODES = [
   { key: 'gaps', title: 'Study the Gaps', desc: 'Only topics lightly covered in the course.', icon: AlertTriangle, glow: 'shadow-glow-coral', ring: 'text-amber', from: 'from-amber/25' },
 ]
 
-export default function Home({ bank, state, onStart, dueCount = 0, total: totalProp, blitzRemaining = 0, hqOnly = false, onToggleHq }) {
+export default function Home({ bank, state, onStart, dueCount = 0, total: totalProp, blitzRemaining = 0, missedCount = 0, hqOnly = false, onToggleHq }) {
   const total = totalProp ?? bank.indexes.total
   const hqCount = bank.questions.filter((q) => q.highQuality).length
   const fullCount = bank.questions.length
@@ -262,16 +264,22 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
 
       {/* Mode grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {MODES.map((m, i) => (
+        {MODES.map((m, i) => {
+          // nothing missed yet → the card stays, but there is nothing to start
+          const empty = m.key === 'missed' && missedCount === 0
+          return (
           <motion.button
             key={m.key}
-            onClick={() => onStart(m.key)}
+            onClick={() => !empty && onStart(m.key)}
+            disabled={empty}
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 * i, type: 'spring', stiffness: 220, damping: 22 }}
-            whileHover={{ y: -5 }}
-            whileTap={{ scale: 0.98 }}
-            className="group glass relative flex flex-col items-start gap-4 overflow-hidden p-5 text-left transition-colors hover:border-white/25"
+            whileHover={empty ? {} : { y: -5 }}
+            whileTap={empty ? {} : { scale: 0.98 }}
+            className={`group glass relative flex flex-col items-start gap-4 overflow-hidden p-5 text-left transition-colors ${
+              empty ? 'cursor-not-allowed opacity-55' : 'hover:border-white/25'
+            }`}
           >
             {/* hover wash */}
             <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${m.from} to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
@@ -286,6 +294,17 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
                   ✓ Todas respondidas · {total}
                 </span>
               ))}
+            {/* Missed: how many are waiting to be redone */}
+            {m.key === 'missed' &&
+              (missedCount > 0 ? (
+                <span className="chip absolute right-4 top-4 border-coral/40 text-coral">
+                  {missedCount} {missedCount === 1 ? 'errada' : 'erradas'}
+                </span>
+              ) : (
+                <span className="chip absolute right-4 top-4 border-mint/40 text-mint">
+                  ✓ nenhuma errada
+                </span>
+              ))}
             <span className={`grid h-12 w-12 place-items-center rounded-xl border border-white/12 bg-white/[0.06] ${m.ring} transition-shadow duration-300 group-hover:[box-shadow:0_0_26px_-6px_currentColor]`}>
               <m.icon size={22} />
             </span>
@@ -297,11 +316,16 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
               <div className="mt-0.5 font-body text-sm text-white/50">
                 {m.key === 'random' && blitzRemaining > 0
                   ? `${blitzRemaining} de ${total} ainda sem resposta.`
-                  : m.desc}
+                  : m.key === 'missed'
+                    ? empty
+                      ? 'Assim que você errar alguma, ela aparece aqui.'
+                      : `${missedCount} para refazer, começando pelas que você errou por último.`
+                    : m.desc}
               </div>
             </div>
           </motion.button>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

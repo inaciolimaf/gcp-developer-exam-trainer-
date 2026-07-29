@@ -210,6 +210,35 @@ export function seenCount(s) {
   return Object.keys(s.answered).length
 }
 
+// Per-attempt tally for one entry. Old saves only kept { correct, count }, so
+// the missing fields get backfilled exactly the way recordAnswer does it.
+function tally(a) {
+  const count = a.count || 0
+  const right = a.right ?? (a.correct ? count : 0)
+  return {
+    count,
+    right,
+    wrong: Math.max(0, count - right),
+    lastOk: a.lastOk ?? a.correct ?? false,
+    last: a.last || 0,
+  }
+}
+
+// Ids of every question you have ever answered wrong, ordered by how much they
+// still deserve your attention: the ones you missed on the *last* try come
+// first, then the most-missed, then the most recent. A short session therefore
+// hits the worst offenders even if you never reach the end of the list.
+export function missedIds(s) {
+  return Object.entries(s.answered || {})
+    .map(([id, a]) => ({ id, ...tally(a) }))
+    .filter((e) => e.wrong > 0)
+    .sort(
+      (x, y) =>
+        (x.lastOk ? 1 : 0) - (y.lastOk ? 1 : 0) || y.wrong - x.wrong || y.last - x.last,
+    )
+    .map((e) => e.id)
+}
+
 // ---- Study Guide checklist (separate key) -------------------------------
 
 const GUIDE_KEY = 'cloudquest.guide.v1'

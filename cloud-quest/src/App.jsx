@@ -27,6 +27,7 @@ import {
   addXp,
   recordExam,
   recordActivity,
+  missedIds,
 } from './lib/storage'
 import { loadSrs, saveSrs, scheduleItem, srsStats } from './lib/srs'
 
@@ -72,6 +73,12 @@ export default function App() {
     () => all.filter((q) => !game.answered[q.id]).length,
     [all, game.answered],
   )
+  // Questions you have missed at least once, in "worst first" order. Kept as
+  // the ordered list (not just a count) so the mode and its badge agree.
+  const missedQuestions = useMemo(() => {
+    const byId = new Map(all.map((q) => [q.id, q]))
+    return missedIds(game).map((id) => byId.get(id)).filter(Boolean)
+  }, [all, game])
 
   useEffect(() => {
     loadBank().then(setBank).catch((e) => setError(e.message))
@@ -134,7 +141,10 @@ export default function App() {
     [showBadges],
   )
 
-  // batch answer (Exam submit). `meta` = { times: {id: ms}, ms, feedback }.
+  // Batch answer (Exam submit). `questions` carries ONLY the questions you
+  // actually answered — a simulado can be submitted half-done, and the ones
+  // left blank must not be recorded as errors. `meta` = { times: {id: ms}, ms,
+  // pausedMs, feedback, skipped }.
   const onAnswerBatch = useCallback(
     (questions, answers, passed, perfect, meta = {}) => {
       setSrs((s) => {
@@ -166,7 +176,16 @@ export default function App() {
         next = recordExam(
           next,
           { correct: correctCt, total, pct, passed },
-          { ms: meta.ms || 0, pausedMs: meta.pausedMs || 0, feedback: meta.feedback || 'submit', domains },
+          {
+            ms: meta.ms || 0,
+            pausedMs: meta.pausedMs || 0,
+            feedback: meta.feedback || 'submit',
+            domains,
+            // `total` above is what you answered; these keep the sitting honest
+            // in the history, so 100% of 3 never reads like 100% of 50.
+            skipped: meta.skipped || 0,
+            sat: total + (meta.skipped || 0),
+          },
         )
         next = recordActivity(next, total)
         const { state, newBadges } = refreshBadges(next)
@@ -207,6 +226,14 @@ export default function App() {
           name: 'practice',
           title: 'Study the Gaps',
           questions: shuffle(all.filter((q) => q.coverage === GAP)),
+        })
+      case 'missed':
+        // já vem ordenado por urgência — não embaralhar
+        if (!missedQuestions.length) return
+        return setScreen({
+          name: 'practice',
+          title: 'Refazer as que errei',
+          questions: missedQuestions,
         })
       case 'exam':
         // snapshot dos "ainda não respondidas" no momento em que a prova abre,
@@ -290,6 +317,7 @@ export default function App() {
               dueCount={dueCount}
               total={indexes.total}
               blitzRemaining={blitzRemaining}
+              missedCount={missedQuestions.length}
               hqOnly={hqOnly}
               onToggleHq={() => setHqOnly((v) => !v)}
             />

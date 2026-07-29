@@ -25,6 +25,14 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
   const dwell = useRef({ times: {}, id: null, since: 0 })
   const startedAt = useRef(0)
   const pausedAt = useRef(0) // início da pausa atual
+  // O intervalo do cronômetro só é recriado quando `phase`/`frozen` mudam, então
+  // a closure dele congela `answers` no momento em que foi montado. Quando o
+  // tempo estoura, `finish()` roda de dentro dessa closure — sem este ref ele
+  // pontuaria por um retrato velho e perderia as últimas respostas.
+  const answersRef = useRef(answers)
+  useEffect(() => {
+    answersRef.current = answers
+  }, [answers])
 
   const newPool = unseen || []
   const activePool = source === 'new' ? newPool : pool
@@ -106,11 +114,25 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, frozen])
 
+  // Dá para enviar o simulado pela metade: a nota sai só sobre o que você
+  // respondeu, e o que ficou em branco não conta como erro em lugar nenhum.
+  const answeredQuestions = useMemo(
+    () => questions.filter((q) => hasAnswer(answers[q.id])),
+    [questions, answers],
+  )
+
   const score = useMemo(() => {
     if (phase !== 'result') return null
-    const correct = questions.filter((q) => isAnswerCorrect(q, answers[q.id])).length
-    return { correct, total: questions.length, pct: Math.round((correct / questions.length) * 100) }
-  }, [phase, questions, answers])
+    const done = answeredQuestions.length
+    const correct = answeredQuestions.filter((q) => isAnswerCorrect(q, answers[q.id])).length
+    return {
+      correct,
+      total: done,
+      skipped: questions.length - done,
+      sat: questions.length,
+      pct: done ? Math.round((correct / done) * 100) : 0,
+    }
+  }, [phase, questions, answers, answeredQuestions])
 
   function finish() {
     clearInterval(timerRef.current)
@@ -120,16 +142,36 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
     const breaks = pausedMs + (pausedAt.current ? Date.now() - pausedAt.current : 0)
     pausedAt.current = 0 // já contabilizado aqui; o cleanup do efeito não soma de novo
     setPaused(false)
-    const correct = questions.filter((q) => isAnswerCorrect(q, answers[q.id])).length
-    const pct = Math.round((correct / questions.length) * 100)
-    onAnswerBatch(questions, answers, pct >= PASS_PCT, pct === 100, {
-      times: dwell.current.times,
-      ms: startedAt.current ? Math.max(0, Date.now() - startedAt.current - breaks) : 0,
-      pausedMs: breaks,
-      feedback,
-    })
-    if (pct >= PASS_PCT) setTimeout(bigCelebration, 250)
+    // sempre pelo ref: no estouro de tempo `answers` da closure está velho
+    const given = answersRef.current
+    const done = questions.filter((q) => hasAnswer(given[q.id]))
+    const correct = done.filter((q) => isAnswerCorrect(q, given[q.id])).length
+    const pct = done.length ? Math.round((correct / done.length) * 100) : 0
+    // Zero respondidas não é um simulado: mostra o resultado vazio, mas não
+    // grava nada no histórico nem mexe no XP.
+    if (done.length) {
+      onAnswerBatch(done, given, pct >= PASS_PCT, pct === 100, {
+        times: dwell.current.times,
+        ms: startedAt.current ? Math.max(0, Date.now() - startedAt.current - breaks) : 0,
+        pausedMs: breaks,
+        feedback,
+        skipped: questions.length - done.length,
+      })
+      if (pct >= PASS_PCT) setTimeout(bigCelebration, 250)
+    }
     setPhase('result')
+  }
+
+  // Enviar com questões em branco é permitido, mas nunca por acidente.
+  function confirmFinish() {
+    const blank = questions.length - answeredQuestions.length
+    if (!blank) return finish()
+    const msg = answeredQuestions.length
+      ? `Faltam ${blank} de ${questions.length} questões em branco.\n\n` +
+        `Sua nota vai sair só sobre as ${answeredQuestions.length} que você respondeu — ` +
+        `as em branco não contam como erro.\n\nEnviar assim?`
+      : `Você ainda não respondeu nenhuma questão.\n\nEnviar assim? Nada será registrado.`
+    if (confirm(msg)) finish()
   }
 
   // ---------- SETUP ----------
@@ -151,7 +193,8 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
           <p className="mx-auto mt-2 max-w-sm font-body text-white/55">
             Pick a length. You get <span className="text-white/90">90 seconds</span> per question. Pass mark is{' '}
             <span className="text-white/90">{PASS_PCT}%</span>. Dá para <span className="text-white/90">pausar</span>{' '}
-            o cronômetro a qualquer momento se precisar parar no meio.
+            o cronômetro a qualquer momento, e também{' '}
+            <span className="text-white/90">enviar pela metade</span> — a nota sai só sobre o que você respondeu.
           </p>
 
           {/* de onde saem as questões: banco inteiro ou só as que você nunca respondeu */}
@@ -243,12 +286,14 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
 
   // ---------- RESULT ----------
   if (phase === 'result') {
-    const passed = score.pct >= PASS_PCT
-    const wrong = questions.filter((q) => !isAnswerCorrect(q, answers[q.id]))
+    const passed = score.total > 0 && score.pct >= PASS_PCT
+    // "errou" é só o que você respondeu e errou — em branco é em branco
+    const wrong = answeredQuestions.filter((q) => !isAnswerCorrect(q, answers[q.id]))
+    const blank = questions.filter((q) => !hasAnswer(answers[q.id]))
 
-    // per-domain breakdown
+    // per-domain breakdown, também só sobre o respondido
     const domains = {}
-    for (const q of questions) {
+    for (const q of answeredQuestions) {
       const d = (domains[q.domain] ??= { code: q.domain, name: q.domainName, correct: 0, total: 0 })
       d.total += 1
       if (isAnswerCorrect(q, answers[q.id])) d.correct += 1
@@ -266,18 +311,36 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
         >
           <Trophy className={`mx-auto mb-2 ${passed ? 'text-amber' : 'text-white/30'}`} size={52} />
           <h2 className="font-display text-3xl font-bold text-white">
-            {passed ? 'You passed!' : 'Not yet — keep going'}
+            {score.total === 0 ? 'Nada respondido' : passed ? 'You passed!' : 'Not yet — keep going'}
           </h2>
           <div
             className={`my-4 font-mono text-7xl font-bold tracking-tight ${
-              passed ? 'text-mint [text-shadow:0_0_36px_rgba(52,211,153,0.45)]' : 'text-coral'
+              score.total === 0
+                ? 'text-white/30'
+                : passed
+                  ? 'text-mint [text-shadow:0_0_36px_rgba(52,211,153,0.45)]'
+                  : 'text-coral'
             }`}
           >
-            {score.pct}%
+            {score.total === 0 ? '—' : `${score.pct}%`}
           </div>
-          <p className="font-body text-white/65">
-            {score.correct} / {score.total} correct · pass mark {PASS_PCT}%
-          </p>
+          {score.total === 0 ? (
+            <p className="font-body text-white/65">
+              Você enviou sem responder nada, então não há nota — e nada foi gravado no histórico.
+            </p>
+          ) : (
+            <>
+              <p className="font-body text-white/65">
+                {score.correct} / {score.total} correct · pass mark {PASS_PCT}%
+              </p>
+              {score.skipped > 0 && (
+                <p className="mt-2 font-body text-sm text-amber">
+                  Nota calculada só sobre as {score.total} que você respondeu ·{' '}
+                  <span className="font-mono">{score.skipped}</span> em branco não contaram
+                </p>
+              )}
+            </>
+          )}
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             {onHistory && (
               <button onClick={onHistory} className="btn">
@@ -291,7 +354,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
         </motion.div>
 
         {/* per-domain breakdown */}
-        <div className="glass mt-6 p-5">
+        <div className={`glass mt-6 p-5 ${domainRows.length ? '' : 'hidden'}`}>
           <div className="mb-4 flex items-center gap-2 label">
             <Layers size={14} /> By exam domain
           </div>
@@ -324,6 +387,11 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h3 className="font-display text-2xl font-bold text-white">
               Review answers {reviewAll ? `(${questions.length})` : `(${wrong.length} missed)`}
+              {blank.length > 0 && !reviewAll && (
+                <span className="ml-2 font-body text-base font-normal text-amber">
+                  + {blank.length} em branco
+                </span>
+              )}
             </h3>
             <div className="flex gap-1 rounded-xl border border-white/10 bg-white/[0.04] p-1">
               <button
@@ -346,7 +414,11 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
           </div>
           {reviewList.length === 0 ? (
             <div className="glass p-6 text-center font-body text-white/60">
-              Perfect run — nothing missed. 🎉
+              {score.total === 0
+                ? 'Nada para revisar — nenhuma questão foi respondida.'
+                : blank.length > 0
+                  ? `Você acertou todas as ${score.total} que respondeu. Troque para “All” para ver as ${blank.length} que ficaram em branco.`
+                  : 'Perfect run — nothing missed. 🎉'}
             </div>
           ) : (
             <div className="grid gap-5">
@@ -418,7 +490,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
             <span className="hidden sm:inline">{paused ? 'Retomar' : 'Pausar'}</span>
           </button>
         </div>
-        <button onClick={finish} className="btn border-coral/40 text-coral hover:bg-coral/10">
+        <button onClick={confirmFinish} className="btn border-coral/40 text-coral hover:bg-coral/10">
           <Flag size={14} /> Submit
         </button>
       </div>
@@ -532,7 +604,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
             Next <ArrowRight size={18} />
           </button>
         ) : (
-          <button onClick={finish} className="btn border-coral/40 text-coral hover:bg-coral/10">
+          <button onClick={confirmFinish} className="btn border-coral/40 text-coral hover:bg-coral/10">
             Submit <Flag size={16} />
           </button>
         )}
