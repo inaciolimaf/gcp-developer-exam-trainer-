@@ -66,7 +66,7 @@ export default function Review({ bank, flash, game, srs, onStartQuestions, onSta
         <button onClick={onBack} className="btn">
           <ArrowLeft size={16} /> Home
         </button>
-        <div className="flex items-center gap-2 font-display text-xl font-bold text-ink">
+        <div className="flex items-center gap-2 font-display text-xl font-bold text-white">
           <Brain size={20} className="text-cyan" /> Smart Review
         </div>
       </div>
@@ -82,8 +82,8 @@ export default function Review({ bank, flash, game, srs, onStartQuestions, onSta
       {nothing ? (
         <div className="glass-strong flex flex-col items-center gap-3 p-10 text-center shadow-glow-soft">
           <Sparkles size={40} className="text-mint" />
-          <h2 className="font-display text-2xl font-bold text-ink">All caught up</h2>
-          <p className="max-w-sm font-body text-muted">
+          <h2 className="font-display text-2xl font-bold text-white">All caught up</h2>
+          <p className="max-w-sm font-body text-white/55">
             Nothing due for review yet. Answer questions or grade flashcards and they'll show up here on a
             spaced schedule — sooner if you miss them, later as you nail them.
           </p>
@@ -125,7 +125,7 @@ export default function Review({ bank, flash, game, srs, onStartQuestions, onSta
               <div className="mb-3 mt-9 flex items-center gap-2 label">
                 <TrendingDown size={14} /> Weakest topics
               </div>
-              <div className="glass divide-y divide-line overflow-hidden">
+              <div className="glass divide-y divide-white/[0.06] overflow-hidden">
                 {weakTopics.map((t, i) => {
                   const pct = Math.round(t.ratio * 100)
                   return (
@@ -135,12 +135,12 @@ export default function Review({ bank, flash, game, srs, onStartQuestions, onSta
                       initial={{ opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: Math.min(i * 0.03, 0.3) }}
-                      className="group flex w-full items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-sunken"
+                      className="group flex w-full items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-white/[0.05]"
                     >
-                      <span className="min-w-0 flex-1 truncate font-display text-sm font-semibold text-ink">
+                      <span className="min-w-0 flex-1 truncate font-display text-sm font-semibold text-white/90">
                         {t.name}
                       </span>
-                      <div className="hidden h-1.5 w-28 overflow-hidden rounded-full border border-line bg-sunken sm:block">
+                      <div className="hidden h-1.5 w-28 overflow-hidden rounded-full border border-white/10 bg-white/[0.04] sm:block">
                         <div
                           className={`h-full rounded-full ${pct < 40 ? 'bg-coral' : pct < 70 ? 'bg-amber' : 'bg-mint'}`}
                           style={{ width: `${pct}%` }}
@@ -151,7 +151,7 @@ export default function Review({ bank, flash, game, srs, onStartQuestions, onSta
                       </span>
                       <ArrowRight
                         size={16}
-                        className="shrink-0 text-faint transition-transform group-hover:translate-x-1 group-hover:text-muted"
+                        className="shrink-0 text-white/30 transition-transform group-hover:translate-x-1 group-hover:text-white/60"
                       />
                     </motion.button>
                   )
@@ -175,21 +175,21 @@ function ActionTile({ title, count, desc, icon: Icon, accent, onClick }) {
       whileHover={disabled ? {} : { y: -4 }}
       whileTap={disabled ? {} : { scale: 0.98 }}
       className={`group glass relative flex flex-col items-start gap-3 overflow-hidden p-5 text-left transition-colors ${
-        disabled ? 'cursor-not-allowed opacity-45' : 'hover:border-line-strong'
+        disabled ? 'cursor-not-allowed opacity-45' : 'hover:border-white/25'
       }`}
     >
       <div
         className={`absolute inset-0 -z-10 bg-gradient-to-br ${wash} to-transparent opacity-0 transition-opacity group-hover:opacity-100`}
       />
       <div className="flex w-full items-center justify-between">
-        <span className={`grid h-11 w-11 place-items-center rounded-xl border border-line bg-sunken ${tint}`}>
+        <span className={`grid h-11 w-11 place-items-center rounded-xl border border-white/12 bg-white/[0.06] ${tint}`}>
           <Icon size={20} />
         </span>
-        <span className={`font-mono text-3xl font-bold ${count ? tint : 'text-faint'}`}>{count}</span>
+        <span className={`font-mono text-3xl font-bold ${count ? tint : 'text-white/40'}`}>{count}</span>
       </div>
       <div>
-        <div className="font-display text-lg font-semibold text-ink">{title}</div>
-        <div className="mt-0.5 font-body text-sm text-muted">{disabled ? 'Nothing here right now.' : desc}</div>
+        <div className="font-display text-lg font-semibold text-white">{title}</div>
+        <div className="mt-0.5 font-body text-sm text-white/50">{disabled ? 'Nothing here right now.' : desc}</div>
       </div>
     </motion.button>
   )
@@ -198,11 +198,11 @@ function ActionTile({ title, count, desc, icon: Icon, accent, onClick }) {
 function Stat({ label, value, icon: Icon, tint }) {
   return (
     <div className="glass flex items-center gap-3 p-3.5">
-      <span className={`grid h-10 w-10 place-items-center rounded-lg border border-line bg-sunken ${tint}`}>
+      <span className={`grid h-10 w-10 place-items-center rounded-lg border border-white/10 bg-white/[0.05] ${tint}`}>
         <Icon size={18} />
       </span>
       <div>
-        <div className="font-mono text-xl font-bold leading-none text-ink">{value}</div>
+        <div className="font-mono text-xl font-bold leading-none text-white">{value}</div>
         <div className="mt-1 label">{label}</div>
       </div>
     </div>

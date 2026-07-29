@@ -1,32 +1,29 @@
 // Chart palette + small numeric helpers shared by every chart in the app.
 //
-// Re-stepped for the white chart surface (#FFFFFF): every slot sits in OKLCH
-// L 0.48–0.62 with chroma >= 0.1, clearing >= 3:1 contrast against the panel
-// and holding adjacent separation under deuteranopia.
+// The categorical slots below are the app's own hues (cyan / violet / mint /
+// amber / pink) re-stepped for the dark chart surface (~#0f1018) so they clear
+// every gate of the data-viz colour checks: OKLCH L inside 0.48–0.67, chroma
+// >= 0.1, adjacent colour-blind separation ΔE 8.2 (deutan), adjacent
+// normal-vision ΔE 15.9, and >= 3:1 contrast against the panel.
 //
-// Green and red are NOT in this ramp — they are reserved app-wide to mean
-// "certo" and "errado", so a categorical slot can never be mistaken for a
-// verdict. The order is chosen so neighbouring slots stay apart for
-// colour-blind readers (blue→amber is the strongest such pair).
-//
-// Assign them IN ORDER and never cycle: past five slots the hues stop being
-// distinguishable, so anything beyond folds into "Outros".
-export const SERIES = ['#1A6FE0', '#B26A00', '#8B3FD9', '#0E8E9B', '#D6398B']
+// Assign them IN ORDER and never cycle: with a 6th series the pink/coral pair
+// stops being distinguishable, so anything past five folds into "Outros".
+export const SERIES = ['#33a3b4', '#9e71fd', '#23ac74', '#b48c2b', '#e652a3']
 
 export const seriesColor = (i) => SERIES[i % SERIES.length]
 
 // Reserved state colours — never used as "series 6". Always shipped next to a
 // number or a label, never as the only signal.
 export const STATUS = {
-  good: '#12894C',
-  warn: '#B26A00',
-  bad: '#C92A35',
-  idle: '#C3CEDE',
+  good: '#34d399',
+  warn: '#fbbf24',
+  bad: '#fb7185',
+  idle: 'rgba(255,255,255,0.22)',
 }
 
-export const GRID = 'rgba(19,23,32,0.09)'
-export const AXIS = 'rgba(19,23,32,0.45)'
-export const SURFACE = '#FFFFFF'
+export const GRID = 'rgba(255,255,255,0.07)'
+export const AXIS = 'rgba(255,255,255,0.40)'
+export const SURFACE = '#0f1018'
 
 // Accuracy → status colour. 70% is the mock-exam pass mark, 50% is "at risk".
 export function accColor(pct) {
@@ -34,14 +31,14 @@ export function accColor(pct) {
   return pct < 50 ? STATUS.bad : pct < 70 ? STATUS.warn : STATUS.good
 }
 
-// Single-hue sequential ramp (green), light→dark for a white surface:
-// near-zero stays near the panel, high values deepen.
+// Single-hue sequential ramp (mint), light→dark reversed for a dark surface:
+// near-zero recedes into the panel, high values glow.
 export function heatColor(n, max = 16) {
-  if (!n) return '#EDF1F7'
+  if (!n) return 'rgba(255,255,255,0.045)'
   const t = Math.min(1, Math.log1p(n) / Math.log1p(max))
-  const steps = [0.18, 0.36, 0.56, 0.78, 1]
+  const steps = [0.22, 0.4, 0.6, 0.8, 1]
   const a = steps[Math.min(steps.length - 1, Math.floor(t * steps.length))]
-  return `rgba(18,137,76,${a})`
+  return `rgba(52,211,153,${a})`
 }
 
 // ---- numbers -------------------------------------------------------------

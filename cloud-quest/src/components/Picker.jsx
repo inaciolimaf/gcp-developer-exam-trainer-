@@ -16,7 +16,7 @@ export default function Picker({ kind, items, onPick, onBack }) {
       <button onClick={onBack} className="btn mb-6">
         <ArrowLeft size={16} /> Home
       </button>
-      <h2 className="mb-7 font-display text-3xl font-bold text-ink">{titles[kind]}</h2>
+      <h2 className="mb-7 font-display text-3xl font-bold text-white">{titles[kind]}</h2>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((it, i) => {
@@ -30,15 +30,15 @@ export default function Picker({ kind, items, onPick, onBack }) {
               transition={{ delay: Math.min(i * 0.02, 0.4) }}
               whileHover={{ y: -3 }}
               whileTap={{ scale: 0.98 }}
-              className="group glass flex items-center justify-between gap-3 p-4 text-left transition-colors hover:border-line-strong"
+              className="group glass flex items-center justify-between gap-3 p-4 text-left transition-colors hover:border-white/25"
             >
               <div className="flex min-w-0 items-center gap-3">
                 <span
-                  className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-line bg-sunken font-mono text-xs font-bold ${accent}`}
+                  className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-white/12 bg-white/[0.05] font-mono text-xs font-bold ${accent}`}
                 >
                   {kind === 'module' ? `M${it.code}` : kind === 'domain' ? it.code : it.code.slice(0, 3)}
                 </span>
-                <div className="truncate font-display text-sm font-semibold text-ink">
+                <div className="truncate font-display text-sm font-semibold text-white/90">
                   {kind === 'domain' ? DOMAIN_LABELS[it.code] || it.name : it.name}
                 </div>
               </div>

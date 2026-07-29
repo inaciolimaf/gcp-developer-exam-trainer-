@@ -71,11 +71,11 @@ export default function AudioPlayer({ src }) {
         <div className="min-w-0 flex-1">
           <div
             onClick={seek}
-            className="group relative h-2.5 cursor-pointer overflow-hidden rounded-full border border-line bg-sunken"
+            className="group relative h-2.5 cursor-pointer overflow-hidden rounded-full border border-white/10 bg-white/[0.06]"
           >
             <div className="h-full rounded-full bg-gradient-to-r from-cyan to-violet" style={{ width: `${pct}%` }} />
           </div>
-          <div className="mt-1.5 flex justify-between font-mono text-xs text-faint">
+          <div className="mt-1.5 flex justify-between font-mono text-xs text-white/45">
             <span>{fmt(cur)}</span>
             <span>{fmt(dur)}</span>
           </div>
@@ -84,7 +84,7 @@ export default function AudioPlayer({ src }) {
 
       {/* controle de velocidade 1x–3x */}
       <div className="flex items-center gap-2">
-        <Gauge size={15} className="shrink-0 text-faint" />
+        <Gauge size={15} className="shrink-0 text-white/45" />
         <div className="flex flex-wrap gap-1.5">
           {SPEEDS.map((s) => (
             <button
@@ -93,7 +93,7 @@ export default function AudioPlayer({ src }) {
               className={`rounded-lg px-2.5 py-1 font-mono text-xs font-bold transition-colors ${
                 speed === s
                   ? 'bg-violet/25 text-white ring-1 ring-violet/50'
-                  : 'text-muted hover:bg-sunken hover:text-ink'
+                  : 'text-white/50 hover:bg-white/[0.06] hover:text-white/80'
               }`}
             >
               {s}×

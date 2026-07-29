@@ -448,12 +448,12 @@ export function buildAnalytics({ bank, state, srs, now = Date.now() }) {
   const score = Math.round(parts.reduce((s, p) => s + p.contrib, 0))
   const verdict =
     score >= 80
-      ? { label: 'Pronto pro exame', tint: 'text-mint', stroke: '#12894C' }
+      ? { label: 'Pronto pro exame', tint: 'text-mint', stroke: '#34d399' }
       : score >= 65
-        ? { label: 'Quase lá', tint: 'text-cyan', stroke: '#1A6FE0' }
+        ? { label: 'Quase lá', tint: 'text-cyan', stroke: '#22d3ee' }
         : score >= 40
-          ? { label: 'Construindo base', tint: 'text-amber', stroke: '#B26A00' }
-          : { label: 'Começando', tint: 'text-coral', stroke: '#C92A35' }
+          ? { label: 'Construindo base', tint: 'text-amber', stroke: '#fbbf24' }
+          : { label: 'Começando', tint: 'text-coral', stroke: '#fb7185' }
 
   // readiness needed per day to hit 80 — rough, but it turns the gauge into a plan
   const gap = Math.max(0, 80 - score)

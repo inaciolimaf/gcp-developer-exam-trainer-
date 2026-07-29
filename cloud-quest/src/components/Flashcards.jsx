@@ -94,10 +94,10 @@ function Menu({ data, pool, progress, newOnly, setNewOnly, onStartAll, onStartCa
         <button onClick={onExit} className="btn">
           <ArrowLeft size={16} /> Home
         </button>
-        <div className="flex items-center gap-2 font-display text-xl font-bold text-ink">
+        <div className="flex items-center gap-2 font-display text-xl font-bold text-white">
           <Layers size={20} className="text-cyan" /> Flashcards
         </div>
-        <button onClick={onReset} className="btn ml-auto shrink-0 px-3 text-muted" title="Reset flashcard progress">
+        <button onClick={onReset} className="btn ml-auto shrink-0 px-3 text-white/60" title="Reset flashcard progress">
           <RotateCcw size={15} />
         </button>
       </div>
@@ -109,7 +109,7 @@ function Menu({ data, pool, progress, newOnly, setNewOnly, onStartAll, onStartCa
         transition={{ type: 'spring', stiffness: 200, damping: 22 }}
         className="mb-7 text-center"
       >
-        <span className="label inline-flex items-center gap-2 rounded-full border border-line bg-sunken px-3 py-1">
+        <span className="label inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1">
           <Repeat size={12} className="text-mint" />
           {data.total} cards · term → meaning
         </span>
@@ -118,7 +118,7 @@ function Menu({ data, pool, progress, newOnly, setNewOnly, onStartAll, onStartCa
             Service Flashcards
           </span>
         </h1>
-        <p className="mx-auto mt-3 max-w-md font-body text-muted">
+        <p className="mx-auto mt-3 max-w-md font-body text-white/55">
           Flip a card, recall what the service does, then grade yourself. Spaced-style recall for every GCP product
           and concept.
         </p>
@@ -130,11 +130,11 @@ function Menu({ data, pool, progress, newOnly, setNewOnly, onStartAll, onStartCa
         <div className="min-w-0 flex-1">
           <div className="mb-1.5 flex items-baseline justify-between gap-3">
             <span className="label">Mastered</span>
-            <span className="font-mono text-sm font-bold text-ink">
-              {mastered}/{data.total} <span className="text-faint">· {pct}%</span>
+            <span className="font-mono text-sm font-bold text-white">
+              {mastered}/{data.total} <span className="text-white/40">· {pct}%</span>
             </span>
           </div>
-          <div className="h-2.5 overflow-hidden rounded-full border border-line bg-sunken">
+          <div className="h-2.5 overflow-hidden rounded-full border border-white/10 bg-white/[0.05]">
             <motion.div
               className="h-full rounded-full bg-gradient-to-r from-cyan to-mint"
               animate={{ width: `${pct}%` }}
@@ -172,13 +172,13 @@ function Menu({ data, pool, progress, newOnly, setNewOnly, onStartAll, onStartCa
               transition={{ delay: Math.min(i * 0.02, 0.4) }}
               whileHover={{ y: -3 }}
               whileTap={{ scale: 0.98 }}
-              className="group glass flex flex-col gap-3 p-4 text-left transition-colors hover:border-line-strong"
+              className="group glass flex flex-col gap-3 p-4 text-left transition-colors hover:border-white/25"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className={`font-display text-[15px] font-semibold text-ink ${accent}`}>{c.name}</span>
+                <span className={`font-display text-[15px] font-semibold text-white/90 ${accent}`}>{c.name}</span>
                 <span className="chip shrink-0 font-mono">{c.count}</span>
               </div>
-              <div className="h-1.5 overflow-hidden rounded-full border border-line bg-sunken">
+              <div className="h-1.5 overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
                 <div className="h-full rounded-full bg-gradient-to-r from-cyan to-mint" style={{ width: `${cpct}%` }} />
               </div>
               <span className="label">{c.mastered}/{c.count} mastered</span>
@@ -270,14 +270,14 @@ function Study({ title, cards, progress, onMark, onExit, onHome }) {
         <button onClick={onExit} className="btn">
           <ArrowLeft size={16} /> Decks
         </button>
-        <div className="truncate font-display text-base font-semibold text-ink">{title}</div>
+        <div className="truncate font-display text-base font-semibold text-white/80">{title}</div>
         <div className="chip font-mono">
           {String(index + 1).padStart(2, '0')} / {total}
         </div>
       </div>
 
       {/* session progress */}
-      <div className="mb-6 h-2 overflow-hidden rounded-full border border-line bg-sunken">
+      <div className="mb-6 h-2 overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
         <motion.div
           className="h-full rounded-full bg-gradient-to-r from-cyan to-violet shadow-glow-cyan"
           animate={{ width: `${(index / total) * 100}%` }}
@@ -306,10 +306,10 @@ function Study({ title, cards, progress, onMark, onExit, onHome }) {
                   <span className="label inline-flex items-center gap-1.5 text-cyan">
                     <Eye size={13} /> {card.front}
                   </span>
-                  <p className="px-3 text-center font-body text-xl leading-relaxed text-ink sm:text-2xl">
+                  <p className="px-3 text-center font-body text-xl leading-relaxed text-white/90 sm:text-2xl">
                     {card.back}
                   </p>
-                  <span className="label text-faint">how well did you recall it?</span>
+                  <span className="label text-white/40">how well did you recall it?</span>
                 </>
               ) : (
                 <>
@@ -321,10 +321,10 @@ function Study({ title, cards, progress, onMark, onExit, onHome }) {
                       </span>
                     )}
                   </div>
-                  <h2 className="px-2 text-center font-display text-3xl font-bold leading-tight text-ink sm:text-4xl">
+                  <h2 className="px-2 text-center font-display text-3xl font-bold leading-tight text-white sm:text-4xl">
                     {card.front}
                   </h2>
-                  <span className="label inline-flex items-center gap-1.5 text-faint">
+                  <span className="label inline-flex items-center gap-1.5 text-white/40">
                     <MousePointerClick size={13} /> click or press space to flip
                   </span>
                 </>
@@ -360,8 +360,8 @@ function Study({ title, cards, progress, onMark, onExit, onHome }) {
       </AnimatePresence>
 
       {!showBack && (
-        <p className="mt-6 text-center font-body text-sm text-faint">
-          Recall what <span className="text-muted">{card.front}</span> does, then flip to check.
+        <p className="mt-6 text-center font-body text-sm text-white/40">
+          Recall what <span className="text-white/70">{card.front}</span> does, then flip to check.
         </p>
       )}
     </div>
@@ -379,14 +379,14 @@ function Completion({ title, hits, total, onAgain, onExit, onHome }) {
         className="glass-strong w-full p-8 shadow-glow-soft"
       >
         <PartyPopper className="mx-auto mb-3 text-cyan" size={52} />
-        <h2 className="font-display text-3xl font-bold text-ink">Deck complete</h2>
-        <p className="mt-1 font-body text-muted">{title}</p>
-        <div className="my-6 font-mono text-6xl font-bold tracking-tight text-mint">
+        <h2 className="font-display text-3xl font-bold text-white">Deck complete</h2>
+        <p className="mt-1 font-body text-white/55">{title}</p>
+        <div className="my-6 font-mono text-6xl font-bold tracking-tight text-mint [text-shadow:0_0_32px_rgba(52,211,153,0.4)]">
           {pct}%
         </div>
-        <p className="font-body text-muted">
-          You knew <span className="font-semibold text-ink">{hits}</span> of{' '}
-          <span className="font-semibold text-ink">{total}</span> cards.
+        <p className="font-body text-white/70">
+          You knew <span className="font-semibold text-white">{hits}</span> of{' '}
+          <span className="font-semibold text-white">{total}</span> cards.
         </p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <button onClick={onAgain} className="btn">

@@ -165,7 +165,7 @@ export default function Guide({ onExit }) {
         <button onClick={onExit} className="btn">
           <ArrowLeft size={16} /> Home
         </button>
-        <div className="flex items-center gap-2 font-display text-xl font-bold text-ink">
+        <div className="flex items-center gap-2 font-display text-xl font-bold text-white">
           <BookOpenText size={20} className="text-cyan" /> Study Guide
         </div>
         <button onClick={() => setTocOpen((v) => !v)} className="btn ml-auto lg:hidden">
@@ -179,11 +179,11 @@ export default function Guide({ onExit }) {
         <div className="min-w-0 flex-1">
           <div className="mb-1.5 flex items-baseline justify-between gap-3">
             <span className="label">Completion</span>
-            <span className="font-mono text-sm font-bold text-ink">
-              {progress.done}/{progress.total} <span className="text-faint">· {pct}%</span>
+            <span className="font-mono text-sm font-bold text-white">
+              {progress.done}/{progress.total} <span className="text-white/40">· {pct}%</span>
             </span>
           </div>
-          <div className="h-2.5 overflow-hidden rounded-full border border-line bg-sunken">
+          <div className="h-2.5 overflow-hidden rounded-full border border-white/10 bg-white/[0.05]">
             <motion.div
               className="h-full rounded-full bg-gradient-to-r from-cyan to-mint"
               animate={{ width: `${pct}%` }}
@@ -191,7 +191,7 @@ export default function Guide({ onExit }) {
             />
           </div>
         </div>
-        <button onClick={resetAll} className="btn shrink-0 px-3 text-muted" title="Reset progress">
+        <button onClick={resetAll} className="btn shrink-0 px-3 text-white/60" title="Reset progress">
           <RotateCcw size={15} />
         </button>
       </div>
@@ -208,8 +208,8 @@ export default function Guide({ onExit }) {
                     onClick={() => go(t.id)}
                     className={`block w-full truncate rounded-lg px-2 py-1.5 text-left font-display text-[13px] transition-colors ${
                       active === t.id
-                        ? 'bg-sunken text-cyan'
-                        : 'text-muted hover:bg-sunken hover:text-ink'
+                        ? 'bg-white/[0.08] text-cyan'
+                        : 'text-white/55 hover:bg-white/[0.05] hover:text-white/90'
                     }`}
                   >
                     {t.text}
