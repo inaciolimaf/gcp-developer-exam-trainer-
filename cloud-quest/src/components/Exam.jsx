@@ -19,6 +19,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
   const [reviewAll, setReviewAll] = useState(false)
   const [feedback, setFeedback] = useState('submit') // 'submit' (classic) | 'instant'
   const [revealed, setRevealed] = useState(() => new Set()) // ids locked+shown (instant mode)
+  const [autoResumedId, setAutoResumedId] = useState(null) // questão em que você mandou o relógio voltar
   const timerRef = useRef(null)
   // how long each question stayed on screen, so Stats can chart exam pace
   const dwell = useRef({ times: {}, id: null, since: 0 })
@@ -28,10 +29,19 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
   const newPool = unseen || []
   const activePool = source === 'new' ? newPool : pool
 
+  const curId = questions[index]?.id ?? null
+  // Feedback imediato: assim que a resposta aparece, o relógio para sozinho —
+  // ler a explicação não é tempo de prova. Você pode mandar voltar a andar sem
+  // sair da questão; ao trocar de questão o `curId` muda e o automático volta.
+  const explaining = phase === 'run' && feedback === 'instant' && curId !== null && revealed.has(curId)
+  const autoPaused = explaining && autoResumedId !== curId
+  const frozen = paused || autoPaused
+
   function begin(n) {
     setQuestions(sample(activePool, n))
     setAnswers({})
     setRevealed(new Set())
+    setAutoResumedId(null)
     setIndex(0)
     setSecondsLeft(n * 90) // 90s per question
     setPaused(false)
@@ -42,22 +52,10 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
     setPhase('run')
   }
 
-  // Pausar congela o relógio E a medição de tempo por questão — a questão sai
-  // da tela enquanto isso, senão a pausa viraria tempo extra de leitura.
-  // Os efeitos ficam FORA do setState: em StrictMode o updater roda duas vezes
-  // e a segunda passada somaria a pausa de novo (com o relógio já zerado).
+  // Pausar manualmente também esconde a prova, senão a pausa viraria tempo
+  // extra de leitura. A contabilidade fica toda no efeito abaixo.
   function togglePause() {
-    if (paused) {
-      const chunk = pausedAt.current ? Date.now() - pausedAt.current : 0
-      pausedAt.current = 0
-      setPausedMs((ms) => ms + chunk)
-      markDwell(questions[index]?.id || null)
-      setPaused(false)
-    } else {
-      pausedAt.current = Date.now()
-      markDwell(null)
-      setPaused(true)
-    }
+    setPaused((p) => !p)
   }
 
   // charge the elapsed time to the question we're leaving, then start the clock
@@ -70,13 +68,30 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
     d.since = now
   }
 
+  // Ponto único de congelamento: qualquer motivo (pausa manual ou explicação
+  // aberta) para o cronômetro E a medição por questão, e o tempo parado vira
+  // `pausedMs`. Mantido como efeito de propósito — em StrictMode o setup roda
+  // duas vezes, mas aqui isso só soma um chunk de ~0ms.
   useEffect(() => {
-    if (phase !== 'run' || paused) return
-    markDwell(questions[index]?.id || null)
-  }, [phase, index, questions, paused])
+    if (phase !== 'run' || !frozen) return
+    pausedAt.current = Date.now()
+    markDwell(null)
+    return () => {
+      const chunk = pausedAt.current ? Date.now() - pausedAt.current : 0
+      pausedAt.current = 0
+      if (chunk > 0) setPausedMs((ms) => ms + chunk)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, frozen])
 
   useEffect(() => {
-    if (phase !== 'run' || paused) return
+    if (phase !== 'run' || frozen) return
+    markDwell(curId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, curId, frozen])
+
+  useEffect(() => {
+    if (phase !== 'run' || frozen) return
     timerRef.current = setInterval(() => {
       setSecondsLeft((s) => {
         if (s <= 1) {
@@ -89,7 +104,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
     }, 1000)
     return () => clearInterval(timerRef.current)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, paused])
+  }, [phase, frozen])
 
   const score = useMemo(() => {
     if (phase !== 'result') return null
@@ -100,8 +115,10 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
   function finish() {
     clearInterval(timerRef.current)
     markDwell(null)
-    // pausas não contam como tempo de prova (nem no total, nem por questão)
-    const breaks = pausedMs + (paused && pausedAt.current ? Date.now() - pausedAt.current : 0)
+    // pausas não contam como tempo de prova (nem no total, nem por questão) —
+    // vale tanto para a pausa manual quanto para a leitura da explicação
+    const breaks = pausedMs + (pausedAt.current ? Date.now() - pausedAt.current : 0)
+    pausedAt.current = 0 // já contabilizado aqui; o cleanup do efeito não soma de novo
     setPaused(false)
     const correct = questions.filter((q) => isAnswerCorrect(q, answers[q.id])).length
     const pct = Math.round((correct / questions.length) * 100)
@@ -197,7 +214,9 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
               >
                 <Eye size={18} />
                 <span className="font-display text-sm font-semibold">Feedback imediato</span>
-                <span className="font-body text-[11px] leading-tight opacity-80">Mostra a resposta na hora</span>
+                <span className="font-body text-[11px] leading-tight opacity-80">
+                  Resposta na hora e o tempo pausa sozinho
+                </span>
               </button>
             </div>
           </div>
@@ -381,14 +400,14 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
         <div className="flex items-center gap-2">
           <div
             className={`chip font-mono ${
-              paused
+              frozen
                 ? 'border-amber/50 text-amber'
                 : low
                   ? 'animate-wiggle border-coral/60 text-coral shadow-glow-coral'
                   : ''
             }`}
           >
-            <Clock size={14} /> {mm}:{ss}
+            {frozen ? <Pause size={14} /> : <Clock size={14} />} {mm}:{ss}
           </div>
           <button
             onClick={togglePause}
@@ -455,6 +474,27 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
           )
         })}
       </div>
+
+      {/* respondeu → relógio parado enquanto você lê a explicação */}
+      {autoPaused && (
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-amber/40 bg-amber/[0.10] px-4 py-2.5"
+        >
+          <Pause size={16} className="shrink-0 text-amber" />
+          <p className="flex-1 font-body text-sm text-amber/90">
+            Cronômetro pausado em <span className="font-mono text-white/90">{mm}:{ss}</span> — leia a explicação sem
+            pressa. Ele volta a correr na próxima questão.
+          </p>
+          <button
+            onClick={() => setAutoResumedId(q.id)}
+            className="btn border-amber/40 px-3 py-1.5 text-amber hover:bg-amber/10"
+          >
+            <Play size={14} /> Retomar agora
+          </button>
+        </motion.div>
+      )}
 
       <AnimatePresence mode="wait">
         <QuestionCard
