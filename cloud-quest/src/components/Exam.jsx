@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Clock, Flag, Trophy, BarChart3, Layers, Check, Eye, EyeOff, Pause, Play, Coffee, Globe, Sparkles } from 'lucide-react'
-import { sample, DOMAIN_LABELS, isAnswerCorrect, hasAnswer } from '../lib/data'
+import { ArrowLeft, ArrowRight, Clock, Flag, Trophy, BarChart3, Layers, Check, Eye, EyeOff, Pause, Play, Coffee, Globe, Sparkles, RotateCcw } from 'lucide-react'
+import { sample, shuffle, DOMAIN_LABELS, isAnswerCorrect, hasAnswer } from '../lib/data'
 import QuestionCard from './QuestionCard'
 import { bigCelebration } from '../lib/confetti'
 
 const PASS_PCT = 70
 
-export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory }) {
+export default function Exam({ pool, unseen, missed, onAnswerBatch, onExit, onHistory }) {
   const [phase, setPhase] = useState('setup') // setup | run | result
-  const [source, setSource] = useState('all') // 'all' (banco inteiro) | 'new' (só não respondidas)
+  // 'all' (banco inteiro) | 'new' (só não respondidas) | 'missed' (só as que errei)
+  const [source, setSource] = useState('all')
   const [questions, setQuestions] = useState([])
   const [answers, setAnswers] = useState({})
   const [index, setIndex] = useState(0)
@@ -35,7 +36,9 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
   }, [answers])
 
   const newPool = unseen || []
-  const activePool = source === 'new' ? newPool : pool
+  // já chega ordenado por urgência (as que você errou por último primeiro)
+  const missedPool = missed || []
+  const activePool = source === 'new' ? newPool : source === 'missed' ? missedPool : pool
 
   const curId = questions[index]?.id ?? null
   // Feedback imediato: assim que a resposta aparece, o relógio para sozinho —
@@ -46,7 +49,9 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
   const frozen = paused || autoPaused
 
   function begin(n) {
-    setQuestions(sample(activePool, n))
+    // Nas "que errei" o pool vem ordenado por urgência, então a prova pega as n
+    // mais urgentes (e só depois embaralha) em vez de sortear do monte inteiro.
+    setQuestions(source === 'missed' ? shuffle(activePool.slice(0, n)) : sample(activePool, n))
     setAnswers({})
     setRevealed(new Set())
     setAutoResumedId(null)
@@ -197,10 +202,10 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
             <span className="text-white/90">enviar pela metade</span> — a nota sai só sobre o que você respondeu.
           </p>
 
-          {/* de onde saem as questões: banco inteiro ou só as que você nunca respondeu */}
+          {/* de onde saem as questões: banco inteiro, só as inéditas ou só as que você errou */}
           <div className="mt-6 text-left">
             <div className="mb-2 label text-center">Questões</div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 onClick={() => setSource('all')}
                 className={`flex flex-col items-center gap-1 rounded-xl border p-3 transition-colors ${
@@ -210,7 +215,7 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
                 }`}
               >
                 <Globe size={18} />
-                <span className="font-display text-sm font-semibold">Banco inteiro</span>
+                <span className="font-display text-[13px] font-semibold leading-tight">Banco inteiro</span>
                 <span className="font-mono text-[11px] leading-tight opacity-80">{pool.length} disponíveis</span>
               </button>
               <button
@@ -223,9 +228,24 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
                 }`}
               >
                 <Sparkles size={18} />
-                <span className="font-display text-sm font-semibold">Só as novas</span>
+                <span className="font-display text-[13px] font-semibold leading-tight">Só as novas</span>
                 <span className="font-mono text-[11px] leading-tight opacity-80">
                   {newPool.length} sem resposta
+                </span>
+              </button>
+              <button
+                onClick={() => setSource('missed')}
+                disabled={missedPool.length === 0}
+                className={`flex flex-col items-center gap-1 rounded-xl border p-3 transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                  source === 'missed'
+                    ? 'border-coral/50 bg-coral/10 text-coral shadow-glow-coral'
+                    : 'border-white/12 bg-white/[0.04] text-white/55 hover:border-white/25 hover:text-white'
+                }`}
+              >
+                <RotateCcw size={18} />
+                <span className="font-display text-[13px] font-semibold leading-tight">Só as que errei</span>
+                <span className="font-mono text-[11px] leading-tight opacity-80">
+                  {missedPool.length} {missedPool.length === 1 ? 'errada' : 'erradas'}
                 </span>
               </button>
             </div>
@@ -273,11 +293,18 @@ export default function Exam({ pool, unseen, onAnswerBatch, onExit, onHistory })
           </div>
           {opts.length === 0 && (
             <p className="mt-6 font-body text-sm text-mint">
-              Você já respondeu o banco inteiro — não sobrou questão nova. Escolha “Banco inteiro”.
+              {source === 'missed'
+                ? 'Você ainda não errou nenhuma questão — nada para refazer aqui. Escolha “Banco inteiro”.'
+                : 'Você já respondeu o banco inteiro — não sobrou questão nova. Escolha “Banco inteiro”.'}
             </p>
           )}
           <p className="mt-4 font-mono text-xs text-white/35">
-            {size} questions available{source === 'new' ? ' · só as que você ainda não respondeu' : ''}
+            {size} questions available
+            {source === 'new'
+              ? ' · só as que você ainda não respondeu'
+              : source === 'missed'
+                ? ' · só as que você já errou, das piores primeiro'
+                : ''}
           </p>
         </motion.div>
       </div>

@@ -236,9 +236,14 @@ export default function App() {
           questions: missedQuestions,
         })
       case 'exam':
-        // snapshot dos "ainda não respondidas" no momento em que a prova abre,
-        // para o setup poder oferecer um simulado só com questões novas
-        return setScreen({ name: 'exam', pool: all, unseen: all.filter((q) => !game.answered[q.id]) })
+        // snapshots tirados no momento em que a prova abre, para o setup poder
+        // oferecer um simulado só com questões novas ou só com as que errei
+        return setScreen({
+          name: 'exam',
+          pool: all,
+          unseen: all.filter((q) => !game.answered[q.id]),
+          missed: missedQuestions,
+        })
       case 'guide':
         return setScreen({ name: 'guide' })
       case 'lessons':
@@ -339,6 +344,7 @@ export default function App() {
             <Exam
               pool={screen.pool}
               unseen={screen.unseen}
+              missed={screen.missed}
               onAnswerBatch={onAnswerBatch}
               onExit={home}
               onHistory={() => start('examHistory')}
