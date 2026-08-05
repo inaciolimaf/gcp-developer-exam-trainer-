@@ -14,6 +14,8 @@ import {
   PartyPopper,
   Home as HomeIcon,
   MousePointerClick,
+  Target,
+  HelpCircle,
 } from 'lucide-react'
 import { shuffle } from '../lib/data'
 import { flashMasteredCount } from '../lib/storage'
@@ -21,25 +23,79 @@ import { popBurst, bigCelebration } from '../lib/confetti'
 
 const ACCENTS = ['text-cyan', 'text-violet', 'text-pink', 'text-mint', 'text-amber', 'text-coral']
 
+// How a card stands right now, from the flashcard progress store:
+//   unseen = never graded · again = last graded "Again" · known = mastered
+export function cardState(progress, id) {
+  const p = progress[id]
+  if (!p) return 'unseen'
+  return p.known ? 'known' : 'again'
+}
+
+// The deck filters offered in the menu. `test` runs against (card, state).
+const FILTERS = [
+  { id: 'all', label: 'All cards', icon: Layers, tint: '', test: () => true },
+  {
+    id: 'todo',
+    label: 'Still to learn',
+    hint: 'never seen + marked “Again”',
+    icon: Target,
+    tint: 'border-amber/50 bg-amber/10 text-amber',
+    test: (c, s) => s !== 'known',
+  },
+  {
+    id: 'unseen',
+    label: 'Never seen',
+    hint: 'cards you have not graded yet',
+    icon: HelpCircle,
+    tint: 'border-violet/50 bg-violet/10 text-violet',
+    test: (c, s) => s === 'unseen',
+  },
+  {
+    id: 'again',
+    label: 'Marked “Again”',
+    hint: 'cards you said you did not know',
+    icon: X,
+    tint: 'border-coral/50 bg-coral/10 text-coral',
+    test: (c, s) => s === 'again',
+  },
+  {
+    id: 'new',
+    label: 'New in the deck',
+    hint: 'recently added cards',
+    icon: Sparkles,
+    tint: 'border-pink/50 bg-pink/10 text-pink',
+    test: (c) => !!c.isNew,
+  },
+]
+
 export default function Flashcards({ data, progress, onMark, onReset, onExit, initialSession = null }) {
   // null = menu; otherwise { title, cards }. initialSession (e.g. a review
   // queue) jumps straight into study, skipping the deck menu.
   const [session, setSession] = useState(
     initialSession && initialSession.cards?.length ? initialSession : null,
   )
-  const [newOnly, setNewOnly] = useState(false)
+  const [filterId, setFilterId] = useState('all')
 
-  const pool = useMemo(
-    () => (newOnly ? data.cards.filter((c) => c.isNew) : data.cards),
-    [data.cards, newOnly],
-  )
+  const filter = FILTERS.find((f) => f.id === filterId) || FILTERS[0]
 
-  const startAll = () =>
-    setSession({ title: newOnly ? 'New cards' : 'All cards', cards: shuffle(pool) })
+  // one pass over the deck: the active pool plus the count for every filter,
+  // so the chips can show how much work each one holds.
+  const { pool, counts } = useMemo(() => {
+    const counts = Object.fromEntries(FILTERS.map((f) => [f.id, 0]))
+    const pool = []
+    for (const c of data.cards) {
+      const s = cardState(progress, c.id)
+      for (const f of FILTERS) if (f.test(c, s)) counts[f.id] += 1
+      if (filter.test(c, s)) pool.push(c)
+    }
+    return { pool, counts }
+  }, [data.cards, progress, filter])
+
+  const startAll = () => setSession({ title: filter.label, cards: shuffle(pool) })
 
   const startCategory = (cat) =>
     setSession({
-      title: cat,
+      title: filterId === 'all' ? cat : `${cat} · ${filter.label}`,
       cards: shuffle(pool.filter((c) => c.category === cat)),
     })
 
@@ -61,8 +117,9 @@ export default function Flashcards({ data, progress, onMark, onReset, onExit, in
       data={data}
       pool={pool}
       progress={progress}
-      newOnly={newOnly}
-      setNewOnly={setNewOnly}
+      counts={counts}
+      filterId={filterId}
+      setFilterId={setFilterId}
       onStartAll={startAll}
       onStartCategory={startCategory}
       onReset={onReset}
@@ -73,9 +130,10 @@ export default function Flashcards({ data, progress, onMark, onReset, onExit, in
 
 /* ---------------------------------------------------------------- Menu --- */
 
-function Menu({ data, pool, progress, newOnly, setNewOnly, onStartAll, onStartCategory, onReset, onExit }) {
+function Menu({ data, pool, progress, counts, filterId, setFilterId, onStartAll, onStartCategory, onReset, onExit }) {
   const mastered = flashMasteredCount(progress)
   const pct = data.total ? Math.round((mastered / data.total) * 100) : 0
+  const filter = FILTERS.find((f) => f.id === filterId) || FILTERS[0]
 
   const categories = useMemo(() => {
     const map = new Map()
@@ -144,48 +202,92 @@ function Menu({ data, pool, progress, newOnly, setNewOnly, onStartAll, onStartCa
         </div>
       </div>
 
-      {/* controls */}
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <button onClick={onStartAll} className="btn-accent flex-1 justify-center">
-          <Shuffle size={18} /> Study {newOnly ? `${pool.length} new cards` : `all ${pool.length} cards`}
-        </button>
-        <button
-          onClick={() => setNewOnly((v) => !v)}
-          className={`btn justify-center ${newOnly ? 'border-pink/50 bg-pink/10 text-pink' : ''}`}
-        >
-          <Sparkles size={16} /> New cards only · {data.newCount}
-        </button>
-      </div>
-
-      {/* category grid */}
-      <div className="mb-3 label">Or drill one category</div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {categories.map((c, i) => {
-          const accent = ACCENTS[i % ACCENTS.length]
-          const cpct = c.count ? Math.round((c.mastered / c.count) * 100) : 0
+      {/* deck filter */}
+      <div className="mb-3 label">What do you want to review?</div>
+      <div className="mb-5 flex flex-wrap gap-2">
+        {FILTERS.map((f) => {
+          const Icon = f.icon
+          const active = f.id === filterId
+          const n = counts[f.id]
           return (
-            <motion.button
-              key={c.name}
-              onClick={() => onStartCategory(c.name)}
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: Math.min(i * 0.02, 0.4) }}
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.98 }}
-              className="group glass flex flex-col gap-3 p-4 text-left transition-colors hover:border-white/25"
+            <button
+              key={f.id}
+              onClick={() => setFilterId(f.id)}
+              title={f.hint || ''}
+              disabled={n === 0 && !active}
+              className={`btn shrink-0 ${active ? f.tint || 'border-cyan/50 bg-cyan/10 text-cyan' : ''} ${
+                n === 0 && !active ? 'cursor-not-allowed opacity-35' : ''
+              }`}
             >
-              <div className="flex items-center justify-between gap-2">
-                <span className={`font-display text-[15px] font-semibold text-white/90 ${accent}`}>{c.name}</span>
-                <span className="chip shrink-0 font-mono">{c.count}</span>
-              </div>
-              <div className="h-1.5 overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
-                <div className="h-full rounded-full bg-gradient-to-r from-cyan to-mint" style={{ width: `${cpct}%` }} />
-              </div>
-              <span className="label">{c.mastered}/{c.count} mastered</span>
-            </motion.button>
+              <Icon size={15} /> {f.label}
+              <span className="font-mono text-xs opacity-70">{n}</span>
+            </button>
           )
         })}
       </div>
+
+      {/* controls */}
+      <div className="mb-6">
+        <button
+          onClick={onStartAll}
+          disabled={!pool.length}
+          className="btn-accent w-full justify-center disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <Shuffle size={18} /> Study {pool.length} {filterId === 'all' ? 'cards' : `· ${filter.label.toLowerCase()}`}
+        </button>
+        {filter.hint && (
+          <p className="mt-2 text-center font-body text-sm text-white/40">{filter.hint}</p>
+        )}
+      </div>
+
+      {/* category grid — counts follow the active filter */}
+      {pool.length === 0 ? (
+        <div className="glass p-6 text-center font-body text-white/55">
+          Nothing here — no cards match “{filter.label}”. Pick another filter above.
+        </div>
+      ) : (
+        <>
+          <div className="mb-3 label">Or drill one category</div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {categories.map((c, i) => {
+              const accent = ACCENTS[i % ACCENTS.length]
+              const cpct = c.count ? Math.round((c.mastered / c.count) * 100) : 0
+              return (
+                <motion.button
+                  key={c.name}
+                  onClick={() => onStartCategory(c.name)}
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: Math.min(i * 0.02, 0.4) }}
+                  whileHover={{ y: -3 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="group glass flex flex-col gap-3 p-4 text-left transition-colors hover:border-white/25"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={`font-display text-[15px] font-semibold text-white/90 ${accent}`}>{c.name}</span>
+                    <span className="chip shrink-0 font-mono">{c.count}</span>
+                  </div>
+                  {filterId === 'all' ? (
+                    <>
+                      <div className="h-1.5 overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-cyan to-mint"
+                          style={{ width: `${cpct}%` }}
+                        />
+                      </div>
+                      <span className="label">{c.mastered}/{c.count} mastered</span>
+                    </>
+                  ) : (
+                    <span className="label">
+                      {c.count} card{c.count === 1 ? '' : 's'} to review
+                    </span>
+                  )}
+                </motion.button>
+              )
+            })}
+          </div>
+        </>
+      )}
     </div>
   )
 }
@@ -313,11 +415,16 @@ function Study({ title, cards, progress, onMark, onExit, onHome }) {
                 </>
               ) : (
                 <>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center justify-center gap-2">
                     <span className="chip">{card.category}</span>
                     {card.isNew && (
                       <span className="chip border-pink/45 bg-pink/10 text-pink">
                         <Sparkles size={12} /> new
+                      </span>
+                    )}
+                    {cardState(progress, card.id) === 'again' && (
+                      <span className="chip border-coral/45 bg-coral/10 text-coral">
+                        <X size={12} /> missed before
                       </span>
                     )}
                   </div>

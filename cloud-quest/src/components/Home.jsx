@@ -256,7 +256,8 @@ export default function Home({ bank, state, onStart, dueCount = 0, total: totalP
         <div className="min-w-0 flex-1">
           <div className="font-display text-xl font-semibold text-white">Flashcards</div>
           <div className="mt-0.5 font-body text-sm text-white/55">
-            272 service cards — flip, recall, self-grade. Drill any category or just the newest additions.
+            272 service cards — flip, recall, self-grade. Drill a category, or only the ones you never saw or
+            missed.
           </div>
         </div>
         <ArrowRight size={20} className="shrink-0 text-white/40 transition-transform group-hover:translate-x-1" />
